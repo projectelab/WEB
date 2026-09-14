@@ -1,0 +1,7 @@
+:root{--desorden-yellow:#ebb221;--desorden-black:#000000;--desorden-white:#ffffff;--desorden-muted:rgba(255,255,255,.62);--desorden-line:rgba(255,255,255,.20);--o:var(--desorden-yellow);--b:var(--desorden-black);--w:var(--desorden-white);--g:var(--desorden-muted);--l:var(--desorden-line);--anton:"Anton",Impact,sans-serif;--desorden-body:Inter,Arial,sans-serif;--desorden-meta:monospace}
+/* Shared primitives build on the HOME's base, sections and UI styles. */
+.desorden-label{color:var(--g);font:12px/1.5 var(--desorden-meta);letter-spacing:.12em;text-transform:uppercase}
+.desorden-action{display:flex;align-items:center;justify-content:space-between;text-decoration:none;padding:16px 22px;gap:16px}
+.desorden-action:hover,.submit:hover{background:var(--o);color:var(--b)}
+.desorden-action:focus-visible,select:focus-visible{outline:2px solid var(--w);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.desorden-action,.submit{transition:none}}
