@@ -6,7 +6,7 @@ This bridge lets ChatGPT/controller turn a GitHub Issue in `projectelab/WEB` int
 
 Flow:
 
-`ChatGPT -> WEB Issue -> local temporary checkout -> bridge -> isolated worktree -> agy -> scoped checks -> branch -> PR -> controller review`
+`ChatGPT -> WEB Issue -> local temporary checkout -> safe runner -> isolated worktree -> agy -> scoped checks -> branch -> PR -> controller review`
 
 The bridge never merges and never deploys production.
 
@@ -42,19 +42,21 @@ If `git status --short` is not empty, stop and inspect the checkout. Do not clea
 
 The controller creates an Issue in `projectelab/WEB` and gives you its number.
 
-Run:
+Use the safe runner:
 
 ```powershell
-node scripts/antigravity-bridge/bridge.mjs <issue-number>
+node scripts/antigravity-bridge/run.mjs <issue-number>
 ```
 
 Example:
 
 ```powershell
-node scripts/antigravity-bridge/bridge.mjs 12
+node scripts/antigravity-bridge/run.mjs 12
 ```
 
-The bridge reads the Issue, validates the job contract, creates a worktree and feature branch, invokes Antigravity once, validates the exact staged paths, pushes the branch and opens a PR.
+`run.mjs` removes common Cloudflare/Wrangler deployment credential variables from the bridge process environment before starting the worker. The worker then reads the Issue, validates the job contract, creates a worktree and feature branch, invokes Antigravity once, validates the exact staged paths, pushes the branch and opens a PR.
+
+`bridge.mjs` is the low-level worker. Prefer `run.mjs` for normal operation.
 
 ## Job contract
 
@@ -109,7 +111,8 @@ The bridge:
 - uses normal push only;
 - sanitizes remote failure comments;
 - preserves failed worktrees for diagnosis;
-- never uses `--dangerously-skip-permissions`.
+- never uses `--dangerously-skip-permissions`;
+- starts through a runner that strips common Cloudflare/Wrangler deployment credentials from the inherited environment.
 
 ## Direct deployment is prohibited
 
@@ -124,7 +127,7 @@ Antigravity must not:
 - force-push;
 - delete data.
 
-The bridge adds these rules to every WEB agent prompt.
+The bridge adds these rules to every WEB agent prompt. The safe runner also removes common Cloudflare credential variables before the worker starts.
 
 ## Publication flow
 
