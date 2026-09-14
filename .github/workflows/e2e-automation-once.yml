@@ -1,0 +1,37 @@
+name: One-shot automation E2E
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  e2e:
+    if: github.event.head_commit.message == 'test: run automation E2E once'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Submit one controlled automation request
+        shell: bash
+        run: |
+          set -euo pipefail
+          marker="E2E-WEB-260914-1710"
+          response="$(curl -sS --fail-with-body \
+            -X POST 'https://webl.desorden-help-76b.workers.dev/automatizacion/submit' \
+            -H 'Content-Type: application/json' \
+            --data-binary @- <<'JSON'
+          {
+            "cliente": "E2E DESORDEN WEB",
+            "empresa": "DESORDEN QA",
+            "telefono": "600000001",
+            "email": "desorden.help@gmail.com",
+            "servicio": "Prueba E2E Automatización",
+            "descripcion": "Prueba E2E controlada del formulario WEB tras despliegue en Cloudflare.",
+            "prioridad": "BAJA",
+            "observaciones": "E2E-WEB-260914-1710"
+          }
+          JSON
+          )"
+          echo "$response"
+          node -e 'const body=JSON.parse(process.argv[1]); if (body?.ok !== true) process.exit(1)' "$response"
+          echo "E2E submission accepted: $marker"
