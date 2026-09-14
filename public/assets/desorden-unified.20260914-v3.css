@@ -1,0 +1,173 @@
+/* Shared compact visual system for HOME + Automatizacion. Loaded last. */
+:root{
+  --rail:0px;
+  --desorden-title-size:clamp(30px,8.8vw,38px);
+  --desorden-body-size:13.5px;
+  --desorden-field-size:13.5px;
+  --desorden-small-size:10px;
+}
+
+/* Remove the lateral progress/scroll rail and reclaim its space. */
+.rail{display:none!important}
+section{padding-left:0!important}
+.automation footer{margin-left:0!important}
+.inner{padding-inline:clamp(18px,5vw,24px)!important}
+
+/* Keep the HOME menu without the scroll rail. */
+.menu-floating{position:fixed!important;left:16px!important;top:max(18px,env(safe-area-inset-top))!important;width:11px!important;height:11px!important;z-index:1001!important}
+
+/* One typography scale across both pages. */
+.display,.automation h1.display,.automation .display{
+  font-size:var(--desorden-title-size)!important;
+  line-height:.96!important;
+  letter-spacing:-.01em!important;
+}
+.lead,.services-head p,.automation .lead{
+  font-size:var(--desorden-body-size)!important;
+  line-height:1.43!important;
+  max-width:600px!important;
+}
+.about-copy{
+  width:min(100%,360px)!important;
+  margin-top:16px!important;
+  font-size:var(--desorden-body-size)!important;
+  line-height:1.45!important;
+}
+.about-copy p{margin:0 0 11px!important}
+.desorden-label{font-size:9px!important;letter-spacing:.09em!important}
+
+/* HOME: reduce long black intervals between content blocks. */
+body:not(.automation) .about,
+body:not(.automation) .radar,
+body:not(.automation) .contact{
+  min-height:auto!important;
+  padding-top:34px!important;
+  padding-bottom:34px!important;
+}
+body:not(.automation) .about{padding-top:40px!important}
+body:not(.automation) .services{height:150svh!important}
+body:not(.automation) .services .sticky{
+  padding:5svh 18px 4svh!important;
+}
+body:not(.automation) .stage{height:42svh!important}
+body:not(.automation) .face{font-size:clamp(32px,9vw,42px)!important}
+body:not(.automation) .services-head p{margin:10px 0!important}
+body:not(.automation) .radar .desorden-action{margin-top:14px!important}
+body:not(.automation) .contact .lead{margin-bottom:6px!important}
+body:not(.automation) .contact .form{margin-top:14px!important;gap:6px!important}
+body:not(.automation) .contact .channels{margin-top:12px!important;gap:14px!important}
+body:not(.automation) .contact .insta{margin:14px 0!important}
+body:not(.automation) .contact footer{margin-top:10px!important}
+
+/* Slightly reduce the intro claim while preserving its role as the hero. */
+.hero h1,#hero-title{font-size:clamp(40px,11vw,54px)!important;line-height:1!important}
+
+/* Flat, compact forms on both pages. */
+.contact .field input,.contact .field textarea,
+.automation .field input,.automation .field textarea,.automation .field select{
+  width:100%;
+  min-height:38px!important;
+  padding:8px 1px!important;
+  border:0!important;
+  border-bottom:1px solid rgba(235,178,33,.7)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:var(--w)!important;
+  font-size:var(--desorden-field-size)!important;
+}
+.contact .field textarea{min-height:62px!important}
+.automation .field textarea{min-height:54px!important}
+.automation #description{min-height:62px!important}
+.automation #notes{min-height:48px!important}
+.contact .field input:focus,.contact .field textarea:focus,
+.automation .field :is(input,textarea,select):focus-visible{
+  outline:0!important;
+  border-bottom-color:var(--w)!important;
+}
+.contact .error:empty,.contact .status:empty,
+.automation .error:empty,.automation .status:empty{display:none!important}
+.contact .submit,.contact .channel,
+.automation #automation-form>.submit{
+  width:max-content!important;
+  min-height:34px!important;
+  padding:6px 0!important;
+  border:0!important;
+  border-bottom:1px solid rgba(235,178,33,.8)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:var(--o)!important;
+  font-size:12px!important;
+  letter-spacing:.05em!important;
+}
+.contact .submit:hover,.contact .channel:hover,
+.automation #automation-form>.submit:hover{background:transparent!important;color:var(--w)!important}
+
+/* Automation: same vertical rhythm as HOME. */
+.automation .section{
+  min-height:auto!important;
+  padding-top:34px!important;
+  padding-bottom:34px!important;
+}
+.automation .automation-hero{min-height:auto!important;padding-top:44px!important}
+.automation .lead{margin-top:12px!important}
+.automation .hero-actions{gap:14px!important;margin-top:12px!important}
+.automation .desorden-action{
+  min-height:auto!important;
+  padding:5px 0!important;
+  font-size:12px!important;
+}
+.automation .offers{margin-top:18px!important;gap:10px!important}
+.automation .offer{padding:14px!important;border-radius:10px!important}
+.automation .offer h3{font-size:24px!important;margin-bottom:8px!important}
+.automation .price{font-size:19px!important;margin:10px 0!important}
+.automation .offer ul{font-size:12.5px!important;line-height:1.5!important;margin:8px 0 12px!important}
+.automation #solicitud{padding-block:34px!important}
+.automation #solicitud .note{margin:4px 0!important}
+.automation .form{margin-top:12px!important;gap:5px!important}
+.automation .field label{font-size:9px!important;margin-bottom:2px!important}
+.automation .error{min-height:0!important;padding:2px 0!important;font-size:9px!important}
+.automation footer{padding:14px 18px!important;font-size:9px!important}
+
+/* Example: readable 3-step story, compact and explicit. */
+.automation .demo-console{
+  margin-top:14px!important;
+  border:0!important;
+  border-top:1px solid var(--l)!important;
+  border-bottom:1px solid var(--l)!important;
+  background:transparent!important;
+}
+.automation .demo-toolbar{padding:8px 0!important;gap:10px!important}
+.automation .demo-mode,.automation .demo-run{font-size:9px!important}
+.automation .demo-run{padding:5px 0!important}
+.automation .demo-steps{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+.automation .demo-step{min-height:38px!important;padding:7px 5px!important}
+.automation .demo-step b{font-size:8px!important;margin-bottom:2px!important}
+.automation .demo-step span{font-size:11px!important}
+.automation .demo-screen{min-height:0!important;padding:12px 0!important}
+.automation .demo-screen-head{padding-bottom:8px!important;font-size:8px!important}
+.automation .demo-screen-body{padding-block:10px!important}
+.automation .demo-screen-body h3{font-size:clamp(22px,6.7vw,30px)!important;margin:0 0 9px!important}
+.automation .demo-copy{font-size:12.5px!important;line-height:1.43!important}
+.automation .demo-simple,.automation .demo-checks,.automation .demo-result{margin-top:10px!important}
+.automation .demo-simple p{grid-template-columns:76px 1fr!important;padding:7px 0!important;gap:9px!important}
+.automation .demo-simple small,.automation .demo-result small{font-size:8px!important}
+.automation .demo-simple strong,.automation .demo-checks p,.automation .demo-result span{font-size:12px!important}
+.automation .demo-result{padding:10px 0!important}
+.automation .demo-result strong{font-size:14px!important}
+.automation .demo-result em{font-size:9px!important}
+
+@media(min-width:700px){
+  :root{--desorden-title-size:clamp(36px,4vw,48px);--desorden-body-size:14.5px;--desorden-field-size:14px}
+  body:not(.automation) .services{height:165svh!important}
+}
+
+@media(max-width:480px){
+  body:not(.automation) .about,
+  body:not(.automation) .radar,
+  body:not(.automation) .contact,
+  .automation .section,
+  .automation #solicitud{padding-top:28px!important;padding-bottom:28px!important}
+  body:not(.automation) .about{padding-top:34px!important}
+  .automation .automation-hero{padding-top:36px!important}
+  .automation .demo-toolbar{flex-direction:row!important;align-items:center!important;justify-content:space-between!important}
+}
