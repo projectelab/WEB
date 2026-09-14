@@ -1,0 +1,119 @@
+/* 2026-09 compact mobile polish — typography, flat actions and tighter form density. */
+.automation .rail-home{font-size:20px}
+.automation .v{font-size:11px}
+.automation .count{font-size:14px}
+.automation .section{padding-block:clamp(46px,7vw,84px)}
+.automation .automation-hero{min-height:72svh}
+.automation h1{font-size:clamp(31px,5.75vw,77px);line-height:.98}
+.automation .display{font-size:clamp(31px,5vw,58px);line-height:.98}
+.automation .desorden-label{font-size:10px;letter-spacing:.09em}
+.automation .lead{max-width:620px;font-size:14.5px;line-height:1.5;margin-top:18px}
+
+/* CTA links stay semantic links but no longer render as large outlined text buttons. */
+.automation .hero-actions{gap:22px;margin-top:20px;align-items:center}
+.automation .hero-actions .desorden-action,
+.automation .offer .desorden-action{
+  width:auto;
+  min-height:auto;
+  padding:5px 0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  color:var(--o);
+  font-size:15px;
+  letter-spacing:.035em;
+  justify-content:flex-start;
+  gap:9px;
+}
+.automation .hero-actions .desorden-action:hover,
+.automation .hero-actions .desorden-action:focus-visible,
+.automation .offer .desorden-action:hover,
+.automation .offer .desorden-action:focus-visible{
+  background:transparent;
+  color:var(--w);
+}
+
+.automation .offers{gap:12px;margin-top:24px}
+.automation .offer{padding:clamp(17px,2.2vw,25px);border-radius:14px}
+.automation .offer h3{font-size:clamp(23px,3.05vw,32px)}
+.automation .price{font-size:22px;margin:16px 0}
+.automation .offer ul{font-size:13px;line-height:1.65;margin-top:12px;margin-bottom:18px}
+
+/* Demo: keep real controls, remove the visual “button bubble” treatment. */
+.automation .demo-console{margin-top:24px}
+.automation .demo-toolbar{padding:10px 0;gap:12px}
+.automation .demo-mode{font-size:10px}
+.automation .demo-run{
+  width:36px;
+  height:36px;
+  min-width:36px;
+  min-height:36px;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  color:var(--o);
+  display:grid;
+  place-items:center;
+  font-size:0;
+}
+.automation .demo-run:hover,.automation .demo-run:focus-visible{background:transparent;color:var(--w)}
+.automation .demo-run span{font-size:14px}
+.automation .demo-steps{grid-template-columns:repeat(3,minmax(0,1fr));border-block:1px solid var(--l);background:transparent}
+.automation .demo-step,
+.automation .demo-step:nth-child(3n),
+.automation .demo-step:nth-last-child(-n+3){
+  min-height:46px;
+  padding:8px 4px;
+  border:0;
+  background:transparent;
+  color:var(--g);
+  text-align:center;
+  box-shadow:none;
+}
+.automation .demo-step b{display:inline;margin:0 4px 0 0;font-size:9px;color:inherit}
+.automation .demo-step span{display:inline;font:11px/1.15 var(--desorden-meta);letter-spacing:.025em;overflow-wrap:normal}
+.automation .demo-step.is-active{background:transparent;color:var(--o);box-shadow:inset 0 -2px var(--o)}
+.automation .demo-step.is-active b{color:var(--o)}
+.automation .demo-screen{min-height:300px;padding:clamp(16px,2.7vw,28px)}
+.automation .demo-screen-head{padding-bottom:12px;font-size:9px}
+.automation .demo-screen-body{padding-block:18px}
+.automation .demo-screen-body h3{font-size:clamp(23px,3.6vw,39px);margin-bottom:14px}
+.automation .demo-copy{font-size:12.5px;line-height:1.5}
+.automation .demo-cell{padding:12px}
+.automation .demo-cell strong{font-size:12.5px}
+.automation .demo-kpi{padding:13px}
+.automation .demo-kpi b{font-size:28px}
+
+/* Contact form: compact controls, tighter vertical rhythm, less empty volume. */
+.automation #solicitud .inner{max-width:900px}
+.automation #solicitud .lead{margin-bottom:6px}
+.automation #solicitud .note{max-width:620px;font-size:11px;line-height:1.45;margin-top:6px}
+.automation .form{max-width:620px;gap:8px;margin-top:18px}
+.automation .field label{font-size:10px;margin-bottom:5px;letter-spacing:.025em}
+.automation .field input,
+.automation .field textarea,
+.automation .field select{font-size:13.5px;border-radius:8px}
+.automation .field input{min-height:44px;padding:10px 13px}
+.automation .field select{min-height:44px;padding:10px 13px}
+.automation .field textarea{min-height:76px;padding:10px 13px}
+.automation #description{min-height:84px}
+.automation #notes{min-height:68px}
+.automation .error{min-height:10px;font-size:10px;padding:2px 4px}
+.automation .status{min-height:14px;font-size:11px}
+.automation .form>.submit{min-height:44px;border-radius:8px;font-size:15px;letter-spacing:.035em}
+
+@media(min-width:700px){.automation .demo-steps{grid-template-columns:repeat(6,minmax(0,1fr))}}
+@media(max-width:480px){
+  .automation .section{padding-block:42px}
+  .automation .automation-hero{min-height:70svh}
+  .automation h1{font-size:clamp(31px,10.8vw,45px)}
+  .automation .display{font-size:clamp(30px,9.9vw,43px)}
+  .automation .lead{font-size:13.5px}
+  .automation .hero-actions{gap:18px;margin-top:18px}
+  .automation .hero-actions .desorden-action,.automation .offer .desorden-action{font-size:14px}
+  .automation .demo-screen{min-height:330px}
+  .automation .form{gap:6px}
+}
+@media(max-width:350px){.automation h1,.automation .display{font-size:29px}.automation .hero-actions .desorden-action,.automation .offer .desorden-action{font-size:13px}}
