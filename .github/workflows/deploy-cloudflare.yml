@@ -31,6 +31,12 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run smoke tests
+        run: npm test
+
       - name: Normalize Cloudflare credentials
         shell: bash
         run: |
@@ -79,12 +85,6 @@ jobs:
             echo "Invalid token characters detected. Replace the GitHub secret with only the API token secret shown once by Cloudflare."
             exit 1
           fi
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run smoke tests
-        run: npm test
 
       - name: Verify Cloudflare API token
         shell: bash
