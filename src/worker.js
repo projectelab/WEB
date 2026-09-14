@@ -59,13 +59,21 @@ export default {
           headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
           body, redirect: 'manual', signal: AbortSignal.timeout(15000),
         });
-        // Do not follow redirects to login or treat rejected submissions as success.
+        // Surface only the HTTP status for diagnostics; never expose Google's response body.
         if (upstream.status !== 200) {
-          return reply({ ok: false, error: 'No se pudo confirmar la recepción.' }, 502);
+          return reply({
+            ok: false,
+            error: 'No se pudo confirmar la recepción.',
+            upstreamStatus: upstream.status,
+          }, 502);
         }
         return reply({ ok: true });
       } catch {
-        return reply({ ok: false, error: 'No se pudo contactar con el servicio de recepción.' }, 502);
+        return reply({
+          ok: false,
+          error: 'No se pudo contactar con el servicio de recepción.',
+          upstreamStatus: null,
+        }, 502);
       }
     }
 
