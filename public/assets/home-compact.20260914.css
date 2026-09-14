@@ -1,0 +1,27 @@
+.about-media,.about-halo{display:none!important}
+.about{min-height:76svh;padding-top:clamp(56px,8svh,72px);padding-bottom:48px}
+.display{font-size:clamp(52px,15.3vw,79px);line-height:.9}
+.about-copy{width:min(92%,390px);margin-top:26px;font-size:clamp(16px,4.5vw,21px);line-height:1.48}
+.about-copy p{margin:0 0 18px}
+.services{height:225svh}
+.services .sticky{padding-top:8svh;padding-bottom:6svh}
+.services-head p,.lead{font-size:16px;line-height:1.5}
+.face{font-size:clamp(46px,12.6vw,67px)}
+.radar .display{font-size:clamp(48px,14vw,76px)}
+.radar .desorden-action{width:max-content;max-width:100%;min-height:auto;border:0;border-bottom:1px solid rgba(235,178,33,.72);border-radius:0;padding:9px 0;background:transparent;font-size:15px;letter-spacing:.05em;gap:22px}
+.radar .desorden-action:hover,.radar .desorden-action:focus-visible{background:transparent;color:var(--o)}
+.contact .display{font-size:clamp(48px,14vw,76px)}
+.contact .lead{font-size:15px}
+.contact .form{gap:11px;margin-top:26px}
+.contact .field input{min-height:54px;padding:15px 17px;border-radius:14px}
+.contact .field textarea{min-height:112px;padding:15px 17px;border-radius:14px}
+.contact .submit,.contact .channel{min-height:52px;border-radius:14px}
+.contact .submit{font-size:19px}
+@media(max-width:480px){
+  .about{min-height:68svh;padding-top:52px;padding-bottom:40px}
+  .display{font-size:clamp(46px,14vw,68px)}
+  .about-copy{font-size:18px;line-height:1.46;margin-top:22px}
+  .services{height:205svh}
+  .face{font-size:clamp(44px,12vw,60px)}
+  .radar .display,.contact .display{font-size:clamp(44px,13vw,64px)}
+}
