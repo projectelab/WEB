@@ -1,0 +1,31 @@
+name: Inspect public Google Form once
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Fetch public form and inspect service choices
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL --max-time 30 \
+            'https://docs.google.com/forms/d/e/1FAIpQLScx9iV2di1SzOfF1R-NsLiI8MN5gF1fygM1-b3U1Y5uRbCLfw/viewform' \
+            -o /tmp/form.html
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          s = Path('/tmp/form.html').read_text(errors='replace')
+          print('HTML_BYTES', len(s))
+          for needle in ['Aerotermia','Servicio','BAJA','MEDIA','ALTA','1956448208','843397814','275310617']:
+              idx=s.find(needle)
+              print('\nNEEDLE', needle, 'INDEX', idx)
+              if idx >= 0:
+                  snippet=s[max(0,idx-800):idx+1600]
+                  print(snippet.replace('\\u003d','=').replace('\\u0026','&'))
+          PY
