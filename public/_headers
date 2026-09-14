@@ -1,6 +1,12 @@
 /index.html
   Cache-Control: public, max-age=0, must-revalidate
 
+/automatizacion/
+  Cache-Control: public, max-age=0, must-revalidate
+
+/automatizacion/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
   X-Content-Type-Options: nosniff
