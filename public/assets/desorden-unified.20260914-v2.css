@@ -1,0 +1,96 @@
+/* Shared visual scale for HOME + Automatización. Loaded last. */
+:root{
+  --desorden-title-size:clamp(34px,9.6vw,44px);
+  --desorden-body-size:14px;
+  --desorden-field-size:14px;
+  --desorden-small-size:11px;
+}
+.display{font-size:var(--desorden-title-size)!important;line-height:.94!important;letter-spacing:-.012em!important}
+.lead,.services-head p{font-size:var(--desorden-body-size)!important;line-height:1.45!important}
+.about-copy{font-size:var(--desorden-body-size)!important;line-height:1.48!important;max-width:360px}
+.about-copy p{margin-bottom:14px!important}
+.face{font-size:clamp(34px,10vw,46px)!important}
+.desorden-label{font-size:10px!important;letter-spacing:.09em!important}
+
+/* HOME contact: no large rounded capsules. */
+.contact .form{gap:8px!important;margin-top:20px!important}
+.contact .field input,.contact .field textarea{
+  width:100%;min-height:42px!important;padding:10px 2px!important;
+  border:0!important;border-bottom:1px solid rgba(235,178,33,.7)!important;border-radius:0!important;
+  background:transparent!important;color:var(--w);font-size:var(--desorden-field-size)!important
+}
+.contact .field textarea{min-height:72px!important;resize:vertical}
+.contact .field input:focus,.contact .field textarea:focus{border-bottom-color:var(--w)!important;outline:0!important}
+.contact .error:empty,.contact .status:empty{display:none}
+.contact .submit,.contact .channel{
+  min-height:40px!important;padding:8px 0!important;border:0!important;border-bottom:1px solid rgba(235,178,33,.8)!important;
+  border-radius:0!important;background:transparent!important;color:var(--o)!important;font-size:13px!important;letter-spacing:.05em!important
+}
+.contact .submit:hover,.contact .channel:hover{background:transparent!important;color:var(--w)!important}
+.contact .channels{gap:18px!important;margin-top:18px!important}
+.contact .insta{font-size:12px;margin:20px 0!important}
+
+/* Automation form: same scale and same flat visual language. */
+.automation h1.display,.automation .display{font-size:var(--desorden-title-size)!important}
+.automation .lead{font-size:var(--desorden-body-size)!important;line-height:1.45!important;max-width:620px}
+.automation .note{font-size:11px!important;line-height:1.45!important}
+.automation .form{max-width:620px!important;gap:8px!important;margin-top:18px!important}
+.automation .field label{font-size:10px!important;margin-bottom:3px!important;letter-spacing:.035em!important}
+.automation .field input,.automation .field textarea,.automation .field select{
+  width:100%;min-height:42px!important;padding:9px 2px!important;
+  border:0!important;border-bottom:1px solid rgba(235,178,33,.7)!important;border-radius:0!important;
+  background:transparent!important;color:var(--w)!important;font-size:var(--desorden-field-size)!important
+}
+.automation .field select{padding-right:22px!important}
+.automation .field textarea{min-height:66px!important;resize:vertical}
+.automation #description{min-height:74px!important}
+.automation #notes{min-height:58px!important}
+.automation .field :is(input,textarea,select):focus-visible{outline:0!important;border-bottom-color:var(--w)!important}
+.automation .error{min-height:0!important;padding:2px 0!important;font-size:10px!important}
+.automation .error:empty,.automation .status:empty{display:none!important}
+.automation #automation-form>.submit{
+  width:max-content!important;min-height:40px!important;padding:8px 0!important;margin-top:8px!important;
+  border:0!important;border-bottom:1px solid var(--o)!important;border-radius:0!important;background:transparent!important;
+  color:var(--o)!important;font-size:13px!important;letter-spacing:.05em!important;gap:18px!important
+}
+
+/* Simplified demo: three readable stages, not a technical dashboard. */
+.automation .demo-console{border:0!important;border-top:1px solid var(--l)!important;border-bottom:1px solid var(--l)!important;background:transparent!important;margin-top:18px!important}
+.automation .demo-toolbar{padding:10px 0!important;border-bottom:1px solid var(--l)!important}
+.automation .demo-run{font-size:10px!important}
+.automation .demo-steps{grid-template-columns:repeat(3,minmax(0,1fr))!important;border-bottom:1px solid var(--l)!important}
+.automation .demo-step{min-height:42px!important;padding:8px 6px!important;border:0!important;border-right:1px solid var(--l)!important;border-radius:0!important;background:transparent!important}
+.automation .demo-step:last-child{border-right:0!important}
+.automation .demo-step b{font-size:9px!important;margin-bottom:3px!important}
+.automation .demo-step span{font:12px/1.05 var(--anton)!important;letter-spacing:.02em!important}
+.automation .demo-step.is-active{color:var(--o)!important;background:transparent!important;box-shadow:inset 0 -2px 0 var(--o)!important}
+.automation .demo-screen{min-height:0!important;padding:16px 0!important}
+.automation .demo-screen-head{padding-bottom:10px!important;font-size:9px!important}
+.automation .demo-screen-body{padding-block:14px!important}
+.automation .demo-screen-body h3{font-size:clamp(24px,7.2vw,34px)!important;line-height:1.02!important;margin:0 0 12px!important}
+.automation .demo-copy{font-size:13px!important;line-height:1.48!important;max-width:600px}
+.automation .demo-simple{display:grid;gap:0;margin-top:14px;border-top:1px solid var(--l)}
+.automation .demo-simple p{display:grid;grid-template-columns:92px 1fr;gap:12px;margin:0;padding:9px 0;border-bottom:1px solid var(--l);align-items:baseline}
+.automation .demo-simple small{color:var(--g);font:9px/1.2 var(--desorden-meta);letter-spacing:.07em}
+.automation .demo-simple strong{font-size:13px;font-weight:600;color:var(--w)}
+.automation .demo-checks{display:grid;gap:0;margin-top:14px;border-top:1px solid var(--l)}
+.automation .demo-checks p{margin:0;padding:10px 0;border-bottom:1px solid var(--l);font-size:13px;line-height:1.4;color:var(--w)}
+.automation .demo-checks b{color:var(--o);font-weight:500;margin-right:8px}
+.automation .demo-result{margin-top:14px;padding:14px 0;border-top:1px solid var(--l);border-bottom:1px solid var(--l);display:grid;gap:6px}
+.automation .demo-result small{font:9px var(--desorden-meta);letter-spacing:.08em;color:var(--g)}
+.automation .demo-result strong{font-size:16px;color:var(--w);font-weight:600}
+.automation .demo-result span{font-size:13px;color:var(--g)}
+.automation .demo-result em{font:10px var(--desorden-meta);font-style:normal;color:var(--o)}
+.automation .demo-meter{height:1px!important}
+
+@media(min-width:700px){
+  :root{--desorden-title-size:clamp(40px,4.6vw,56px);--desorden-body-size:15px;--desorden-field-size:14px}
+}
+@media(max-width:480px){
+  .automation .section{padding-block:30px!important}
+  .automation .automation-hero{min-height:56svh!important}
+  .automation .hero-actions{gap:16px!important;margin-top:16px!important}
+  .automation .demo-toolbar{align-items:center!important;flex-direction:row!important;justify-content:space-between!important}
+  .automation #solicitud{padding-block:30px!important}
+  .contact .section{padding-block:42px}
+}
