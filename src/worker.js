@@ -14,6 +14,16 @@ globalThis.operatorName = globalThis.operatorName || function operatorName(opera
 };
 `;
 
+const AUTOMATION_SERVICES = new Set([
+  'Avería aire acondicionado',
+  'Aerotermia',
+  'Mantenimiento',
+  'VRF/VRV',
+  'Instalación',
+  'Consulta técnica',
+]);
+const AUTOMATION_PRIORITIES = new Set(['ALTA', 'MEDIA', 'BAJA']);
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -31,8 +41,8 @@ export default {
       const mapping = {
         cliente: 'entry.1956448208', empresa: 'entry.422548789',
         telefono: 'entry.512369928', email: 'entry.1767839008',
-        servicio: 'entry.843397814', descripcion: 'entry.987142518',
-        prioridad: 'entry.275310617', observaciones: 'entry.292079787',
+        servicio: 'entry.275310617', descripcion: 'entry.843397814',
+        prioridad: 'entry.292079787', observaciones: 'entry.987142518',
       };
       if (!data || typeof data !== 'object' || Array.isArray(data)) {
         return reply({ ok: false, error: 'Solicitud no válida.' }, 400);
@@ -50,6 +60,12 @@ export default {
       if (!values.cliente || (!values.telefono && !values.email) ||
           !values.servicio || !values.descripcion || !values.prioridad) {
         return reply({ ok: false, error: 'Faltan campos obligatorios.' }, 400);
+      }
+      if (!AUTOMATION_SERVICES.has(values.servicio)) {
+        return reply({ ok: false, error: 'Servicio no válido.' }, 400);
+      }
+      if (!AUTOMATION_PRIORITIES.has(values.prioridad)) {
+        return reply({ ok: false, error: 'Prioridad no válida.' }, 400);
       }
       const body = new URLSearchParams();
       for (const [key, entry] of Object.entries(mapping)) body.set(entry, values[key]);
