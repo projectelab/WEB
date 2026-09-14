@@ -78,7 +78,7 @@ function workerWith(fetch) {
     }
   }
   return vm.runInNewContext(workerSource.replace('export default', 'globalThis.worker ='), {
-    URL, URLSearchParams, Request: WorkerRequest, Response, Headers, AbortSignal, fetch
+    URL, URLSearchParams, Request: WorkerRequest, Response, Headers, AbortSignal, fetch, Set
   });
 }
 const data = { cliente: 'Demo', empresa: 'Empresa Demo', telefono: '640925788', email: 'demo@example.com',
@@ -86,11 +86,13 @@ const data = { cliente: 'Demo', empresa: 'Empresa Demo', telefono: '640925788', 
 const request = value => new Request('https://www.desorden.cat/automatizacion/submit', {
   method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(value)
 });
-test('gateway validates required fields and maps all eight entries to Google', async () => {
+test('gateway validates required fields and maps all eight canonical Google Form entries', async () => {
   const calls = [];
   const worker = workerWith(async (url, options) => { calls.push({ url, options }); return new Response('confirmation'); });
   for (const value of [null, [], { ...data, cliente: '' }, { ...data, telefono: '', email: '' },
-    { ...data, servicio: ' ' }, { ...data, descripcion: '' }, { ...data, prioridad: '' }, { ...data, empresa: 42 }]) {
+    { ...data, servicio: ' ' }, { ...data, servicio: 'Servicio inventado' },
+    { ...data, descripcion: '' }, { ...data, prioridad: '' }, { ...data, prioridad: 'URGENTE' },
+    { ...data, empresa: 42 }]) {
     const result = await worker.fetch(request(value), {});
     assert.equal(result.status, 400); assert.equal((await result.json()).ok, false);
   }
@@ -104,8 +106,8 @@ test('gateway validates required fields and maps all eight entries to Google', a
   assert.deepEqual(Object.fromEntries(calls[0].options.body), {
     'entry.1956448208': data.cliente, 'entry.422548789': data.empresa,
     'entry.512369928': data.telefono, 'entry.1767839008': data.email,
-    'entry.843397814': data.servicio, 'entry.987142518': data.descripcion,
-    'entry.275310617': data.prioridad, 'entry.292079787': data.observaciones
+    'entry.275310617': data.servicio, 'entry.843397814': data.descripcion,
+    'entry.292079787': data.prioridad, 'entry.987142518': data.observaciones
   });
   for (const contact of [{ telefono: '' }, { email: '' }]) {
     assert.equal((await worker.fetch(request({ ...data, ...contact }), {})).status, 200);
@@ -117,6 +119,8 @@ test('gateway returns JSON errors for rejected, redirected and failed upstream r
     const result = await worker.fetch(request(data), {});
     assert.equal(result.status, 502); const body = await result.json();
     assert.equal(body.ok, false); assert.equal(typeof body.error, 'string'); assert.doesNotMatch(body.error, /private/);
+    if (typeof status === 'number') assert.equal(body.upstreamStatus, status);
+    else assert.equal(body.upstreamStatus, null);
   }
 });
 test('specific POST route precedes SAT proxy; existing static and proxy contracts remain intact', async () => {
