@@ -76,3 +76,58 @@
 @media(max-width:480px){.automation .demo-toolbar{align-items:flex-start;flex-direction:column}.automation .demo-run{width:100%;min-height:44px}.automation .demo-step span{font-size:16px}.automation .demo-screen{min-height:430px}.automation .demo-grid{grid-template-columns:1fr}.automation .demo-log-row{grid-template-columns:auto 1fr}.automation .demo-log-row em{grid-column:2}}
 @media(max-width:350px){.automation h1,.automation .display{font-size:36px}.automation .inner{padding-inline:16px}.automation .submit{font-size:18px}.automation .offer{padding:18px}}
 @media(prefers-reduced-motion:reduce){.automation .track i,.automation .demo-meter i{transition:none}}
+
+/* 2026-09 visual refinement: tighter enterprise hierarchy without changing structure or behavior. */
+.automation .section{padding-block:clamp(52px,8vw,94px)}
+.automation .automation-hero{min-height:80svh}
+.automation h1{font-size:clamp(34px,6.4vw,85px);line-height:.98;letter-spacing:-.018em}
+.automation .display{font-size:clamp(34px,5.6vw,64px);line-height:.98;letter-spacing:-.015em}
+.automation .desorden-label{font-size:11px;letter-spacing:.1em}
+.automation .lead{max-width:650px;font-size:16px;line-height:1.55;margin-top:20px}
+.automation .hero-actions{gap:10px;margin-top:26px}
+.automation .submit{min-height:52px;border-radius:14px;font-size:17px;letter-spacing:.045em}
+.automation .desorden-action{padding:13px 18px}
+.automation .offers{gap:14px;margin-top:28px}
+.automation .offer{padding:clamp(18px,2.5vw,28px);border-radius:18px;box-shadow:none}
+.automation .offer h3{font-size:clamp(26px,3.4vw,35px);margin-bottom:12px}
+.automation .price{font-size:24px;margin:18px 0}
+.automation .offer ul{font-size:14px;line-height:1.7;margin-top:14px;margin-bottom:22px}
+.automation .demo-console{margin-top:28px}
+.automation .demo-toolbar{padding:12px 14px}
+.automation .demo-step{min-height:64px;padding:10px 11px}
+.automation .demo-step b{font-size:10px;margin-bottom:6px}
+.automation .demo-step span{font-size:16px}
+.automation .demo-screen{min-height:330px;padding:clamp(18px,3vw,32px)}
+.automation .demo-screen-head{padding-bottom:14px;font-size:10px}
+.automation .demo-screen-body{padding-block:22px}
+.automation .demo-screen-body h3{font-size:clamp(26px,4vw,43px);margin-bottom:16px}
+.automation .demo-copy{font-size:14px;line-height:1.55}
+.automation .demo-cell{padding:14px}
+.automation .demo-cell strong{font-size:14px}
+.automation .demo-kpi{padding:15px}
+.automation .demo-kpi b{font-size:31px}
+.automation .record{padding-block:20px}
+.automation .record h3{font-size:clamp(23px,3.3vw,34px);margin-bottom:20px}
+.automation dl{gap:16px}
+.automation #solicitud .inner{max-width:940px}
+.automation #solicitud .lead{margin-bottom:8px}
+.automation #solicitud .note{max-width:680px;font-size:12px;line-height:1.5;margin-top:8px}
+.automation .form{max-width:680px;gap:12px;margin-top:24px}
+.automation .field label{font-size:11px;margin-bottom:7px;letter-spacing:.03em}
+.automation .field input,.automation .field textarea,.automation .field select{font-size:15px;border-radius:14px}
+.automation .field input{min-height:54px;padding:14px 16px}
+.automation .field select{min-height:54px;padding:13px 16px}
+.automation .field textarea{min-height:108px;padding:14px 16px}
+.automation .error{min-height:14px;font-size:11px;padding:3px 6px}
+.automation .status{min-height:18px;font-size:12px}
+.automation footer{padding-block:24px;font-size:11px}
+@media(max-width:480px){
+  .automation .section{padding-block:48px}
+  .automation .automation-hero{min-height:76svh}
+  .automation h1{font-size:clamp(34px,12vw,50px)}
+  .automation .display{font-size:clamp(33px,11vw,48px)}
+  .automation .lead{font-size:15px}
+  .automation .demo-screen{min-height:390px}
+  .automation .form{gap:10px}
+}
+@media(max-width:350px){.automation h1,.automation .display{font-size:32px}.automation .submit{font-size:16px}}
