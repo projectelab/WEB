@@ -3,7 +3,7 @@ name: Deploy DESORDEN to Cloudflare
 on:
   push:
     branches:
-      - DESORDEN
+      - main
   workflow_dispatch:
 
 concurrency:
@@ -108,12 +108,17 @@ jobs:
       - name: Deploy Worker static assets
         run: npx wrangler deploy --config wrangler.jsonc
 
-      - name: Verify production landing
+      - name: Verify production
         shell: bash
         run: |
+          set -euo pipefail
           for attempt in {1..12}; do
-            html="$(curl -fsSL --max-time 20 https://www.desorden.cat/ || true)"
-            if grep -q "SI NO ET VEUEN" <<< "$html" && grep -q 'data-n="05"' <<< "$html"; then
+            home="$(curl -fsSL --max-time 20 https://www.desorden.cat/ || true)"
+            automation="$(curl -fsSL --max-time 20 https://www.desorden.cat/automatizacion/ || true)"
+            if grep -q "SI NO ET VEUEN" <<< "$home" \
+              && grep -q 'data-n="05"' <<< "$home" \
+              && grep -q "MENOS TRABAJO" <<< "$automation" \
+              && grep -q 'id="automation-form"' <<< "$automation"; then
               echo "Production verification passed."
               curl -fsSI --max-time 20 https://www.desorden.cat/frames/v1/frame_0001.webp | grep -i "content-type: image/webp"
               curl -fsSI --max-time 20 https://www.desorden.cat/frames/v1/frame_0097.webp | grep -i "content-type: image/webp"
@@ -122,5 +127,5 @@ jobs:
             echo "Waiting for production propagation ($attempt/12)..."
             sleep 10
           done
-          echo "Deployment completed, but production is not serving the expected landing."
+          echo "Deployment completed, but production is not serving the expected HOME and automation page."
           exit 1
