@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Fetch public form and inspect service choices
+      - name: Fetch public form and extract question entry IDs
         shell: bash
         run: |
           set -euo pipefail
@@ -19,13 +19,27 @@ jobs:
             -o /tmp/form.html
           python - <<'PY'
           from pathlib import Path
-          import re
+          import re, html
           s = Path('/tmp/form.html').read_text(errors='replace')
-          print('HTML_BYTES', len(s))
-          for needle in ['Aerotermia','Servicio','BAJA','MEDIA','ALTA','1956448208','843397814','275310617']:
-              idx=s.find(needle)
-              print('\nNEEDLE', needle, 'INDEX', idx)
-              if idx >= 0:
-                  snippet=s[max(0,idx-800):idx+1600]
-                  print(snippet.replace('\\u003d','=').replace('\\u0026','&'))
+          pattern = re.compile(r'data-params="%.@\.\[(\d+),&quot;([^&]+)&quot;.*?\[\[(\d+),')
+          print('FORM_ENTRY_MAP')
+          seen = set()
+          for m in pattern.finditer(s):
+              title = html.unescape(m.group(2))
+              entry = m.group(3)
+              key = (title, entry)
+              if key not in seen:
+                  seen.add(key)
+                  print(f'{title}\tentry.{entry}')
+          print('SERVICE_OPTIONS')
+          marker='&quot;Servicio&quot;'
+          idx=s.find(marker)
+          if idx >= 0:
+              snippet=html.unescape(s[idx:idx+2500])
+              for option in ['Avería aire acondicionado','Aerotermia','Mantenimiento','VRF/VRV','Instalación','Consulta técnica']:
+                  if option in snippet:
+                      print(option)
+          print('PRIORITY_OPTIONS')
+          for option in ['ALTA','MEDIA','BAJA']:
+              print(option)
           PY
