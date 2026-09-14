@@ -1,0 +1,16 @@
+/* 2026-09 mobile density polish — HOME only. */
+:root{--rail:38px}
+.rail{gap:10px}
+.v{font-size:11px}
+.count{gap:4px;font-size:14px}
+.count em{width:16px}
+.track{height:20vh}
+.hero h1{font-size:clamp(52px,14.4vw,76px)}
+.display{font-size:clamp(52px,15.3vw,79px);line-height:.9}
+.about{min-height:auto}
+.about-copy{width:min(82%,420px);margin-top:28px;font-size:clamp(16px,4.5vw,22px);line-height:1.5}
+.about-copy p{margin-bottom:20px}
+.face{font-size:clamp(46px,12.6vw,67px)}
+.radar .display{font-size:clamp(61px,17.1vw,86px)}
+.lead{font-size:16px}
+@media(max-width:350px){:root{--rail:32px}.display{font-size:49px}.hero h1{font-size:48px}.v{font-size:10px}.count{font-size:13px}}
