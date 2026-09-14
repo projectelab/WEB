@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync, mkdtempSync, rmSync } from "fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync } from "fs";
 import os from "os";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -15,7 +15,6 @@ import {
   lockFilePath,
   parseJobBody,
   releaseLock,
-  sanitizeRemoteText,
   validateJob,
   validateRepo,
   validateStagedPaths,
@@ -107,9 +106,7 @@ test("staged scope gate rejects newly-created out-of-scope files", () => {
 
 test("local Issue lock is exclusive", () => {
   const dir = mkdtempSync(path.join(os.tmpdir(), "web-bridge-test-"));
-  const gitDir = path.join(dir, ".git");
-  const fs = await import("fs");
-  fs.mkdirSync(gitDir);
+  mkdirSync(path.join(dir, ".git"));
   const lock = lockFilePath(dir, 99);
   const fd = acquireLock(lock);
   try {
