@@ -19,6 +19,10 @@ import {
   validateRepo,
   validateStagedPaths,
 } from "../scripts/antigravity-bridge/bridge.mjs";
+import {
+  SCRUBBED_WEB_DEPLOY_ENV_KEYS,
+  buildBridgeEnvironment,
+} from "../scripts/antigravity-bridge/run.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
@@ -78,6 +82,22 @@ test("Antigravity prompt always contains WEB runtime prohibitions", () => {
   assert.ok(args.includes("--output-format"));
   assert.ok(args.includes("json"));
   assert.ok(!args.includes("--dangerously-skip-permissions"));
+});
+
+test("safe runner strips Cloudflare deploy credentials but preserves unrelated auth", () => {
+  const source = {
+    PATH: "example-path",
+    GH_TOKEN: "github-token-required-by-bridge",
+    CLOUDFLARE_API_TOKEN: "secret",
+    CLOUDFLARE_ACCOUNT_ID: "secret-account",
+    WRANGLER_API_TOKEN: "secret-wrangler",
+  };
+  const env = buildBridgeEnvironment(source);
+  for (const key of SCRUBBED_WEB_DEPLOY_ENV_KEYS) {
+    assert.equal(env[key], undefined, key);
+  }
+  assert.equal(env.PATH, "example-path");
+  assert.equal(env.GH_TOKEN, "github-token-required-by-bridge");
 });
 
 test("repo validation accepts only the canonical WEB origin", () => {
