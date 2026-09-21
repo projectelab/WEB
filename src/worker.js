@@ -23,20 +23,6 @@ const AUTOMATION_SERVICES = new Set([
   'Consulta técnica',
 ]);
 const AUTOMATION_PRIORITIES = new Set(['ALTA', 'MEDIA', 'BAJA']);
-const CANONICAL_WEB_SOURCE = 'projectelab/WEB@main';
-
-function withCanonicalHeaders(response) {
-  const headers = new Headers(response.headers);
-  headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
-  headers.set('Pragma', 'no-cache');
-  headers.set('Expires', '0');
-  headers.set('X-Desorden-Source', CANONICAL_WEB_SOURCE);
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers,
-  });
-}
 
 export default {
   async fetch(request, env) {
@@ -105,20 +91,6 @@ export default {
           upstreamStatus: null,
         }, 502);
       }
-    }
-
-    // Always serve the canonical website HTML directly from this repository's
-    // public/ assets. Disable intermediary/browser caching for HTML so production
-    // cannot keep showing an older landing after a deploy.
-    if (
-      (request.method === 'GET' || request.method === 'HEAD') &&
-      (url.pathname === '/' ||
-        url.pathname === '/index.html' ||
-        url.pathname === '/automatizacion/' ||
-        url.pathname === '/automatizacion/index.html')
-    ) {
-      const asset = await env.ASSETS.fetch(request);
-      return withCanonicalHeaders(asset);
     }
 
     // Proxy LAB and SAT API requests directly to the Worker origin. The custom
