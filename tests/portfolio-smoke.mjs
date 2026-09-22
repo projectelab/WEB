@@ -1,157 +1,72 @@
-import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
-import test from "node:test";
-
-const read = (path) => readFile(new URL(path, import.meta.url), "utf8");
-
-test("portfolio routes are wired without exposing the internal LAB route", async () => {
-  const [home, projects, laboratori, robots, sitemap] = await Promise.all([
-    read("../public/index.html"),
-    read("../public/projectes/index.html"),
-    read("../public/laboratori/index.html"),
-    read("../public/robots.txt"),
-    read("../public/sitemap.xml"),
-  ]);
-
-  assert.match(home, /id="projectes"/);
-  assert.match(home, /href="\/projectes\/"/);
-  assert.match(home, /href="\/laboratori\/"/);
-  assert.doesNotMatch(home, /href="\/lab\/"/);
-
-  assert.match(projects, /NUTRIKOM/);
-  assert.match(projects, /NOX BELLUM/);
-  assert.match(projects, /THE CLUB/);
-  assert.match(projects, /PATA/);
-  assert.match(projects, /VIU SVC/);
-
-  assert.match(laboratori, /SURO/);
-  assert.match(laboratori, /MARINA/);
-  assert.match(laboratori, /\/laboratori\/suro\//);
-  assert.match(laboratori, /\/laboratori\/territori\//);
-  assert.match(laboratori, /\/laboratori\/experiments\//);
-  assert.match(robots, /Disallow: \/lab\//);
-
-  assert.match(sitemap, /\/projectes\//);
-  for (const route of [
-    "nutrikom",
-    "pugnator-nox-bellum",
-    "the-club-padel",
-    "pata-negra",
-    "federacio-catalana-esgrima",
-    "viu-svc",
-    "producte-digital",
-  ]) {
-    assert.match(sitemap, new RegExp(`/projectes/${route}/`));
+import assert from 'node:assert/strict';
+import {readFile,stat,readdir} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import test from 'node:test';
+const read = path => readFile(new URL(`../${path}`, import.meta.url),'utf8');
+const routes=['/','/projectes/','/laboratori/','/automatizacion/',...['nutrikom','pugnator-nox-bellum','the-club-padel','pata-negra','federacio-catalana-esgrima','viu-svc','producte-digital'].map(x=>`/projectes/${x}/`),...['suro','marina','territori','ia-visual','lip-sync','experiments'].map(x=>`/laboratori/${x}/`)];
+const labs=['suro','marina','territori','ia-visual','lip-sync','experiments'];
+test('all public routes have valid local assets, unique headings, accessible main and canonical SEO',async()=>{
+ const sitemap=await read('public/sitemap.xml');
+ for(const route of routes){
+  const html=await read(`public${route}index.html`);
+  assert.equal((html.match(/<h1\b/g)||[]).length,1,route);
+  assert(html.includes(`rel="canonical" href="https://www.desorden.cat${route}"`),route);
+  assert.match(html,/<main id="main" tabindex="-1">/);
+  assert.match(html,/class="skip"/);
+  assert(sitemap.includes(`https://www.desorden.cat${route}`));
+  assert.doesNotMatch(html,/href="\/lab\//);
+  for(const [,ref]of html.matchAll(/(?:src|href|poster)="(\/[^"#]*)"/g)){
+   const target=ref.endsWith('/')?`${ref}index.html`:ref;
+   assert((await stat(new URL(`../public${target}`,import.meta.url))).isFile(),`${route}: ${ref}`);
   }
-  assert.match(sitemap, /\/laboratori\//);
-  assert.match(sitemap, /\/laboratori\/suro\//);
-  assert.match(sitemap, /\/laboratori\/marina\//);
-  assert.match(sitemap, /\/laboratori\/territori\//);
-  assert.match(sitemap, /\/laboratori\/ia-visual\//);
-  assert.match(sitemap, /\/laboratori\/lip-sync\//);
-  assert.match(sitemap, /\/laboratori\/experiments\//);
-  assert.doesNotMatch(sitemap, /https:\/\/www\.desorden\.cat\/lab\//);
-
-  for (const media of [
-    "/media/portfolio/nutrikom.mp4",
-    "/media/portfolio/pugnator-nox-bellum.mp4",
-    "/media/portfolio/the-club-padel.mp4",
-    "/media/portfolio/esgrima.mp4",
-    "/media/portfolio/suro.mp4",
-  ]) {
-    assert.ok((home + projects + laboratori).includes(media), `Missing portfolio media reference: ${media}`);
+ }
+ assert.match(await read('public/robots.txt'),/Disallow: \/lab\//);
+ assert.doesNotMatch(sitemap,/<loc>https:\/\/www.desorden.cat\/lab\//);
+});
+test('home and indexes expose all six LAB lines while keeping HQ opt-in',async()=>{
+ for(const route of ['/','/laboratori/']){
+  const html=await read(`public${route}index.html`);
+  for(const slug of labs) assert(html.includes(`href="/laboratori/${slug}/"`),slug);
+ }
+ for(const route of ['/','/projectes/','/laboratori/']){
+  const html=await read(`public${route}index.html`);
+  assert.doesNotMatch(html,/\/media\/portfolio\/hq\//);
+  for(const [tag] of html.matchAll(/<video\b[^>]*>/g)){
+   assert.match(tag,/data-src="\/media\/portfolio\/previews-v2\//);
+   assert.match(tag,/poster="/);assert.match(tag,/preload="none"/);
+   assert.doesNotMatch(tag,/(?<!data-)src="|autoplay/);
   }
-
-  // Ensure HOME and /projectes/ remain lightweight with zero HQ video references.
-  assert.doesNotMatch(home, /\/media\/portfolio\/hq\//, "HOME must not reference HQ videos");
-  assert.doesNotMatch(projects, /\/media\/portfolio\/hq\//, "Projects index must not reference HQ videos");
+ }
 });
-
-test("individual case pages reference their designated HQ assets", async () => {
-  const [esgrima, pugnator, suro, territori, experiments] = await Promise.all([
-    read("../public/projectes/federacio-catalana-esgrima/index.html"),
-    read("../public/projectes/pugnator-nox-bellum/index.html"),
-    read("../public/laboratori/suro/index.html"),
-    read("../public/laboratori/territori/index.html"),
-    read("../public/laboratori/experiments/index.html"),
-  ]);
-
-  assert.match(pugnator, /\/media\/portfolio\/hq\/boxing-event-01\.mp4/);
-  assert.match(esgrima, /\/media\/portfolio\/hq\/esgrima-masculina-01\.mp4/);
-  assert.match(esgrima, /\/media\/portfolio\/hq\/esgrima-masculina-02\.mp4/);
-  assert.match(esgrima, /\/media\/portfolio\/hq\/esgrima-femenina-01\.mp4/);
-  assert.match(esgrima, /\/media\/portfolio\/hq\/esgrima-femenina-02\.mp4/);
-  assert.match(suro, /\/media\/portfolio\/hq\/suro-poble-01\.mp4/);
-  assert.match(suro, /\/media\/portfolio\/hq\/suro-poble-02\.mp4/);
-  assert.match(territori, /\/media\/portfolio\/hq\/territori-muntanya-01\.mp4/);
-  assert.match(territori, /\/media\/portfolio\/hq\/territori-historic-01\.mp4/);
-  assert.match(experiments, /\/media\/portfolio\/hq\/ia-visual-01\.mp4/);
-  assert.match(experiments, /\/media\/portfolio\/hq\/lip-sync-01\.mp4/);
-});
-
-test("the-club-padel case page does not display degraded video and nutrikom does not link missing HQ", async () => {
-  const [padel, nutrikom] = await Promise.all([
-    read("../public/projectes/the-club-padel/index.html"),
-    read("../public/projectes/nutrikom/index.html"),
-  ]);
-
-  assert.doesNotMatch(padel, /<video/, "The Club Padel must not have a video element");
-  assert.doesNotMatch(padel, /\/media\/portfolio\/the-club-padel\.mp4/, "The Club Padel must not reference the low-quality video");
-  assert.doesNotMatch(padel, /\/media\/portfolio\/hq\//, "The Club Padel must not reference nonexistent HQ videos");
-
-  assert.doesNotMatch(nutrikom, /\/media\/portfolio\/hq\//, "Nutrikom must not reference missing HQ videos");
-  assert.match(nutrikom, /\/media\/portfolio\/nutrikom\.mp4/, "Nutrikom preserves valid preview video");
-});
-
-test("home showcases 6 LAB cards with lightweight previews and no HQ", async () => {
-  const home = await read("../public/index.html");
-
-  const expectedLabRoutes = [
-    "/laboratori/suro/",
-    "/laboratori/marina/",
-    "/laboratori/territori/",
-    "/laboratori/ia-visual/",
-    "/laboratori/lip-sync/",
-    "/laboratori/experiments/",
-  ];
-
-  for (const route of expectedLabRoutes) {
-    assert.match(home, new RegExp(`href="${route}"`), `Home must link to ${route}`);
+test('all HQ clips preserve designated pages, posters and user-initiated playback',async()=>{
+ const designated={'projectes/pugnator-nox-bellum':['boxing-event-01'],'projectes/federacio-catalana-esgrima':['esgrima-masculina-01','esgrima-masculina-02','esgrima-femenina-01','esgrima-femenina-02'],'laboratori/suro':['suro-poble-01','suro-poble-02'],'laboratori/territori':['territori-muntanya-01-v2','territori-historic-01'],'laboratori/ia-visual':['ia-visual-01'],'laboratori/lip-sync':['lip-sync-01']};
+ for(const [route,clips]of Object.entries(designated)){
+  const html=await read(`public/${route}/index.html`);
+  for(const clip of clips)assert(html.includes(`/hq/${clip}.mp4`),clip);
+  for(const [tag]of html.matchAll(/<video\b[^>]*>/g)){
+   assert.match(tag,/controls/);assert.match(tag,/poster="/);assert.match(tag,/preload="none"/);assert.doesNotMatch(tag,/autoplay/);
   }
-
-  assert.match(home, /TOT ÉS REAL\.<br>SURO NO\./);
-  assert.match(home, /D'IMATGE A<br>PERSONATGE\./);
-  assert.match(home, /ENTORN<br>REAL\./);
-  assert.match(home, /IMATGE I<br>DIRECCIÓ\./);
-  assert.match(home, /IMATGE, VEU<br>I RITME\./);
-  assert.match(home, /PROVES AMB<br>FUTUR\./);
-
-  assert.match(home, /\/media\/portfolio\/suro\.mp4/);
-  assert.match(home, /\/media\/portfolio\/marina-poster\.webp/);
-  assert.match(home, /\/media\/portfolio\/territori\.mp4/);
-  assert.match(home, /\/media\/portfolio\/ia-visual\.mp4/);
-  assert.match(home, /\/media\/portfolio\/lip-sync\.mp4/);
-  assert.match(home, /\/media\/portfolio\/experiments\.mp4/);
-
-  assert.doesNotMatch(home, /\/media\/portfolio\/hq\//, "Home must never load HQ media");
+ }
+ for(const route of ['nutrikom','the-club-padel']){
+  const html=await read(`public/projectes/${route}/index.html`);
+  assert.doesNotMatch(html,/<video/);assert(html.includes(`/previews-v2/${route}.webp`));
+ }
+ assert.match(await read('public/laboratori/ia-visual/index.html'),/sense col·laboració comercial ni aval/);
 });
-
-test("new LAB case pages load and link back to laboratori", async () => {
-  const [marina, iaVisual, lipSync] = await Promise.all([
-    read("../public/laboratori/marina/index.html"),
-    read("../public/laboratori/ia-visual/index.html"),
-    read("../public/laboratori/lip-sync/index.html"),
-  ]);
-
-  assert.match(marina, /href="\/laboratori\/"/);
-  assert.match(marina, /MARINA/);
-  assert.match(marina, /\/media\/portfolio\/marina-poster\.webp/);
-
-  assert.match(iaVisual, /href="\/laboratori\/"/);
-  assert.match(iaVisual, /\/media\/portfolio\/hq\/ia-visual-01\.mp4/);
-
-  assert.match(lipSync, /href="\/laboratori\/"/);
-  assert.match(lipSync, /\/media\/portfolio\/hq\/lip-sync-01\.mp4/);
+test('audited media is unchanged, compatible, faststart and under the Cloudflare asset limit',async()=>{
+ const rows=JSON.parse(await read('docs/media-audit-20260922.json'));
+ assert.equal(rows.filter(x=>x.path.includes('/hq/')).length,11);
+ assert.equal(rows.filter(x=>x.path.includes('/previews-v2/')).length,7);
+ for(const row of rows){
+  const bytes=await readFile(new URL(`../public${row.path}`,import.meta.url));
+  assert.equal(createHash('sha256').update(bytes).digest('hex'),row.sha256,row.path);
+  assert.equal(bytes.length,row.bytes);assert(bytes.length<25*1024*1024);
+  const atoms=[];let offset=0;
+  while(offset+8<=bytes.length){let size=bytes.readUInt32BE(offset);const tag=bytes.toString('ascii',offset+4,offset+8);if(size===1)size=Number(bytes.readBigUInt64BE(offset+8));atoms.push(tag);if(!size)break;offset+=size;}
+  assert(atoms.indexOf('moov')<atoms.indexOf('mdat'),row.path);
+  assert.equal(row.codec_name,'h264');assert.equal(row.pix_fmt,'yuv420p');
+  if(row.path.includes('/previews-v2/')){assert(row.width>=480);assert(row.duration>=4&&row.duration<=8);}
+ }
+ async function assets(dir){for(const entry of await readdir(dir,{withFileTypes:true})){const p=new URL(entry.name+(entry.isDirectory()?'/':''),dir);if(entry.isDirectory())await assets(p);else assert((await stat(p)).size<25*1024*1024,p.pathname);}}
+ await assets(new URL('../public/',import.meta.url));
 });
-
-
