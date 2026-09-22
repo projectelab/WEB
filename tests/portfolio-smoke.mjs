@@ -42,4 +42,14 @@ test("portfolio routes are wired without exposing the internal LAB route", async
   }
   assert.match(sitemap, /\/laboratori\//);
   assert.doesNotMatch(sitemap, /https:\/\/www\.desorden\.cat\/lab\//);
+
+  for (const media of [
+    "/media/portfolio/nutrikom.mp4",
+    "/media/portfolio/pugnator-nox-bellum.mp4",
+    "/media/portfolio/the-club-padel.mp4",
+    "/media/portfolio/esgrima.mp4",
+    "/media/portfolio/suro.mp4",
+  ]) {
+    assert.match(home + projects + laboratori, new RegExp(media.replace(/[.*+?^$()|[\]\\]/g, "\\assert.doesNotMatch(sitemap, /https:\/\/www\.desorden\.cat\/lab\//);")));
+  }
 });
