@@ -45,7 +45,10 @@ test("portfolio routes are wired without exposing the internal LAB route", async
   }
   assert.match(sitemap, /\/laboratori\//);
   assert.match(sitemap, /\/laboratori\/suro\//);
+  assert.match(sitemap, /\/laboratori\/marina\//);
   assert.match(sitemap, /\/laboratori\/territori\//);
+  assert.match(sitemap, /\/laboratori\/ia-visual\//);
+  assert.match(sitemap, /\/laboratori\/lip-sync\//);
   assert.match(sitemap, /\/laboratori\/experiments\//);
   assert.doesNotMatch(sitemap, /https:\/\/www\.desorden\.cat\/lab\//);
 
@@ -99,4 +102,56 @@ test("the-club-padel case page does not display degraded video and nutrikom does
   assert.doesNotMatch(nutrikom, /\/media\/portfolio\/hq\//, "Nutrikom must not reference missing HQ videos");
   assert.match(nutrikom, /\/media\/portfolio\/nutrikom\.mp4/, "Nutrikom preserves valid preview video");
 });
+
+test("home showcases 6 LAB cards with lightweight previews and no HQ", async () => {
+  const home = await read("../public/index.html");
+
+  const expectedLabRoutes = [
+    "/laboratori/suro/",
+    "/laboratori/marina/",
+    "/laboratori/territori/",
+    "/laboratori/ia-visual/",
+    "/laboratori/lip-sync/",
+    "/laboratori/experiments/",
+  ];
+
+  for (const route of expectedLabRoutes) {
+    assert.match(home, new RegExp(`href="${route}"`), `Home must link to ${route}`);
+  }
+
+  assert.match(home, /TOT ÉS REAL\.<br>SURO NO\./);
+  assert.match(home, /D'IMATGE A<br>PERSONATGE\./);
+  assert.match(home, /ENTORN<br>REAL\./);
+  assert.match(home, /IMATGE I<br>DIRECCIÓ\./);
+  assert.match(home, /IMATGE, VEU<br>I RITME\./);
+  assert.match(home, /PROVES AMB<br>FUTUR\./);
+
+  assert.match(home, /\/media\/portfolio\/suro\.mp4/);
+  assert.match(home, /\/media\/portfolio\/marina-poster\.webp/);
+  assert.match(home, /\/media\/portfolio\/territori\.mp4/);
+  assert.match(home, /\/media\/portfolio\/ia-visual\.mp4/);
+  assert.match(home, /\/media\/portfolio\/lip-sync\.mp4/);
+  assert.match(home, /\/media\/portfolio\/experiments\.mp4/);
+
+  assert.doesNotMatch(home, /\/media\/portfolio\/hq\//, "Home must never load HQ media");
+});
+
+test("new LAB case pages load and link back to laboratori", async () => {
+  const [marina, iaVisual, lipSync] = await Promise.all([
+    read("../public/laboratori/marina/index.html"),
+    read("../public/laboratori/ia-visual/index.html"),
+    read("../public/laboratori/lip-sync/index.html"),
+  ]);
+
+  assert.match(marina, /href="\/laboratori\/"/);
+  assert.match(marina, /MARINA/);
+  assert.match(marina, /\/media\/portfolio\/marina-poster\.webp/);
+
+  assert.match(iaVisual, /href="\/laboratori\/"/);
+  assert.match(iaVisual, /\/media\/portfolio\/hq\/ia-visual-01\.mp4/);
+
+  assert.match(lipSync, /href="\/laboratori\/"/);
+  assert.match(lipSync, /\/media\/portfolio\/hq\/lip-sync-01\.mp4/);
+});
+
 
