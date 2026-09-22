@@ -64,3 +64,10 @@
 .case-media--hero{width:min(100%,320px);margin:0}
 @media(min-width:700px){.case-media--hero{width:360px}.case-media video{max-height:560px}}
 @media(prefers-reduced-motion:reduce){video[autoplay]{display:none}}
+
+.project-hq-section{padding-block:26px}
+.hq-gallery{display:grid;gap:18px;margin-top:14px}
+.case-media--hq{width:min(100%,420px);margin:0}
+.case-media--hq video{width:100%;height:auto;max-height:none;aspect-ratio:9/16;object-fit:cover;background:#050505}
+.media-note{margin:12px 0 0;color:var(--g);font:9px/1.5 var(--meta);letter-spacing:.08em}
+@media(min-width:760px){.hq-gallery{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}.case-media--hq{width:100%}}
