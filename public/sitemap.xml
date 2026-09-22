@@ -1,2 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://www.desorden.cat/</loc></url><url><loc>https://www.desorden.cat/automatizacion/</loc></url></urlset>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url><loc>https://www.desorden.cat/</loc></url>
+<url><loc>https://www.desorden.cat/projectes/</loc></url>
+<url><loc>https://www.desorden.cat/projectes/nutrikom/</loc></url>
+<url><loc>https://www.desorden.cat/projectes/pugnator-nox-bellum/</loc></url>
+<url><loc>https://www.desorden.cat/projectes/the-club-padel/</loc></url>
+<url><loc>https://www.desorden.cat/projectes/pata-negra/</loc></url>
+<url><loc>https://www.desorden.cat/projectes/federacio-catalana-esgrima/</loc></url>
+<url><loc>https://www.desorden.cat/projectes/viu-svc/</loc></url>
+<url><loc>https://www.desorden.cat/projectes/producte-digital/</loc></url>
+<url><loc>https://www.desorden.cat/laboratori/</loc></url>
+<url><loc>https://www.desorden.cat/automatizacion/</loc></url>
+</urlset>
