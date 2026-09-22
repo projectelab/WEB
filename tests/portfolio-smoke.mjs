@@ -57,4 +57,31 @@ test("portfolio routes are wired without exposing the internal LAB route", async
     "/media/portfolio/suro.mp4",
   ]) {
     assert.ok((home + projects + laboratori).includes(media), `Missing portfolio media reference: ${media}`);
-  }});
+  }
+
+  // Ensure HOME and /projectes/ remain lightweight with zero HQ video references.
+  assert.doesNotMatch(home, /\/media\/portfolio\/hq\//, "HOME must not reference HQ videos");
+  assert.doesNotMatch(projects, /\/media\/portfolio\/hq\//, "Projects index must not reference HQ videos");
+});
+
+test("individual case pages reference their designated HQ assets", async () => {
+  const [esgrima, pugnator, suro, territori, experiments] = await Promise.all([
+    read("../public/projectes/federacio-catalana-esgrima/index.html"),
+    read("../public/projectes/pugnator-nox-bellum/index.html"),
+    read("../public/laboratori/suro/index.html"),
+    read("../public/laboratori/territori/index.html"),
+    read("../public/laboratori/experiments/index.html"),
+  ]);
+
+  assert.match(pugnator, /\/media\/portfolio\/hq\/boxing-event-01\.mp4/);
+  assert.match(esgrima, /\/media\/portfolio\/hq\/esgrima-masculina-01\.mp4/);
+  assert.match(esgrima, /\/media\/portfolio\/hq\/esgrima-masculina-02\.mp4/);
+  assert.match(esgrima, /\/media\/portfolio\/hq\/esgrima-femenina-01\.mp4/);
+  assert.match(esgrima, /\/media\/portfolio\/hq\/esgrima-femenina-02\.mp4/);
+  assert.match(suro, /\/media\/portfolio\/hq\/suro-poble-01\.mp4/);
+  assert.match(suro, /\/media\/portfolio\/hq\/suro-poble-02\.mp4/);
+  assert.match(territori, /\/media\/portfolio\/hq\/territori-muntanya-01\.mp4/);
+  assert.match(territori, /\/media\/portfolio\/hq\/territori-historic-01\.mp4/);
+  assert.match(experiments, /\/media\/portfolio\/hq\/ia-visual-01\.mp4/);
+  assert.match(experiments, /\/media\/portfolio\/hq\/lip-sync-01\.mp4/);
+});
