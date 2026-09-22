@@ -85,3 +85,18 @@ test("individual case pages reference their designated HQ assets", async () => {
   assert.match(experiments, /\/media\/portfolio\/hq\/ia-visual-01\.mp4/);
   assert.match(experiments, /\/media\/portfolio\/hq\/lip-sync-01\.mp4/);
 });
+
+test("the-club-padel case page does not display degraded video and nutrikom does not link missing HQ", async () => {
+  const [padel, nutrikom] = await Promise.all([
+    read("../public/projectes/the-club-padel/index.html"),
+    read("../public/projectes/nutrikom/index.html"),
+  ]);
+
+  assert.doesNotMatch(padel, /<video/, "The Club Padel must not have a video element");
+  assert.doesNotMatch(padel, /\/media\/portfolio\/the-club-padel\.mp4/, "The Club Padel must not reference the low-quality video");
+  assert.doesNotMatch(padel, /\/media\/portfolio\/hq\//, "The Club Padel must not reference nonexistent HQ videos");
+
+  assert.doesNotMatch(nutrikom, /\/media\/portfolio\/hq\//, "Nutrikom must not reference missing HQ videos");
+  assert.match(nutrikom, /\/media\/portfolio\/nutrikom\.mp4/, "Nutrikom preserves valid preview video");
+});
+
