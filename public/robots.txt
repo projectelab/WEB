@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /lab/
+Disallow: /labs/
+Disallow: /api/
+Disallow: /automatizacion/submit
+Sitemap: https://www.desorden.cat/sitemap.xml

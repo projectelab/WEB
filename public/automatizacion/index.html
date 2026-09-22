@@ -1,71 +1,72 @@
 <!doctype html>
-<html lang="es">
+<html lang="ca">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<meta name="description" content="Automatización DESORDEN: sistemas en Google Sheets y dashboards web para reducir trabajo manual y controlar el seguimiento.">
+<meta name="description" content="Menys feina manual, més control. Formularis, avisos i seguiment connectats. Sistemes amb Google Sheets i taulers web per a negocis.">
 <link rel="canonical" href="https://www.desorden.cat/automatizacion/">
-<title>Automatización — DESORDEN</title>
+<title>Automatització per a negocis — DESORDEN</title>
+<meta property="og:type" content="website"><meta property="og:locale" content="ca_ES">
+<meta property="og:site_name" content="DESORDEN"><meta property="og:url" content="https://www.desorden.cat/automatizacion/">
+<meta property="og:title" content="Automatització per a negocis — DESORDEN"><meta property="og:description" content="Menys feina manual, més control. Formularis, avisos i seguiment connectats. Sistemes amb Google Sheets i taulers web per a negocis.">
+<meta property="og:image" content="https://www.desorden.cat/assets/qui-soc-poster.webp"><meta property="og:image:alt" content="Retrat de David Milla, creador de DESORDEN">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Automatització per a negocis — DESORDEN"><meta name="twitter:description" content="Menys feina manual, més control. Formularis, avisos i seguiment connectats. Sistemes amb Google Sheets i taulers web per a negocis."><meta name="twitter:image" content="https://www.desorden.cat/assets/qui-soc-poster.webp">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/base.20260731.css">
-<link rel="stylesheet" href="/assets/sections.20260731.css">
-<link rel="stylesheet" href="/assets/ui.20260731-v4.css">
-<link rel="stylesheet" href="/assets/desorden-tokens.css">
-<link rel="stylesheet" href="/assets/automatizacion.css">
-<link rel="stylesheet" href="/assets/automatizacion-compact.20260914.css">
-<link rel="stylesheet" href="/assets/desorden-unified.20260914-v3.css">
-<script src="/assets/automatizacion.20260914-v4.js" defer></script>
+<link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.20260922.css">
 </head>
 <body class="automation">
-<a class="skip" href="#main">Ir al contenido</a>
+<div id="nav-menu" class="nav-menu" aria-hidden="true" inert><nav aria-label="Navegació principal"><a href="/#hero" class="nav-link">INICI</a><a href="/#qui-soc" class="nav-link">QUI SOC</a><a href="/#que-faig" class="nav-link">QUÈ FAIG</a><a href="/automatizacion/" class="nav-link">AUTOMATITZACIÓ</a><a href="#solicitud" class="nav-link">CONTACTE</a></nav></div>
+<button id="menu-btn" class="menu-btn menu-floating" type="button" aria-label="Obrir menú" aria-controls="nav-menu" aria-expanded="false"></button>
+<a class="skip" href="#main">Anar al contingut</a>
 <div class="shell">
-<main id="main">
+<main id="main" tabindex="-1">
 <section class="section automation-hero" data-n="01" aria-labelledby="automation-title"><div class="inner">
-<p class="desorden-label">DESORDEN / 01 — AUTOMATIZACIÓN</p>
-<h1 class="display" id="automation-title"><span>MENOS TRABAJO</span><span>MANUAL.</span><span>MÁS CONTROL.</span></h1>
-<p class="lead">Conecta formularios, avisos y seguimiento para que la información llegue ordenada y la siguiente acción quede preparada.</p>
-<div class="hero-actions"><a class="submit desorden-action" href="#demo">VER EJEMPLO <span aria-hidden="true">↓</span></a><a class="submit desorden-action" href="#solicitud">HABLEMOS <span aria-hidden="true">→</span></a></div>
+<p class="desorden-label">DESORDEN / 01 — AUTOMATITZACIÓ</p>
+<h1 class="display" id="automation-title"><span>MENYS FEINA</span><span>MANUAL.</span><span>MÉS CONTROL.</span></h1>
+<p class="lead">WhatsApps, correus, formularis i fulls separats? Connectem la informació perquè arribi ordenada i sàpigues què toca fer.</p>
+<div class="hero-actions"><a class="submit desorden-action" href="#demo">VEURE EXEMPLE <span aria-hidden="true">↓</span></a><a class="submit desorden-action" href="#solicitud">PARLEM <span aria-hidden="true">→</span></a></div>
 </div></section>
 <section class="section" id="demo" data-n="02" aria-labelledby="demo-title"><div class="inner">
-<p class="desorden-label">02 / EJEMPLO INTERACTIVO — DATOS FICTICIOS</p><h2 class="display" id="demo-title">UN EJEMPLO<br>EN 3 PASOS.</h2>
-<p class="lead">El cliente envía. El sistema hace lo repetitivo. Tú ves directamente qué hacer.</p>
+<p class="desorden-label">02 / EXEMPLE INTERACTIU — DADES FICTÍCIES</p><h2 class="display" id="demo-title">UN EXEMPLE<br>EN 3 PASSOS.</h2>
+<p class="lead">El client envia. El sistema ho ordena. Tu reps el que necessites.</p>
 <div class="demo-console">
-<div class="demo-toolbar"><span class="demo-mode"><i aria-hidden="true"></i> EJEMPLO LOCAL · NO ENVÍA DATOS</span><button id="demo-run" class="demo-run" type="button">REPRODUCIR <span aria-hidden="true">▶</span></button></div>
-<div class="demo-steps" role="tablist" aria-label="Tres pasos del ejemplo de automatización">
-<button class="demo-step is-active" type="button" role="tab" aria-selected="true" data-demo-step="0"><b>01</b><span>CLIENTE ENVÍA</span></button>
-<button class="demo-step" type="button" role="tab" aria-selected="false" data-demo-step="1"><b>02</b><span>SISTEMA ACTÚA</span></button>
-<button class="demo-step" type="button" role="tab" aria-selected="false" data-demo-step="2"><b>03</b><span>TÚ RECIBES</span></button>
+<div class="demo-toolbar"><span class="demo-mode"><i aria-hidden="true"></i> DEMOSTRACIÓ · NO ENVIA DADES</span><button id="demo-run" class="demo-run" type="button">REPRODUIR <span aria-hidden="true">▶</span></button></div>
+<div class="demo-steps" role="tablist" aria-label="Tres passos de l’exemple d’automatització">
+<button class="demo-step is-active" type="button" role="tab" id="demo-tab-0" aria-controls="demo-panel" tabindex="0" aria-selected="true" data-demo-step="0"><b>01</b><span>EL CLIENT ENVIA</span></button>
+<button class="demo-step" type="button" role="tab" id="demo-tab-1" aria-controls="demo-panel" tabindex="-1" aria-selected="false" data-demo-step="1"><b>02</b><span>EL SISTEMA ORDENA</span></button>
+<button class="demo-step" type="button" role="tab" id="demo-tab-2" aria-controls="demo-panel" tabindex="-1" aria-selected="false" data-demo-step="2"><b>03</b><span>TU REPS</span></button>
 </div>
-<div class="demo-screen" role="tabpanel" aria-live="polite" aria-atomic="true">
-<div class="demo-screen-head"><span id="demo-screen-label">01 / CLIENTE ENVÍA</span><span id="demo-screen-status">SOLICITUD RECIBIDA</span></div>
-<div class="demo-screen-body" id="demo-screen-body"></div>
+<div class="demo-screen" role="tabpanel" id="demo-panel" tabindex="0" aria-labelledby="demo-tab-0" aria-live="polite" aria-atomic="true">
+<div class="demo-screen-head"><span id="demo-screen-label">01 / EL CLIENT ENVIA</span><span id="demo-screen-status">SOL·LICITUD REBUDA</span></div>
+<div class="demo-screen-body" id="demo-screen-body"><p>El client envia una petició. El sistema la desa i tu reps un avís amb la propera acció.</p></div>
 <div class="demo-meter" aria-hidden="true"><i id="demo-meter"></i></div>
 </div>
-<p class="note">Es solo una demostración visual: no escribe en Google Sheets ni envía correos.</p>
+<p class="note">És una demostració amb dades fictícies. No desa dades ni envia missatges.</p>
 </div>
 </div></section>
 <section class="section" id="sistemas" data-n="03" aria-labelledby="systems-title"><div class="inner">
-<p class="desorden-label">03 / SISTEMAS OPERATIVOS</p><h2 class="display" id="systems-title">EL SIGUIENTE PASO.</h2><p class="lead">Dos niveles según tu forma de trabajar. El alcance y el precio final se concretan al revisar tu proceso.</p>
+<p class="desorden-label">03 / DUES MANERES DE COMENÇAR</p><h2 class="display" id="systems-title">EL SEGÜENT PAS.</h2><p class="lead">Dues opcions segons com treballes. Preus orientatius: acordem què inclou i el preu final abans de començar.</p>
 <div class="offers">
-<article class="card offer"><p class="desorden-label">01 / SISTEMA EN SHEETS</p><h3>ORDENA EL TRABAJO.</h3><p class="price">Desde 149–199 €</p><ul><li>Formulario</li><li>Google Sheets</li><li>Estados</li><li>Avisos Gmail</li><li>Seguimiento</li><li>Dashboard operativo</li></ul><a class="submit desorden-action" href="#solicitud">HABLEMOS DE SHEETS <span aria-hidden="true">→</span></a></article>
-<article class="card offer"><p class="desorden-label">02 / DASHBOARD WEB</p><h3>VE LO QUE IMPORTA.</h3><p class="price">Desde 299–499 €</p><ul><li>Interfaz web responsive</li><li>Buscador</li><li>Filtros básicos</li><li>Estados y prioridad</li><li>Responsable</li><li>Próxima acción</li><li>Conexión con la base existente</li></ul><a class="submit desorden-action" href="#solicitud">HABLEMOS DE WEB <span aria-hidden="true">→</span></a></article>
-</div><p class="note">Las integraciones, licencias y costes de herramientas dependen de tu caso y se revisan antes de empezar.</p>
+<article class="card offer"><p class="desorden-label">01 / SISTEMA EN SHEETS</p><h3>ORDENA LA FEINA.</h3><p class="price">149–199 €</p><ul><li>Formulari</li><li>Google Sheets</li><li>Estats</li><li>Avisos per correu</li><li>Seguiment</li><li>Tauler de resum</li></ul><a class="submit desorden-action" href="#solicitud">PARLEM DE SHEETS <span aria-hidden="true">→</span></a></article>
+<article class="card offer"><p class="desorden-label">02 / TAULER WEB</p><h3>TOT EL QUE CAL, A LA VISTA.</h3><p class="price">299–499 €</p><ul><li>Interfície pròpia, al mòbil i a l’ordinador</li><li>Cerca</li><li>Filtres</li><li>Estats i prioritats</li><li>Responsable</li><li>Propera acció</li><li>Connexió amb les dades que ja tens</li></ul><a class="submit desorden-action" href="#solicitud">PARLEM DE WEB <span aria-hidden="true">→</span></a></article>
+</div><p class="note">Les connexions amb altres eines, les llicències i les quotes es valoren a part, segons el que necessitis.</p>
 </div></section>
 <section class="section contact" id="solicitud" data-n="04" aria-labelledby="request-title"><div class="inner">
-<p class="desorden-label">04 / CONTACTO</p><h2 class="display" id="request-title">CUÉNTAME<br>TU PROCESO.</h2><p class="lead">¿Qué trabajo manual quieres simplificar?</p><p class="note" id="form-help">Los campos con * son obligatorios. No incluyas información sensible.</p>
-<form class="form" id="automation-form" action="https://docs.google.com/forms/d/e/1FAIpQLScx9iV2di1SzOfF1R-NsLiI8MN5gF1fygM1-b3U1Y5uRbCLfw/formResponse" method="post" aria-describedby="form-help" novalidate>
-<div class="field"><label for="client">Cliente *</label><input id="client" name="entry.1956448208" autocomplete="name" required minlength="2" maxlength="150" aria-describedby="client-error"><small class="error" id="client-error"></small></div>
-<div class="field"><label for="company">Empresa</label><input id="company" name="entry.422548789" autocomplete="organization" maxlength="150" aria-describedby="company-error"><small class="error" id="company-error"></small></div>
-<div class="field"><label for="phone">Teléfono *</label><input id="phone" name="entry.512369928" type="tel" autocomplete="tel" required pattern="[+0-9() .\-]{7,25}" maxlength="25" aria-describedby="phone-error"><small class="error" id="phone-error"></small></div>
-<div class="field"><label for="email">Email *</label><input id="email" name="entry.1767839008" type="email" autocomplete="email" required maxlength="254" aria-describedby="email-error"><small class="error" id="email-error"></small></div>
-<div class="field wide"><label for="service">Servicio *</label><select id="service" name="entry.275310617" required aria-describedby="service-error"><option value="">Selecciona</option><option value="Avería aire acondicionado">Avería aire acondicionado</option><option value="Aerotermia">Aerotermia</option><option value="Mantenimiento">Mantenimiento</option><option value="VRF/VRV">VRF/VRV</option><option value="Instalación">Instalación</option><option value="Consulta técnica">Consulta técnica</option></select><small class="error" id="service-error"></small></div>
-<div class="field wide"><label for="description">Descripción *</label><textarea id="description" name="entry.843397814" required minlength="10" maxlength="4000" aria-describedby="description-error"></textarea><small class="error" id="description-error"></small></div>
-<div class="field"><label for="priority">Prioridad *</label><select id="priority" name="entry.292079787" required aria-describedby="priority-error"><option value="">Selecciona</option><option value="BAJA">BAJA</option><option value="MEDIA">MEDIA</option><option value="ALTA">ALTA</option></select><small class="error" id="priority-error"></small></div>
-<div class="field wide"><label for="notes">Observaciones</label><textarea id="notes" name="entry.987142518" maxlength="4000" aria-describedby="notes-error"></textarea><small class="error" id="notes-error"></small></div>
-<button class="submit wide" type="submit" disabled><span>ENVIAR SOLICITUD</span><i aria-hidden="true">→</i></button><p class="status wide" id="form-status" role="status" aria-live="polite" aria-atomic="true"></p>
-</form><noscript><p>Activa JavaScript para enviar el formulario integrado.</p></noscript>
+<p class="desorden-label">04 / CONTACTE</p><h2 class="display" id="request-title">EXPLICA’M<br>EL TEU PROCÉS.</h2><p class="lead">Quina feina repetitiva vols simplificar?</p><form class="form" id="contact-form" aria-describedby="contact-help" novalidate>
+<div class="field"><label for="name">Nom</label><input id="name" name="name" autocomplete="name" required minlength="2" maxlength="150" aria-describedby="name-error"><small class="error" id="name-error"></small></div>
+<div class="field"><label for="contact">Contacte</label><input id="contact" name="contact" required minlength="5" maxlength="254" placeholder="Correu, telèfon o Instagram" aria-describedby="contact-error"><small class="error" id="contact-error"></small></div>
+<div class="field wide"><label for="objective">Què vols fer o millorar?</label><textarea id="objective" name="objective" required minlength="10" maxlength="2000" placeholder="Explica'm breument què necessites." aria-describedby="objective-error"></textarea><small class="error" id="objective-error"></small></div>
+<div class="contact-actions wide"><button class="submit" type="submit" data-channel="whatsapp">PER WHATSAPP <span aria-hidden="true">↗</span></button><button class="submit" type="submit" data-channel="email">PER CORREU <span aria-hidden="true">↗</span></button></div>
+<p class="status wide" id="status" role="status" aria-live="polite"></p>
+</form>
+<p class="note" id="contact-help">S'obrirà WhatsApp o el teu correu amb el missatge preparat. Tu decideixes quan l'envies.</p>
+<div class="channels"><a class="channel" href="https://wa.me/34640925788" target="_blank" rel="noopener noreferrer">WHATSAPP ↗</a><a class="channel" href="mailto:desorden.help@gmail.com">CORREU ↗</a><a class="channel" href="https://www.instagram.com/desorden.cat/" target="_blank" rel="noopener noreferrer">INSTAGRAM ↗</a></div><noscript><style>#contact-form,#contact-help,.demo-console,.menu-btn{display:none}</style><p class="note">Pots contactar directament pels enllaços de WhatsApp i correu.</p></noscript>
 </div></section>
-</main><footer><span>DESORDEN · <span id="year">2026</span></span><a href="/">VOLVER AL INICIO ↗</a></footer>
-</div></body></html>
+</main><footer><span>DESORDEN · <span id="year">2026</span></span><a href="/">TORNAR A L’INICI ↗</a></footer>
+</div><script src="/assets/contact.20260922.js" defer></script>
+<script src="/assets/menu.20260922.js" defer></script>
+<script src="/assets/automatizacion.20260922.js" defer></script>
+</body></html>
