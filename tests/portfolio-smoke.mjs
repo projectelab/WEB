@@ -50,6 +50,5 @@ test("portfolio routes are wired without exposing the internal LAB route", async
     "/media/portfolio/esgrima.mp4",
     "/media/portfolio/suro.mp4",
   ]) {
-    assert.match(home + projects + laboratori, new RegExp(media.replace(/[.*+?^$()|[\]\\]/g, "\\assert.doesNotMatch(sitemap, /https:\/\/www\.desorden\.cat\/lab\//);")));
-  }
-});
+    assert.ok((home + projects + laboratori).includes(media), `Missing portfolio media reference: ${media}`);
+  }});
