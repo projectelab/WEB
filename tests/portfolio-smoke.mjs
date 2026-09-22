@@ -26,6 +26,9 @@ test("portfolio routes are wired without exposing the internal LAB route", async
 
   assert.match(laboratori, /SURO/);
   assert.match(laboratori, /MARINA/);
+  assert.match(laboratori, /\/laboratori\/suro\//);
+  assert.match(laboratori, /\/laboratori\/territori\//);
+  assert.match(laboratori, /\/laboratori\/experiments\//);
   assert.match(robots, /Disallow: \/lab\//);
 
   assert.match(sitemap, /\/projectes\//);
@@ -41,6 +44,9 @@ test("portfolio routes are wired without exposing the internal LAB route", async
     assert.match(sitemap, new RegExp(`/projectes/${route}/`));
   }
   assert.match(sitemap, /\/laboratori\//);
+  assert.match(sitemap, /\/laboratori\/suro\//);
+  assert.match(sitemap, /\/laboratori\/territori\//);
+  assert.match(sitemap, /\/laboratori\/experiments\//);
   assert.doesNotMatch(sitemap, /https:\/\/www\.desorden\.cat\/lab\//);
 
   for (const media of [
