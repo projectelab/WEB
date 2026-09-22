@@ -45,3 +45,10 @@
 .back-home{display:inline-flex;min-height:44px;align-items:center;color:var(--o);text-decoration:none;font:11px var(--meta)}
 @media(min-width:700px){.project-card{grid-template-columns:46px 74px minmax(0,1fr) 22px;min-height:132px}.project-copy b{font-size:27px}.lab-grid{grid-template-columns:1fr 1fr}.case{padding-block:52px}}
 @media(prefers-reduced-motion:reduce){.project-copy b{transition:none}}
+.case-link{display:inline-flex;align-items:center;min-height:44px;margin-top:16px;color:var(--o);text-decoration:none;font:11px/1.4 var(--meta);letter-spacing:.06em;border-bottom:1px solid rgba(235,178,33,.8)}
+.case-link:hover,.case-link:focus-visible{color:var(--w)}
+.case-detail{padding-block:30px;border-bottom:1px solid var(--l)}
+.case-detail h2{margin:8px 0 12px;color:var(--o);font:clamp(28px,8vw,44px)/.98 var(--anton)}
+.case-detail p{margin:0;max-width:650px;color:var(--g);font-size:14px;line-height:1.6}
+.case-page .page-hero .case-meta{margin-top:20px}
+@media(min-width:700px){.case-detail{padding-block:46px}}
