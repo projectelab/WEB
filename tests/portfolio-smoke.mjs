@@ -29,6 +29,17 @@ test("portfolio routes are wired without exposing the internal LAB route", async
   assert.match(robots, /Disallow: \/lab\//);
 
   assert.match(sitemap, /\/projectes\//);
+  for (const route of [
+    "nutrikom",
+    "pugnator-nox-bellum",
+    "the-club-padel",
+    "pata-negra",
+    "federacio-catalana-esgrima",
+    "viu-svc",
+    "producte-digital",
+  ]) {
+    assert.match(sitemap, new RegExp(`/projectes/${route}/`));
+  }
   assert.match(sitemap, /\/laboratori\//);
   assert.doesNotMatch(sitemap, /https:\/\/www\.desorden\.cat\/lab\//);
 });
