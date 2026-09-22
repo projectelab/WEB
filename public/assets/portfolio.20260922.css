@@ -52,3 +52,15 @@
 .case-detail p{margin:0;max-width:650px;color:var(--g);font-size:14px;line-height:1.6}
 .case-page .page-hero .case-meta{margin-top:20px}
 @media(min-width:700px){.case-detail{padding-block:46px}}
+
+.project-mark--media{overflow:hidden;background:#080808;padding:0}
+.project-mark--media video,.case-media video,.lab-preview{display:block;width:100%;height:100%;object-fit:cover}
+.project-mark--media video{aspect-ratio:1}
+.lab-preview{width:100%;aspect-ratio:16/10;margin:0 0 14px;object-fit:cover;filter:saturate(.9) contrast(1.05)}
+.case-media{margin:0 0 20px;overflow:hidden;border:1px solid var(--l);background:#050505}
+.case-media video{aspect-ratio:9/16;max-height:460px;object-fit:cover}
+.case-media--lab{max-width:260px}
+.project-hero-media{padding-block:18px;border-bottom:1px solid var(--l)}
+.case-media--hero{width:min(100%,320px);margin:0}
+@media(min-width:700px){.case-media--hero{width:360px}.case-media video{max-height:560px}}
+@media(prefers-reduced-motion:reduce){video[autoplay]{display:none}}
