@@ -114,31 +114,28 @@ jobs:
       - name: Deploy Worker static assets
         run: npx wrangler deploy --config wrangler.jsonc
 
-      - name: Verify deployed Worker
+      - name: Verify production domains
         shell: bash
         run: |
           set -euo pipefail
-          origin="https://webl.desorden-help-76b.workers.dev"
+          origin="https://www.desorden.cat"
           for attempt in {1..6}; do
             home="$(curl -fsSL --max-time 20 "$origin/" || true)"
             automation="$(curl -fsSL --max-time 20 "$origin/automatizacion/" || true)"
             if grep -q "SI NO ET VEUEN" <<< "$home" \
               && grep -q 'data-n="05"' <<< "$home" \
               && grep -q "MENYS FEINA" <<< "$automation" \
-              && grep -q 'id="contact-form"' <<< "$automation"; then
-              echo "Worker origin verification passed."
+              && grep -q 'id="contact-form"' <<< "$automation" \
+              && ! grep -q '149–199 €\|299–499 €\|Preus orientatius' <<< "$automation"; then
               curl -fsSI --max-time 20 "$origin/frames/v1/frame_0001.webp" | grep -i "content-type: image/webp"
-              curl -fsSI --max-time 20 "$origin/frames/v1/frame_0097.webp" | grep -i "content-type: image/webp"
-              home_status="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 https://www.desorden.cat/ || true)"
-              automation_status="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 https://www.desorden.cat/automatizacion/ || true)"
-              echo "Custom domain CI status: home=$home_status automation=$automation_status"
-              if [[ "$home_status" == "403" || "$automation_status" == "403" ]]; then
-                echo "Custom domain blocks GitHub-hosted curl traffic; Worker origin is verified instead."
-              fi
+              redirect="$(curl -sSI --max-time 20 'https://desorden.cat/projectes/?check=1' | tr -d '\r')"
+              grep -q '^HTTP/2 301' <<< "$redirect"
+              grep -qi '^location: https://www.desorden.cat/projectes/?check=1$' <<< "$redirect"
+              echo "Production domain and canonical redirect verified."
               exit 0
             fi
-            echo "Waiting for Worker propagation ($attempt/6)..."
+            echo "Waiting for production propagation ($attempt/6)..."
             sleep 5
           done
-          echo "Worker deployed but origin verification failed."
+          echo "Production verification failed."
           exit 1
