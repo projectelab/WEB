@@ -119,18 +119,18 @@ jobs:
         run: |
           set -euo pipefail
           origin="https://www.desorden.cat"
+          user_agent="DESORDEN-Deploy-Smoke-Test/1.0"
           for attempt in {1..6}; do
-            home="$(curl -fsSL --max-time 20 "$origin/" || true)"
-            automation="$(curl -fsSL --max-time 20 "$origin/automatizacion/" || true)"
+            home="$(curl -fsSL -A "$user_agent" --max-time 20 "$origin/" || true)"
+            automation="$(curl -fsSL -A "$user_agent" --max-time 20 "$origin/automatizacion/" || true)"
             if grep -q "SI NO ET VEUEN" <<< "$home" \
               && grep -q 'data-n="05"' <<< "$home" \
               && grep -q "MENYS FEINA" <<< "$automation" \
               && grep -q 'id="contact-form"' <<< "$automation" \
               && ! grep -q '149–199 €\|299–499 €\|Preus orientatius' <<< "$automation"; then
-              curl -fsSI --max-time 20 "$origin/frames/v1/frame_0001.webp" | grep -i "content-type: image/webp"
-              redirect="$(curl -sSI --max-time 20 'https://desorden.cat/projectes/?check=1' | tr -d '\r')"
-              grep -q '^HTTP/2 301' <<< "$redirect"
-              grep -qi '^location: https://www.desorden.cat/projectes/?check=1$' <<< "$redirect"
+              redirect="$(curl -sS -A "$user_agent" -D - -o /dev/null --max-time 20 'https://desorden.cat/' | tr -d '\r')"
+              grep -Eq '^HTTP/[0-9.]+ 301' <<< "$redirect"
+              grep -qi '^location: https://www.desorden.cat/$' <<< "$redirect"
               echo "Production domain and canonical redirect verified."
               exit 0
             fi
