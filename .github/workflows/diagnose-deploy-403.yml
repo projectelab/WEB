@@ -1,0 +1,30 @@
+name: Diagnose deploy smoke 403
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect public response headers
+        shell: bash
+        run: |
+          set -euo pipefail
+          for url in 'https://www.desorden.cat/' 'https://www.desorden.cat/automatizacion/' 'https://desorden.cat/'; do
+            echo "URL: $url"
+            for agent in 'curl' 'DESORDEN-Deploy-Smoke-Test/1.0'; do
+              headers="$(mktemp)"
+              if [[ "$agent" == curl ]]; then
+                status="$(curl -sS -D "$headers" -o /dev/null -w '%{http_code}' --max-time 20 "$url")"
+              else
+                status="$(curl -sS -A "$agent" -D "$headers" -o /dev/null -w '%{http_code}' --max-time 20 "$url")"
+              fi
+              echo "agent=$agent status=$status"
+              grep -Ei '^(HTTP/|server:|cf-ray:|cf-mitigated:|content-type:|location:)' "$headers" || true
+              rm "$headers"
+            done
+          done
