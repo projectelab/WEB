@@ -7,3 +7,12 @@
 .field select{width:100%;min-width:0;min-height:44px;padding:8px 1px;border:0;border-bottom:1px solid rgba(235,178,33,.7);border-radius:0;background:transparent;color:var(--w);font-size:16px}
 .field select option{background:var(--b);color:var(--w)}
 .field select[aria-invalid=true]{border-color:#ff8b72}
+.projects>.inner>.work-grid{grid-template-columns:minmax(0,1fr)}
+.projects>.inner>.work-grid .work-media{width:100%;max-height:none}
+.submit i{font-style:normal}
+.projects .work-copy,#que-faig .product-grid p,#lab .product-grid p,#contacte .lead{font-size:17px;line-height:1.65}
+#contacte .field label,#contacte .note{font-size:13px}
+#contacte .field input,#contacte .field textarea,#contacte .field select{font-size:17px}
+#contacte .privacy-layer{font-size:12px}
+@media(max-width:599px){.projects>.inner>.work-grid .work-media{width:calc(100% + 2 * var(--gutter));margin-inline:calc(-1 * var(--gutter))}}
+@media(min-width:700px){.projects>.inner>.work-grid .work-media{max-height:85svh}.projects>.inner>.work-grid .work-media video{object-fit:cover}}

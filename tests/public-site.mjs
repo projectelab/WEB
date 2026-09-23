@@ -79,7 +79,7 @@ test('WhatsApp and email prepare encoded Catalan drafts, retain fields and never
     const url = new URL(app.location.href);
     assert.equal(url.protocol, channel === 'email' ? 'mailto:' : 'https:');
     if (channel === 'whatsapp') { assert.equal(url.hostname, 'wa.me'); assert.equal(url.pathname, '/34640925788'); }
-    else assert.equal(url.pathname, 'desorden.help@gmail.com');
+    else assert.equal(url.pathname, 'lab@desorden.cat');
     const message = url.searchParams.get(channel === 'email' ? 'body' : 'text');
     assert.match(message, /Necessitat: Web \/ producte digital/);
     assert.match(message, /Nom: Anna & Pau/); assert(message.endsWith(app.nodes.objective.value));
