@@ -103,7 +103,7 @@ test('client logo marquee links five real project pages and excludes Pata Negra'
  const sets=[...marquee.matchAll(/<div class="logo-marquee-set"[^>]*>([\s\S]*?)<\/div>/g)];
  assert.equal(sets.length,2);
  assert.deepEqual([...sets[0][1].matchAll(/href="([^"]+)"/g)].map(x=>x[1]),[...sets[1][1].matchAll(/href="([^"]+)"/g)].map(x=>x[1]));
- const css=await read('public/assets/portfolio.20260923-premium-v2.css');
+ const css=await read('public/assets/portfolio.20260923-v3.css');
  assert.match(css,/\.logo-marquee-set img\{[^}]*object-fit:contain/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
 });
@@ -120,7 +120,7 @@ test('new amber-on-black client logos replace legacy identity previews',async()=
   assert.match(html,/previews-v2\/nutrikom-ntk-runners\.webp/);
  }
  assert.doesNotMatch(home.match(/<div class="logo-marquee"[\s\S]*?<div class="work-grid">/)?.[0]||'',/pata-negra/i);
- assert.match(home,/portfolio\.20260923-premium-v2\.css/);
+ assert.match(home,/portfolio\.20260923-v3\.css/);
  assert.match(projects,/logo-ajuntament-svc\.png/);
  const town=await read('public/projectes/ajuntament-sant-vicenc/index.html');
  assert.doesNotMatch(town,/<(?:img|video)\b/i);
