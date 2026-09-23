@@ -14,6 +14,19 @@ test("portfolio routes are wired without exposing the internal LAB route", async
   ]);
 
   assert.match(home, /id="projectes"/);
+  const marquee = home.match(/<div class="logo-marquee"[\s\S]*?<div class="project-list">/)?.[0];
+  assert.ok(marquee, "Home exposes the logo marquee");
+  assert.doesNotMatch(marquee, /pata-negra/i);
+  for (const [logo, route] of [
+    ["ntk", "nutrikom"],
+    ["viu-svc", "viu-svc"],
+    ["the-club-padel", "the-club-padel"],
+    ["pugnator", "pugnator-nox-bellum"],
+  ]) {
+    assert.match(marquee, new RegExp(`href="/projectes/${route}/"[^>]*><img src="/media/portfolio/logo-${logo}\\.png"`));
+    await readFile(new URL(`../public/media/portfolio/logo-${logo}.png`, import.meta.url));
+    await read(`../public/projectes/${route}/index.html`);
+  }
   assert.match(home, /href="\/projectes\/"/);
   assert.match(home, /href="\/laboratori\/"/);
   assert.doesNotMatch(home, /href="\/lab\/"/);
