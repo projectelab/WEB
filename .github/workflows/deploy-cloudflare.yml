@@ -48,20 +48,14 @@ jobs:
           compact="$(printf '%s' "$raw" | tr -d '\r\n')"
           compact="$(printf '%s' "$compact" | sed -E 's/^[[:space:]]+//;s/[[:space:]]+$//')"
 
-          token=""
-          if [[ "$compact" =~ [Bb]earer[[:space:]]+([^"\047[:space:]]+) ]]; then
-            token="${BASH_REMATCH[1]}"
-          elif [[ "$compact" =~ CLOUDFLARE_API_TOKEN[[:space:]]*=[[:space:]]*["\047]?([^"\047[:space:]]+) ]]; then
-            token="${BASH_REMATCH[1]}"
-          else
-            token="$compact"
-            token="${token#\"}"
-            token="${token%\"}"
-            token="${token#\'}"
-            token="${token%\'}"
+          token="$compact"
+          if [[ "$token" == [Bb]earer\ * ]]; then
+            token="${token#* }"
+          elif [[ "$token" == CLOUDFLARE_API_TOKEN=* ]]; then
+            token="${token#*=}"
           fi
 
-          token="$(printf '%s' "$token" | sed -E 's/^[[:space:]]+//;s/[[:space:]]+$//')"
+          token="$(printf '%s' "$token" | tr -d '"' | tr -d "'" | sed -E 's/^[[:space:]]+//;s/[[:space:]]+$//')"
           test -n "$token" || { echo "The Cloudflare API token secret is empty after normalization."; exit 1; }
 
           account_id="$(printf '%s' "$RAW_CLOUDFLARE_ACCOUNT_ID" | tr -d '\r\n[:space:]')"
