@@ -174,27 +174,6 @@
     }
   }
 
-  const services = ['VÍDEO', 'FOTOGRAFIA', 'DRON', 'IA VISUAL', 'WEB'];
-  const serviceSection = $('#que-faig');
-  const cube = $('#cube');
-  const front = $('#front');
-  const top = $('#top');
-  const serviceIndex = $('#service-index');
-
-  function updateServices() {
-    if (reduceMotion || !serviceSection || !cube || !front || !top) return;
-    const rect = serviceSection.getBoundingClientRect();
-    const distance = Math.max(1, serviceSection.offsetHeight - serviceSection.querySelector('.sticky').offsetHeight);
-    const progress = Math.max(0, Math.min(1, -rect.top / distance));
-    const raw = progress * (services.length - 1);
-    const index = Math.floor(raw);
-    const fraction = raw - index;
-    front.textContent = services[index];
-    top.textContent = services[Math.min(index + 1, services.length - 1)];
-    cube.style.transform = `rotateX(${-90 * fraction}deg) translateZ(${8 * Math.sin(Math.PI * fraction)}px)`;
-    if (serviceIndex) serviceIndex.textContent = String(index + 1).padStart(2, '0');
-  }
-
   let ticking = false;
   addEventListener(
     'scroll',
@@ -202,7 +181,6 @@
       if (ticking) return;
       requestAnimationFrame(() => {
         updateHero();
-        updateServices();
         ticking = false;
       });
       ticking = true;
@@ -213,19 +191,17 @@
     if (reduceMotion) return;
     resizeCanvas();
     updateHero();
-    updateServices();
   }, { passive: true });
   motionPreference.addEventListener?.('change', event => {
     reduceMotion = event.matches;
     if (reduceMotion) boot?.classList.add('off');
-    else { resizeCanvas(); updateHero(); updateServices(); }
+    else { resizeCanvas(); updateHero(); }
   });
 
   if (!reduceMotion) {
     resizeCanvas();
     bootUp();
     updateHero();
-    updateServices();
   } else {
     boot?.classList.add('off');
   }

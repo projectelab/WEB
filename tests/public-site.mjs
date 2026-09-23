@@ -71,7 +71,7 @@ test('contact validation focuses the first invalid field without opening a chann
 test('WhatsApp and email prepare encoded Catalan drafts, retain fields and never claim delivery', () => {
   for (const channel of ['whatsapp', 'email']) {
     const app = contact();
-    app.nodes.need.value = 'Web / sistema';
+    app.nodes.need.value = 'Web / producte digital';
     app.nodes.name.value = ' Anna & Pau ';
     app.nodes.contact.value = 'anna@example.com';
     app.nodes.objective.value = 'Vull ordenar peticions.\nVídeo, web & pressupostos?';
@@ -81,7 +81,7 @@ test('WhatsApp and email prepare encoded Catalan drafts, retain fields and never
     if (channel === 'whatsapp') { assert.equal(url.hostname, 'wa.me'); assert.equal(url.pathname, '/34640925788'); }
     else assert.equal(url.pathname, 'desorden.help@gmail.com');
     const message = url.searchParams.get(channel === 'email' ? 'body' : 'text');
-    assert.match(message, /Necessitat: Web \/ sistema/);
+    assert.match(message, /Necessitat: Web \/ producte digital/);
     assert.match(message, /Nom: Anna & Pau/); assert(message.endsWith(app.nodes.objective.value));
     assert.match(app.nodes.status.textContent, /Encara no s’ha enviat/);
     assert.equal(app.nodes.name.value, ' Anna & Pau ');
@@ -89,7 +89,7 @@ test('WhatsApp and email prepare encoded Catalan drafts, retain fields and never
 });
 
 test('home follows the editorial sequence with real featured projects', () => {
-  const ids = ['hero','que-resolem','que-faig','automatitzacio','projectes','lab','rnd','com-treballem','desorden','qui-soc','contacte'];
+  const ids = ['hero','projectes','que-faig','lab','desorden','contacte'];
   let previous = -1;
   for (const id of ids) {
     const position = home.indexOf(`id="${id}"`);
@@ -101,11 +101,16 @@ test('home follows the editorial sequence with real featured projects', () => {
     assert(featured.includes(`/projectes/${slug}/`), slug);
   }
   assert.equal((featured.match(/<strong>Objectiu\.<\/strong>/g) || []).length, 3);
+  for (const label of ['01 / VISUAL','02 / DIGITAL','03 / SISTEMES']) assert(home.includes(label));
+  assert.match(home, /href="\/automatizacion\/"/);
+  assert.match(home, /href="\/laboratori\/"/);
+  assert.match(home, /href="\/projectes\/producte-digital\/"/);
+  for (const anchor of ['automatitzacio','rnd','com-treballem','qui-soc']) assert(home.includes(`id="${anchor}"`));
   assert.match(home, /<label for="need">Què necessites\?<\/label>/);
 });
 
 function sequence({ reduced = false, fail = false, deferred = false } = {}) {
-  const nodes = Object.fromEntries(['canvas','hero','boot','boot-copy','frame','que-faig','cube','front','top','service-index'].map(id => [id, element()]));
+  const nodes = Object.fromEntries(['canvas','hero','boot','boot-copy','frame'].map(id => [id, element()]));
   const listeners = {}, draws = [], fetches = [], waiting = [], timers = [], frames = [];
   let scroll = 0, active = 0, peak = 0, decoded = 0, live = 0, peakLive = 0;
   const context = { drawImage(image) { assert(!image.closed); draws.push(image.index); } };
@@ -114,9 +119,6 @@ function sequence({ reduced = false, fail = false, deferred = false } = {}) {
   nodes.hero.offsetHeight = 2844;
   nodes.hero.querySelector = () => ({ offsetHeight: 844 });
   nodes.hero.getBoundingClientRect = () => ({ top: -scroll, bottom: 2844 - scroll });
-  nodes['que-faig'].offsetHeight = 1344;
-  nodes['que-faig'].querySelector = () => ({ offsetHeight: 844 });
-  nodes['que-faig'].getBoundingClientRect = () => ({ top: 3000 - scroll });
   const fetch = async url => {
     const index = Number(url.match(/(\d{4})\.webp/)[1]) - 1;
     fetches.push(index); active++; peak = Math.max(peak, active);
@@ -176,11 +178,9 @@ test('missing frames retain the fallback, stop retry storms and release the load
   assert(!app.nodes.hero.classList.contains('ready'));
 });
 
-test('reduced motion avoids frame fetches; all five services remain represented', async () => {
+test('reduced motion avoids frame fetches', async () => {
   const reduced = sequence({ reduced: true }); await reduced.drain();
   assert.equal(reduced.fetches.length, 0); assert(reduced.nodes.boot.classList.contains('off'));
-  const app = sequence(); await app.drain(); app.scrollTo(3500); await app.drain();
-  assert.equal(app.nodes.front.textContent, 'WEB'); assert.equal(app.nodes['service-index'].textContent, '05');
 });
 
 test('demo keyboard navigation updates its panel label and playback can be stopped', () => {
