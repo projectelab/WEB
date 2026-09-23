@@ -131,23 +131,32 @@ jobs:
             exit 1
           }
 
-          deployments="$(npx wrangler deployments list --config wrangler.jsonc --json)"
-          active_version="$(jq -r '
-            if type == "array" then
-              (.[0].versions[0].version_id // .[0].versions[0].id // empty)
-            else
-              (.deployments[0].versions[0].version_id // .deployments[0].versions[0].id // empty)
-            end
-          ' <<< "$deployments")"
+          active_version=""
+          for attempt in {1..6}; do
+            deployments="$(npx wrangler deployments list --config wrangler.jsonc --json)"
+            active_version="$(jq -r '
+              if type == "array" then
+                (.[0].versions[0].version_id // .[0].versions[0].id // empty)
+              else
+                (.deployments[0].versions[0].version_id // .deployments[0].versions[0].id // empty)
+              end
+            ' <<< "$deployments")"
+
+            if [[ "$active_version" == "$deployed_version" ]]; then
+              echo "Cloudflare confirms version $deployed_version is active for Worker webl."
+              break
+            fi
+
+            echo "Waiting for Cloudflare deployment metadata propagation ($attempt/6)..."
+            sleep 5
+          done
 
           test "$active_version" = "$deployed_version" || {
-            echo "Cloudflare active version mismatch."
+            echo "Cloudflare active version mismatch after propagation wait."
             echo "Expected: $deployed_version"
             echo "Active:   ${active_version:-missing}"
             exit 1
           }
-
-          echo "Cloudflare confirms version $deployed_version is active for Worker webl."
 
       - name: Verify public production endpoints
         shell: bash
