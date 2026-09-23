@@ -97,11 +97,11 @@
     "height": 1920,
     "pix_fmt": "yuv420p",
     "r_frame_rate": "30/1",
-    "bit_rate": "13736760",
+    "bit_rate": "10961312",
     "duration": 13.233333,
-    "bytes": 23038445,
+    "bytes": 18403509,
     "faststart": true,
-    "sha256": "e87050399787e4a61447df45caac12db7a191a326e51ca900edf10c698a343a3"
+    "sha256": "0eeea08af6045f4247a800590fe497a78eb150837921d2a349de20953392c0d7"
   },
   {
     "path": "/media/portfolio/hq/suro-poble-01.mp4",
@@ -213,12 +213,12 @@
     "width": 540,
     "height": 960,
     "pix_fmt": "yuv420p",
-    "r_frame_rate": "24/1",
-    "bit_rate": "5971421",
+    "r_frame_rate": "30/1",
+    "bit_rate": "7024198",
     "duration": 6,
-    "bytes": 4481484,
+    "bytes": 5271582,
     "faststart": true,
-    "sha256": "028cf815e4feba0813ed816ff7316d1b5229bb4b343fa75bf131579937d38be1"
+    "sha256": "075844d779e17b24ca64b64d633e8410049ff44037188eeecab75ce3fd0d1ab7"
   },
   {
     "path": "/media/portfolio/previews-v2/pugnator-nox-bellum.mp4",
