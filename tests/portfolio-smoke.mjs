@@ -3,8 +3,35 @@ import {readFile,stat,readdir} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import test from 'node:test';
 const read = path => readFile(new URL(`../${path}`, import.meta.url),'utf8');
-const routes=['/','/projectes/','/laboratori/','/automatizacion/','/privadesa/','/cookies/',...['nutrikom','pugnator-nox-bellum','the-club-padel','pata-negra','federacio-catalana-esgrima','viu-svc','ajuntament-sant-vicenc','producte-digital'].map(x=>`/projectes/${x}/`),...['suro','marina','territori','ia-visual','lip-sync','experiments'].map(x=>`/laboratori/${x}/`)];
+const routes=['/','/projectes/','/laboratori/','/automatizacion/','/avis-legal/','/privadesa/','/cookies/',...['nutrikom','pugnator-nox-bellum','the-club-padel','pata-negra','federacio-catalana-esgrima','viu-svc','ajuntament-sant-vicenc','producte-digital'].map(x=>`/projectes/${x}/`),...['suro','marina','territori','ia-visual','lip-sync','experiments'].map(x=>`/laboratori/${x}/`)];
 const labs=['suro','marina','territori','ia-visual','lip-sync','experiments'];
+test('public routes expose matching social metadata and valid heading order',async()=>{
+ for(const route of routes){
+  const html=await read(`public${route}index.html`);
+  const title=html.match(/<title>([^<]+)<\/title>/)?.[1];
+  const description=html.match(/<meta name="description" content="([^"]+)"/)?.[1];
+  const canonical=html.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
+  assert(title&&description&&canonical,route);
+  assert.equal((html.match(/<h1\b/g)||[]).length,1,route);
+  const tag=(kind,key)=>html.match(new RegExp(`<meta ${kind}="${key}" content="([^"]+)"`))?.[1];
+  for(const [key,value] of Object.entries({'og:type':'website','og:locale':'ca_ES','og:site_name':'DESORDEN','og:url':canonical,'og:title':title,'og:description':description}))
+   assert.equal(tag('property',key),value,`${route}: ${key}`);
+  const image=tag('property','og:image');
+  assert(image?.startsWith('https://www.desorden.cat/'),`${route}: og:image`);
+  assert(tag('property','og:image:alt'),`${route}: og:image:alt`);
+  assert.equal(tag('name','twitter:card'),'summary_large_image',route);
+  assert.equal(tag('name','twitter:title'),title,route);
+  assert.equal(tag('name','twitter:description'),description,route);
+  assert.equal(tag('name','twitter:image'),image,route);
+  assert((await stat(new URL(`../public${new URL(image).pathname}`,import.meta.url))).isFile(),`${route}: social image`);
+ }
+ for(const route of ['/projectes/','/laboratori/']){
+  const html=await read(`public${route}index.html`);
+  const headings=[...html.matchAll(/<h([1-6])\b/g)].map(match=>Number(match[1]));
+  assert.equal(headings[0],1,route);
+  assert.equal(headings[1],2,`${route}: H1 must be followed by H2`);
+ }
+});
 test('all public routes have valid local assets, unique headings, accessible main and canonical SEO',async()=>{
  const sitemap=await read('public/sitemap.xml');
  for(const route of routes){
