@@ -1,5 +1,5 @@
 /* Shared editorial system: composition and space, rather than nested panels. */
-.brand-logo-wrap{margin:28px 0 34px;display:flex;justify-content:center}.brand-logo{display:block;width:min(72vw,420px);height:auto;object-fit:contain}
+.brand-logo-wrap{margin:28px 0 34px;display:flex;justify-content:center}.brand-logo{display:block;width:min(68vw,420px);height:auto;object-fit:contain}
 .brand-meaning{color:var(--w);font:clamp(12px,2vw,20px)/1.6 var(--meta);letter-spacing:.05em}
 .brand-manifesto{max-width:660px;margin:28px 0 0;font:clamp(24px,4vw,42px)/1.2 var(--anton)}
 .brand-system{padding-top:0}
