@@ -1,0 +1,38 @@
+name: WEB Bridge CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run WEB tests
+        run: npm test
+
+      - name: Verify bridge syntax
+        run: node --check scripts/antigravity-bridge/bridge.mjs
+
+      - name: Verify no whitespace errors
+        run: git diff --check origin/${{ github.base_ref }}...HEAD
