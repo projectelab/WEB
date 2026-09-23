@@ -36,3 +36,17 @@ jobs:
           else
             echo 'google-chrome not installed on runner'
           fi
+  probe_windows:
+    runs-on: windows-latest
+    steps:
+      - name: Check public GET from Windows runner
+        shell: pwsh
+        run: |
+          foreach ($url in @('https://www.desorden.cat/', 'https://www.desorden.cat/automatizacion/', 'https://desorden.cat/')) {
+            try {
+              $response = Invoke-WebRequest -Uri $url -MaximumRedirection 0 -SkipHttpErrorCheck -UseBasicParsing -ErrorAction Stop
+              Write-Output "$url status=$([int]$response.StatusCode) challenge=$($response.Headers['cf-mitigated']) location=$($response.Headers.Location)"
+            } catch {
+              Write-Output "$url error=$($_.Exception.GetType().Name)"
+            }
+          }
