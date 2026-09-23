@@ -28,3 +28,11 @@ jobs:
               rm "$headers"
             done
           done
+          if command -v google-chrome >/dev/null; then
+            for url in 'https://www.desorden.cat/' 'https://www.desorden.cat/automatizacion/'; do
+              page="$(timeout 30s google-chrome --headless --no-sandbox --disable-gpu --virtual-time-budget=10000 --dump-dom "$url" 2>/dev/null || true)"
+              echo "chrome_url=$url home_marker=$(grep -q 'SI NO ET VEUEN' <<< "$page" && echo yes || echo no) automation_marker=$(grep -q 'MENYS FEINA' <<< "$page" && echo yes || echo no) challenged=$(grep -qi 'Just a moment' <<< "$page" && echo yes || echo no)"
+            done
+          else
+            echo 'google-chrome not installed on runner'
+          fi
