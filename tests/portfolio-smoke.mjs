@@ -82,3 +82,20 @@ test('audit hardening exposes privacy consent and richer semantic metadata',asyn
  assert.match(home,/wa\.me\/34640925788\?text=/);
  assert.match(contact,/privacy-consent/);
 });
+
+test('client logo marquee links the four featured clients and excludes Pata Negra',async()=>{
+ const home=await read('public/index.html');
+ const marquee=home.match(/<div class="logo-marquee"[\s\S]*?<div class="work-grid">/)?.[0];
+ assert.ok(marquee,'Home exposes the client logo marquee');
+ assert.doesNotMatch(marquee,/pata-negra/i);
+ for(const [logo,route]of [
+  ['ntk','nutrikom'],
+  ['viu-svc','viu-svc'],
+  ['the-club-padel','the-club-padel'],
+  ['pugnator','pugnator-nox-bellum'],
+ ]){
+  assert.match(marquee,new RegExp(`href="/projectes/${route}/"[^>]*><img src="/media/portfolio/logo-${logo}\\.png"`));
+  await readFile(new URL(`../public/media/portfolio/logo-${logo}.png`,import.meta.url));
+  await read(`public/projectes/${route}/index.html`);
+ }
+});
