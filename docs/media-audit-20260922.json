@@ -7,7 +7,7 @@
     "pix_fmt": "yuv420p",
     "r_frame_rate": "24/1",
     "bit_rate": "11886011",
-    "duration": 10.0,
+    "duration": 10,
     "bytes": 14861291,
     "faststart": true,
     "sha256": "5f57744a4e12be0051a5875efc7ac69d02129f4f2592a30b73625736612845fa"
@@ -20,7 +20,7 @@
     "pix_fmt": "yuv420p",
     "r_frame_rate": "30/1",
     "bit_rate": "6586791",
-    "duration": 10.0,
+    "duration": 10,
     "bytes": 8237624,
     "faststart": true,
     "sha256": "8409d1a5964ffb0e815a9da9376273425bd80407cb3af8863a1681e1e4c478f8"
@@ -33,7 +33,7 @@
     "pix_fmt": "yuv420p",
     "r_frame_rate": "30/1",
     "bit_rate": "6104611",
-    "duration": 10.0,
+    "duration": 10,
     "bytes": 7634707,
     "faststart": true,
     "sha256": "5d4f7a224659755e1daddce10d1e6aec59533ce5290e9a4407f0370b41055097"
@@ -46,7 +46,7 @@
     "pix_fmt": "yuv420p",
     "r_frame_rate": "30/1",
     "bit_rate": "6301915",
-    "duration": 10.0,
+    "duration": 10,
     "bytes": 7881473,
     "faststart": true,
     "sha256": "855efffdbe4cbbee77396749cdda2981d244be64cf7f37a5d2c5c27a08fb98ce"
@@ -59,7 +59,7 @@
     "pix_fmt": "yuv420p",
     "r_frame_rate": "30/1",
     "bit_rate": "6324280",
-    "duration": 10.0,
+    "duration": 10,
     "bytes": 7908773,
     "faststart": true,
     "sha256": "44cd5c50b0fb013d1cb8aa18ebe13f6b5fe7c4bdd9daf728a62784414174e258"
@@ -72,7 +72,7 @@
     "pix_fmt": "yuv420p",
     "r_frame_rate": "24/1",
     "bit_rate": "2402056",
-    "duration": 10.0,
+    "duration": 10,
     "bytes": 3006219,
     "faststart": true,
     "sha256": "310b738fec6b2b2a799410059c56c3c61620bec8a6484be342f68bd05d538492"
@@ -85,10 +85,23 @@
     "pix_fmt": "yuv420p",
     "r_frame_rate": "25/1",
     "bit_rate": "7239824",
-    "duration": 10.0,
+    "duration": 10,
     "bytes": 9053749,
     "faststart": true,
     "sha256": "dfd9f1d6177e6c67e8fe40504fcf865b0f64f963a18096561255696385f8c3e5"
+  },
+  {
+    "path": "/media/portfolio/hq/nutrikom-ntk-runners.mp4",
+    "codec_name": "h264",
+    "width": 1080,
+    "height": 1920,
+    "pix_fmt": "yuv420p",
+    "r_frame_rate": "30/1",
+    "bit_rate": "13736760",
+    "duration": 13.233333,
+    "bytes": 23038445,
+    "faststart": true,
+    "sha256": "e87050399787e4a61447df45caac12db7a191a326e51ca900edf10c698a343a3"
   },
   {
     "path": "/media/portfolio/hq/suro-poble-01.mp4",
@@ -98,7 +111,7 @@
     "pix_fmt": "yuv420p",
     "r_frame_rate": "60/1",
     "bit_rate": "8424436",
-    "duration": 10.0,
+    "duration": 10,
     "bytes": 10539155,
     "faststart": true,
     "sha256": "08742ccbe6558335af6a518edd61301391cee049fece64c541c5821e8a83ea30"
@@ -111,7 +124,7 @@
     "pix_fmt": "yuv420p",
     "r_frame_rate": "30/1",
     "bit_rate": "8824109",
-    "duration": 10.0,
+    "duration": 10,
     "bytes": 11034754,
     "faststart": true,
     "sha256": "6fbe450b95dad80bc95c95ef4ee2818affbd0d5e00962707773a3b148cb314ef"
@@ -124,7 +137,7 @@
     "pix_fmt": "yuv420p",
     "r_frame_rate": "24/1",
     "bit_rate": "7799805",
-    "duration": 10.0,
+    "duration": 10,
     "bytes": 9753638,
     "faststart": true,
     "sha256": "27f7f351049a7de82ca28eb1c938c6e2063d0aa5f2b67b6f9cd9748e54a4dd66"
@@ -137,7 +150,7 @@
     "pix_fmt": "yuv420p",
     "r_frame_rate": "60/1",
     "bit_rate": "18205233",
-    "duration": 10.0,
+    "duration": 10,
     "bytes": 22764499,
     "faststart": true,
     "sha256": "b9686ff18599cbb251d0f9f60c552bd8cf5537468edabed2024dde2df779eea8"
@@ -150,7 +163,7 @@
     "pix_fmt": "yuv420p",
     "r_frame_rate": "24/1",
     "bit_rate": "3322326",
-    "duration": 6.0,
+    "duration": 6,
     "bytes": 2494291,
     "faststart": true,
     "sha256": "fb03d2c0481f362546629d74e2a3cf02250e547db3861dcc980cdf821177865e"
@@ -163,7 +176,7 @@
     "pix_fmt": "yuv420p",
     "r_frame_rate": "24/1",
     "bit_rate": "1764376",
-    "duration": 6.0,
+    "duration": 6,
     "bytes": 1325884,
     "faststart": true,
     "sha256": "71f4be3fe1a49b1a5ddf0c3184ecc0fcf8e496ed218d0323c8b984649b28b911"
@@ -176,7 +189,7 @@
     "pix_fmt": "yuv420p",
     "r_frame_rate": "24/1",
     "bit_rate": "1252633",
-    "duration": 6.0,
+    "duration": 6,
     "bytes": 941996,
     "faststart": true,
     "sha256": "fa2ce687705800be44956adf974bfcfb35301eac975f3a3548cf1f1259eca3f1"
@@ -189,10 +202,23 @@
     "pix_fmt": "yuv420p",
     "r_frame_rate": "24/1",
     "bit_rate": "1139185",
-    "duration": 6.0,
+    "duration": 6,
     "bytes": 856990,
     "faststart": true,
     "sha256": "0851945c65a70a50761b90a97de42ad6de813d3be0e1745bc640191d8d43fda5"
+  },
+  {
+    "path": "/media/portfolio/previews-v2/nutrikom-ntk-runners.mp4",
+    "codec_name": "h264",
+    "width": 540,
+    "height": 960,
+    "pix_fmt": "yuv420p",
+    "r_frame_rate": "24/1",
+    "bit_rate": "5971421",
+    "duration": 6,
+    "bytes": 4481484,
+    "faststart": true,
+    "sha256": "028cf815e4feba0813ed816ff7316d1b5229bb4b343fa75bf131579937d38be1"
   },
   {
     "path": "/media/portfolio/previews-v2/pugnator-nox-bellum.mp4",
@@ -202,7 +228,7 @@
     "pix_fmt": "yuv420p",
     "r_frame_rate": "24/1",
     "bit_rate": "2345889",
-    "duration": 6.0,
+    "duration": 6,
     "bytes": 1762039,
     "faststart": true,
     "sha256": "f0660b5866d3fb3080c175faa004a368126803d5630f18edf2d5c12e681d342d"
@@ -215,7 +241,7 @@
     "pix_fmt": "yuv420p",
     "r_frame_rate": "24/1",
     "bit_rate": "1808034",
-    "duration": 6.0,
+    "duration": 6,
     "bytes": 1359049,
     "faststart": true,
     "sha256": "2396e3dcfcaa51c9e48749e463aeb2fc14a1a3620572e0ebfec105b8382ee534"
@@ -228,7 +254,7 @@
     "pix_fmt": "yuv420p",
     "r_frame_rate": "24/1",
     "bit_rate": "4371301",
-    "duration": 6.0,
+    "duration": 6,
     "bytes": 3281018,
     "faststart": true,
     "sha256": "a57f99be352f5334594d5758b48fabb28ec886e8b9899d6d57c79edf53984e18"
