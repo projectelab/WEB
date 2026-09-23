@@ -39,7 +39,7 @@
     const message = `Hola DESORDEN,\n\n${need}Nom: ${value('name')}\nContacte: ${value('contact')}\n\n${value('objective')}`;
     const email = event.submitter?.dataset.channel === 'email';
     const url = email
-      ? `mailto:desorden.help@gmail.com?subject=${encodeURIComponent('Nou projecte — DESORDEN')}&body=${encodeURIComponent(message)}`
+      ? `mailto:lab@desorden.cat?subject=${encodeURIComponent('Nou projecte — DESORDEN')}&body=${encodeURIComponent(message)}`
       : `https://wa.me/34640925788?text=${encodeURIComponent(message)}`;
     status.textContent = email
       ? 'Obrint el correu amb el missatge preparat. Encara no s’ha enviat.'
