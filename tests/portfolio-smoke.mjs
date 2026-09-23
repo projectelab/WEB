@@ -23,11 +23,11 @@ test('all public routes have valid local assets, unique headings, accessible mai
  assert.match(await read('public/robots.txt'),/Disallow: \/lab\//);
  assert.doesNotMatch(sitemap,/<loc>https:\/\/www.desorden.cat\/lab\//);
 });
-test('home and indexes expose all six LAB lines while keeping HQ opt-in',async()=>{
- for(const route of ['/','/laboratori/']){
-  const html=await read(`public${route}index.html`);
-  for(const slug of labs) assert(html.includes(`href="/laboratori/${slug}/"`),slug);
- }
+test('home links to LAB and its index retains all six lines with HQ opt-in',async()=>{
+  const home=await read('public/index.html');
+  assert(home.includes('href="/laboratori/"'));
+  const labIndex=await read('public/laboratori/index.html');
+  for(const slug of labs) assert(labIndex.includes(`href="/laboratori/${slug}/"`),slug);
  for(const route of ['/','/projectes/','/laboratori/']){
   const html=await read(`public${route}index.html`);
   assert.doesNotMatch(html,/\/media\/portfolio\/hq\//);
