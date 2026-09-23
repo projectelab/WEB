@@ -77,7 +77,7 @@ body.menu-open{overflow:hidden}
 .error:empty,.status:empty{display:none}
 .contact-actions,.channels{display:flex;gap:20px;flex-wrap:wrap}
 .channels{margin-block:14px}
-footer{padding:18px 0 max(18px,env(safe-area-inset-bottom));color:var(--g);font-size:12.5px
+footer{padding:18px 0 max(18px,env(safe-area-inset-bottom));color:var(--g);font-size:12.5px}
 .contact footer{text-align:center}
 .noscript{margin:18px;color:var(--g);font-size:13px}
 .automation .shell{width:min(100%,1200px)}
