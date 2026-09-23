@@ -56,3 +56,21 @@
 @media(min-width:600px){.work-grid{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:64px}.work-media{max-height:none}.type-cover>span{font-size:clamp(80px,15vw,144px)}.product-grid,.hq-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}.contact .form{grid-template-columns:repeat(2,minmax(0,1fr))}.contact .wide{grid-column:1/-1}.case-detail .inner{max-width:820px}.case-page .page-hero .display{font-size:clamp(52px,7vw,88px)}}
 @media(min-width:960px){.work-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.about .inner{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap)}.about-copy{margin:0}.work-heading h3{font-size:28px}.type-cover>span{font-size:120px}}
 @media(prefers-reduced-motion:reduce){.work-heading a{transition:none}}
+
+.logo-marquee{overflow:hidden;margin:10px calc(var(--gutter)*-1) 44px;background:#000}
+.logo-marquee-track{display:flex;width:max-content;will-change:transform;animation:logo-marquee-left 28s linear infinite}
+.logo-marquee-set{display:flex;flex:none;align-items:center;gap:clamp(8px,2vw,24px);padding-right:clamp(8px,2vw,24px)}
+.logo-marquee-set a{display:grid;place-items:center;width:clamp(150px,31vw,220px);height:clamp(108px,22vw,154px);background:#000;text-decoration:none;overflow:hidden}
+.logo-marquee-set img{display:block;width:clamp(150px,31vw,220px);height:clamp(150px,31vw,220px);max-width:none;object-fit:contain;filter:brightness(.93) saturate(.82);transition:opacity .18s ease,transform .18s ease}
+.logo-marquee-set a:hover img,.logo-marquee-set a:focus-visible img{opacity:.76;transform:scale(1.025)}
+.logo-marquee-set a:focus-visible{outline:2px solid var(--o);outline-offset:-4px}
+.logo-marquee:focus-within .logo-marquee-track{animation-play-state:paused}
+@media(hover:hover){.logo-marquee:hover .logo-marquee-track{animation-play-state:paused}}
+@keyframes logo-marquee-left{to{transform:translate3d(-50%,0,0)}}
+@media(prefers-reduced-motion:reduce){
+ .logo-marquee{overflow:visible;margin-inline:0}
+ .logo-marquee-track{width:auto;animation:none}
+ .logo-marquee-set{flex-wrap:wrap;justify-content:center}
+ .logo-marquee-set[aria-hidden=true]{display:none}
+ .logo-marquee-set a{width:min(46%,190px)}
+}
