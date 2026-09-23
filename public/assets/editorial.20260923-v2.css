@@ -16,3 +16,5 @@
 #contacte .privacy-layer{font-size:12px}
 @media(max-width:699px){.projects>.inner>.work-grid .work-media{left:50%;width:100dvw;margin-left:0;transform:translateX(-50%);aspect-ratio:9/16}.projects>.inner>.work-grid .work-media video{width:100%;height:100%;object-fit:cover}}
 @media(min-width:700px){.projects>.inner>.work-grid .work-media{height:85svh;max-height:85svh;aspect-ratio:auto}.projects>.inner>.work-grid .work-media video{width:100%;height:100%;object-fit:cover}}
+
+html{overflow-x:clip}
