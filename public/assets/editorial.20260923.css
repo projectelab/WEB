@@ -1,0 +1,9 @@
+/* Editorial additions reuse the existing palette, type and spacing. */
+.hero-intro{position:absolute;bottom:12svh;left:var(--gutter);right:var(--gutter);z-index:10;text-align:center}
+.hero-intro p{max-width:38ch;margin:0 auto 12px;color:var(--w);font-size:16px;line-height:1.5;text-shadow:0 2px 12px #000}
+.hero-actions{display:flex;justify-content:center;gap:22px;flex-wrap:wrap}
+.work-copy strong{color:var(--w);font-weight:500}
+.more-work{margin-top:var(--space)}
+.field select{width:100%;min-width:0;min-height:44px;padding:8px 1px;border:0;border-bottom:1px solid rgba(235,178,33,.7);border-radius:0;background:transparent;color:var(--w);font-size:16px}
+.field select option{background:var(--b);color:var(--w)}
+.field select[aria-invalid=true]{border-color:#ff8b72}
