@@ -110,7 +110,7 @@ jobs:
           WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/wrangler-output.ndjson
         run: npx wrangler deploy --config wrangler.jsonc
 
-      - name: Verify completed Cloudflare deployment
+      - name: Verify active Cloudflare deployment
         shell: bash
         run: |
           set -euo pipefail
@@ -131,7 +131,30 @@ jobs:
             exit 1
           }
 
-          echo "Wrangler completed deployment of Worker webl, version $deployed_version."
+          active_version=""
+          for attempt in {1..6}; do
+            deployment_status="$(npx wrangler deployments status --config wrangler.jsonc --json)"
+            active_version="$(jq -r '
+              (.versions // [])
+              | map(select(.percentage == 100) | .version_id)
+              | if length == 1 then .[0] else empty end
+            ' <<< "$deployment_status")"
+
+            if [[ "$active_version" == "$deployed_version" ]]; then
+              echo "Cloudflare confirms version $deployed_version is active for Worker webl."
+              break
+            fi
+
+            echo "Waiting for Cloudflare deployment metadata propagation ($attempt/6)..."
+            sleep 5
+          done
+
+          test "$active_version" = "$deployed_version" || {
+            echo "Cloudflare active version mismatch after propagation wait."
+            echo "Expected: $deployed_version"
+            echo "Active:   ${active_version:-missing}"
+            exit 1
+          }
 
       - name: Verify public production endpoints
         shell: bash
