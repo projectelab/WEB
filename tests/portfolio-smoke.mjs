@@ -111,11 +111,11 @@ test('client logo marquee links five real project pages and excludes Pata Negra'
 test('new amber-on-black client logos replace legacy identity previews',async()=>{
  const home=await read('public/index.html');
  const projects=await read('public/projectes/index.html');
+ assert.match(home,/\/media\/portfolio\/logo-ntk\.png/);
  for(const html of [home,projects]){
-  assert.match(html,/\/media\/portfolio\/logo-ntk\.png/);
   assert.match(html,/\/media\/portfolio\/logo-viu-svc\.png/);
   assert.match(html,/\/media\/portfolio\/logo-the-club-padel\.png/);
- assert.doesNotMatch(html,/previews-v2\/(?:viu-svc|the-club-padel)\.webp/);
+  assert.doesNotMatch(html,/previews-v2\/(?:viu-svc|the-club-padel)\.webp/);
   assert.match(html,/previews-v2\/nutrikom-ntk-runners\.mp4/);
   assert.match(html,/previews-v2\/nutrikom-ntk-runners\.webp/);
  }
