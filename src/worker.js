@@ -28,6 +28,11 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    if (url.hostname === 'desorden.cat') {
+      url.hostname = 'www.desorden.cat';
+      return Response.redirect(url.toString(), 301);
+    }
+
     if (request.method === 'POST' && url.pathname === '/automatizacion/submit') {
       const reply = (body, status = 200) => Response.json(body, {
         status, headers: { 'Cache-Control': 'no-store' },
