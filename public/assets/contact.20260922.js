@@ -18,6 +18,16 @@
       document.getElementById(`${id}-error`).textContent = valid ? '' : message;
       if (!valid && !firstInvalid) firstInvalid = field;
     }
+    const consent = document.getElementById('privacy-consent');
+    const consentError = document.getElementById('privacy-error');
+    if (consent && !consent.checked) {
+      consent.setAttribute('aria-invalid', 'true');
+      if (consentError) consentError.textContent = 'Has d’acceptar la política de privadesa per continuar.';
+      if (!firstInvalid) firstInvalid = consent;
+    } else if (consent) {
+      consent.removeAttribute('aria-invalid');
+      if (consentError) consentError.textContent = '';
+    }
     if (firstInvalid) {
       status.textContent = 'Revisa els camps indicats.';
       firstInvalid.focus();
@@ -42,6 +52,13 @@
       status.textContent = '';
     });
   }
+  const consent = document.getElementById('privacy-consent');
+  consent?.addEventListener('change', () => {
+    consent.removeAttribute('aria-invalid');
+    const error = document.getElementById('privacy-error');
+    if (error) error.textContent = '';
+    status.textContent = '';
+  });
   const year = document.querySelector('#year');
   if (year) year.textContent = new Date().getFullYear();
 })();

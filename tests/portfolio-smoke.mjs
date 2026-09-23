@@ -3,7 +3,7 @@ import {readFile,stat,readdir} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import test from 'node:test';
 const read = path => readFile(new URL(`../${path}`, import.meta.url),'utf8');
-const routes=['/','/projectes/','/laboratori/','/automatizacion/',...['nutrikom','pugnator-nox-bellum','the-club-padel','pata-negra','federacio-catalana-esgrima','viu-svc','producte-digital'].map(x=>`/projectes/${x}/`),...['suro','marina','territori','ia-visual','lip-sync','experiments'].map(x=>`/laboratori/${x}/`)];
+const routes=['/','/projectes/','/laboratori/','/automatizacion/','/privadesa/','/cookies/',...['nutrikom','pugnator-nox-bellum','the-club-padel','pata-negra','federacio-catalana-esgrima','viu-svc','producte-digital'].map(x=>`/projectes/${x}/`),...['suro','marina','territori','ia-visual','lip-sync','experiments'].map(x=>`/laboratori/${x}/`)];
 const labs=['suro','marina','territori','ia-visual','lip-sync','experiments'];
 test('all public routes have valid local assets, unique headings, accessible main and canonical SEO',async()=>{
  const sitemap=await read('public/sitemap.xml');
@@ -69,4 +69,16 @@ test('audited media is unchanged, compatible, faststart and under the Cloudflare
  }
  async function assets(dir){for(const entry of await readdir(dir,{withFileTypes:true})){const p=new URL(entry.name+(entry.isDirectory()?'/':''),dir);if(entry.isDirectory())await assets(p);else assert((await stat(p)).size<25*1024*1024,p.pathname);}}
  await assets(new URL('../public/',import.meta.url));
+});
+
+test('audit hardening exposes privacy consent and richer semantic metadata',async()=>{
+ const home=await read('public/index.html');
+ const contact=await read('public/assets/contact.20260922.js');
+ assert.match(home,/ProfessionalService/);
+ assert.match(home,/Producció audiovisual/);
+ assert.match(home,/id="privacy-consent"/);
+ assert.match(home,/href="\/privadesa\/"/);
+ assert.match(home,/href="\/cookies\/"/);
+ assert.match(home,/wa\.me\/34640925788\?text=/);
+ assert.match(contact,/privacy-consent/);
 });

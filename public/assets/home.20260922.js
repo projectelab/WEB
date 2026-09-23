@@ -153,6 +153,19 @@
       await loadFrame(target);
       drawFrame(target);
       for (let index = 1; index < 4; index += 1) loadFrame(index);
+      const warmOpeningFrames = () => {
+        let index = 4;
+        const next = async () => {
+          if (index >= 12 || document.hidden) return;
+          await loadFrame(index);
+          index += 1;
+          if ('requestIdleCallback' in window) requestIdleCallback(next, { timeout: 800 });
+          else setTimeout(next, 120);
+        };
+        next();
+      };
+      if ('requestIdleCallback' in window) requestIdleCallback(warmOpeningFrames, { timeout: 1200 });
+      else setTimeout(warmOpeningFrames, 800);
       if ($('#boot-copy')) $('#boot-copy').textContent = 'EXPERIÈNCIA PREPARADA';
     } catch {
       if ($('#boot-copy')) $('#boot-copy').textContent = 'MODE DE RESERVA ACTIVAT';
