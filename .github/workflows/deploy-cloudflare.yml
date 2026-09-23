@@ -49,9 +49,9 @@ jobs:
           compact="$(printf '%s' "$compact" | sed -E 's/^[[:space:]]+//;s/[[:space:]]+$//')"
 
           token=""
-          if [[ "$compact" =~ [Bb]earer[[:space:]]+([^\"\047[:space:]]+) ]]; then
+          if [[ "$compact" =~ [Bb]earer[[:space:]]+([^"\047[:space:]]+) ]]; then
             token="${BASH_REMATCH[1]}"
-          elif [[ "$compact" =~ CLOUDFLARE_API_TOKEN[[:space:]]*=[[:space:]]*[\"\047]?([^\"\047[:space:]]+) ]]; then
+          elif [[ "$compact" =~ CLOUDFLARE_API_TOKEN[[:space:]]*=[[:space:]]*["\047]?([^"\047[:space:]]+) ]]; then
             token="${BASH_REMATCH[1]}"
           else
             token="$compact"
@@ -112,30 +112,106 @@ jobs:
         run: npx wrangler whoami
 
       - name: Deploy Worker static assets
+        env:
+          WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/wrangler-output.ndjson
         run: npx wrangler deploy --config wrangler.jsonc
 
-      - name: Verify production domains
+      - name: Verify active Cloudflare deployment
         shell: bash
         run: |
           set -euo pipefail
+
+          output="$RUNNER_TEMP/wrangler-output.ndjson"
+          test -s "$output" || { echo "Missing Wrangler deployment output."; exit 1; }
+
+          deploy_entry="$(jq -sc '[.[] | select(.type=="deploy")] | last' "$output")"
+          deployed_version="$(jq -r '.version_id // empty' <<< "$deploy_entry")"
+          deployed_worker="$(jq -r '.worker_name // empty' <<< "$deploy_entry")"
+
+          test "$deployed_worker" = "webl" || {
+            echo "Unexpected Worker name: ${deployed_worker:-missing}"
+            exit 1
+          }
+          test -n "$deployed_version" || {
+            echo "Wrangler did not report a deployed version ID."
+            exit 1
+          }
+
+          deployments="$(npx wrangler deployments list --config wrangler.jsonc --json)"
+          active_version="$(jq -r '
+            if type == "array" then
+              (.[0].versions[0].version_id // .[0].versions[0].id // empty)
+            else
+              (.deployments[0].versions[0].version_id // .deployments[0].versions[0].id // empty)
+            end
+          ' <<< "$deployments")"
+
+          test "$active_version" = "$deployed_version" || {
+            echo "Cloudflare active version mismatch."
+            echo "Expected: $deployed_version"
+            echo "Active:   ${active_version:-missing}"
+            exit 1
+          }
+
+          echo "Cloudflare confirms version $deployed_version is active for Worker webl."
+
+      - name: Verify public production endpoints
+        shell: bash
+        run: |
+          set -euo pipefail
+
           origin="https://www.desorden.cat"
           user_agent="DESORDEN-Deploy-Smoke-Test/1.0"
-          for attempt in {1..6}; do
-            home="$(curl -fsSL -A "$user_agent" --max-time 20 "$origin/" || true)"
-            automation="$(curl -fsSL -A "$user_agent" --max-time 20 "$origin/automatizacion/" || true)"
-            if grep -q "SI NO ET VEUEN" <<< "$home" \
-              && grep -q 'data-n="05"' <<< "$home" \
-              && grep -q "MENYS FEINA" <<< "$automation" \
-              && grep -q 'id="contact-form"' <<< "$automation" \
-              && ! grep -q '149–199 €\|299–499 €\|Preus orientatius' <<< "$automation"; then
-              redirect="$(curl -sS -A "$user_agent" -D - -o /dev/null --max-time 20 'https://desorden.cat/' | tr -d '\r')"
-              grep -Eq '^HTTP/[0-9.]+ 301' <<< "$redirect"
-              grep -qi '^location: https://www.desorden.cat/$' <<< "$redirect"
-              echo "Production domain and canonical redirect verified."
-              exit 0
+
+          check_page() {
+            local url="$1"
+            local required_a="$2"
+            local required_b="$3"
+            local forbidden="${4:-}"
+            local headers body clean_headers status
+
+            headers="$(mktemp)"
+            body="$(mktemp)"
+            clean_headers="$(mktemp)"
+
+            status="$(curl -sS -A "$user_agent" --max-time 20 \
+              -D "$headers" -o "$body" -w '%{http_code}' "$url" || true)"
+            tr -d '\r' < "$headers" > "$clean_headers"
+
+            if [[ "$status" == "200" ]]; then
+              grep -qF "$required_a" "$body"
+              grep -qF "$required_b" "$body"
+              if [[ -n "$forbidden" ]] && grep -Eq "$forbidden" "$body"; then
+                echo "Forbidden production content found at $url"
+                return 1
+              fi
+              echo "Public content verified: $url"
+              return 0
             fi
-            echo "Waiting for production propagation ($attempt/6)..."
-            sleep 5
-          done
-          echo "Production verification failed."
-          exit 1
+
+            if [[ "$status" == "403" ]] && grep -qi '^cf-mitigated:[[:space:]]*challenge' "$clean_headers"; then
+              echo "::warning::Cloudflare issued a Managed Challenge to the GitHub-hosted runner for $url. The active deployment was already verified through the authenticated Wrangler control plane."
+              return 0
+            fi
+
+            echo "Unexpected HTTP status $status from $url"
+            sed -n '1,20p' "$clean_headers"
+            return 1
+          }
+
+          check_page "$origin/" "SI NO ET VEUEN" 'data-n="05"'
+          check_page "$origin/automatizacion/" "MENYS FEINA" 'id="contact-form"' '149–199 €|299–499 €|Preus orientatius'
+
+          redirect_headers="$(mktemp)"
+          redirect_clean="$(mktemp)"
+          redirect_status="$(curl -sS -A "$user_agent" --max-time 20 \
+            -D "$redirect_headers" -o /dev/null -w '%{http_code}' 'https://desorden.cat/' || true)"
+          tr -d '\r' < "$redirect_headers" > "$redirect_clean"
+
+          test "$redirect_status" = "301" || {
+            echo "Expected 301 from https://desorden.cat/, got $redirect_status"
+            exit 1
+          }
+          grep -qi '^location: https://www.desorden.cat/$' "$redirect_clean"
+
+          echo "Canonical redirect verified."
