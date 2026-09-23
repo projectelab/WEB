@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   transfer:
-    if: github.event.head_commit.message == 'chore: stage Nutrikom binary transfer'
+    if: ${{ github.event.head_commit.message == 'chore: stage Nutrikom binary transfer' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,8 +19,8 @@ jobs:
           fetch-depth: 0
       - name: Download Nutrikom media
         env:
-          HQ_URL: 'https://sdmntprnortheu.oaiusercontent.com/files/00000000-aba0-81f4-ad85-7f824093db50/raw?se=2026-09-23T14%3A57%3A53Z&sp=r&sv=2026-02-06&sr=b&scid=d5638dae-29dd-5409-aa23-012a9c15d26e&skoid=5c9dda00-298b-4376-81e9-b4568c8a3c0f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-23T05%3A02%3A20Z&ske=2026-09-24T05%3A02%3A20Z&sks=b&skv=2026-02-06&sig=vpyNqekhcnLl5BQOwORGEGZ/WyIqBSYNJzi57XsKAco%3D'
-          PREVIEW_URL: 'https://sdmntprwestus2.oaiusercontent.com/files/00000000-d1f8-81f8-b5ea-af1e9a2bb053/raw?se=2026-09-23T14%3A57%3A58Z&sp=r&sv=2026-02-06&sr=b&scid=5bd02cd0-9705-53ef-8e8b-6e409e9d0f35&skoid=5c9dda00-298b-4376-81e9-b4568c8a3c0f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-23T13%3A53%3A12Z&ske=2026-09-24T13%3A53%3A12Z&sks=b&skv=2026-02-06&sig=mi64kkI1PAEh0QqcjMErY87Gs2wnFfW4DGNgbGiW%2B5o%3D'
+          HQ_URL: 'https://sdmntpritalynorth.oaiusercontent.com/files/00000000-deb8-8246-b12e-bb66bd68847b/raw?se=2026-09-23T14%3A58%3A40Z&sp=r&sv=2026-02-06&sr=b&scid=526b8f75-1150-55ad-b75f-967d304a0cb7&skoid=5c9dda00-298b-4376-81e9-b4568c8a3c0f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-22T22%3A50%3A38Z&ske=2026-09-23T22%3A50%3A38Z&sks=b&skv=2026-02-06&sig=V/MCrBgeVmB736jGtgyuGPXBrUlOHuNc82%2B2eak12yw%3D'
+          PREVIEW_URL: 'https://sdmntprcentralus.oaiusercontent.com/files/00000000-4108-81f5-bbd7-6bd729ed14ff/raw?se=2026-09-23T14%3A58%3A45Z&sp=r&sv=2026-02-06&sr=b&scid=a31d60e3-d4cb-5024-838f-7908bd8df7a9&skoid=5c9dda00-298b-4376-81e9-b4568c8a3c0f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-23T08%3A19%3A34Z&ske=2026-09-24T08%3A19%3A34Z&sks=b&skv=2026-02-06&sig=/vAHhI3xEQbj620DWGnPgH8vU%2BmRo7y0b/m47oRlVMc%3D'
         run: |
           mkdir -p public/media/portfolio/hq public/media/portfolio/previews-v2
           curl -L --fail --retry 3 --retry-delay 2 "$HQ_URL" -o "public/media/portfolio/hq/nutrikom-ntk-runners.mp4"
