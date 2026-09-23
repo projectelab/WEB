@@ -47,7 +47,7 @@ test('both public pages use the shared contact, valid local resources and canoni
 });
 
 function contact() {
-  const nodes = Object.fromEntries(['contact-form','status','name','contact','objective','name-error','contact-error','objective-error','year'].map(id => [id, element()]));
+  const nodes = Object.fromEntries(['contact-form','status','need','name','contact','objective','need-error','name-error','contact-error','objective-error','year'].map(id => [id, element()]));
   const location = { href: '' };
   vm.runInNewContext(contactSource, {
     document: { querySelector: s => nodes[s.slice(1)], getElementById: id => nodes[id] },
@@ -58,6 +58,9 @@ function contact() {
 
 test('contact validation focuses the first invalid field without opening a channel', () => {
   const app = contact(); app.send('whatsapp');
+  assert.equal(app.nodes.need.focused, true);
+  assert.equal(app.nodes['need-error'].textContent, 'Tria què necessites.');
+  app.nodes.need.value = 'Visual'; app.nodes.need.listeners.change(); app.send('whatsapp');
   assert.equal(app.location.href, ''); assert.equal(app.nodes.name.focused, true);
   assert.equal(app.nodes.name.attrs['aria-invalid'], 'true');
   app.nodes.name.value = 'Anna'; app.nodes.name.listeners.input();
@@ -68,6 +71,7 @@ test('contact validation focuses the first invalid field without opening a chann
 test('WhatsApp and email prepare encoded Catalan drafts, retain fields and never claim delivery', () => {
   for (const channel of ['whatsapp', 'email']) {
     const app = contact();
+    app.nodes.need.value = 'Web / sistema';
     app.nodes.name.value = ' Anna & Pau ';
     app.nodes.contact.value = 'anna@example.com';
     app.nodes.objective.value = 'Vull ordenar peticions.\nVídeo, web & pressupostos?';
@@ -77,10 +81,27 @@ test('WhatsApp and email prepare encoded Catalan drafts, retain fields and never
     if (channel === 'whatsapp') { assert.equal(url.hostname, 'wa.me'); assert.equal(url.pathname, '/34640925788'); }
     else assert.equal(url.pathname, 'desorden.help@gmail.com');
     const message = url.searchParams.get(channel === 'email' ? 'body' : 'text');
+    assert.match(message, /Necessitat: Web \/ sistema/);
     assert.match(message, /Nom: Anna & Pau/); assert(message.endsWith(app.nodes.objective.value));
     assert.match(app.nodes.status.textContent, /Encara no s’ha enviat/);
     assert.equal(app.nodes.name.value, ' Anna & Pau ');
   }
+});
+
+test('home follows the editorial sequence with real featured projects', () => {
+  const ids = ['hero','que-resolem','que-faig','automatitzacio','projectes','lab','rnd','com-treballem','desorden','qui-soc','contacte'];
+  let previous = -1;
+  for (const id of ids) {
+    const position = home.indexOf(`id="${id}"`);
+    assert(position > previous, id);
+    previous = position;
+  }
+  const featured = home.split('<div class="work-grid">')[1].split('<div class="more-work">')[0];
+  for (const slug of ['nutrikom','pugnator-nox-bellum','federacio-catalana-esgrima']) {
+    assert(featured.includes(`/projectes/${slug}/`), slug);
+  }
+  assert.equal((featured.match(/<strong>Objectiu\.<\/strong>/g) || []).length, 3);
+  assert.match(home, /<label for="need">Què necessites\?<\/label>/);
 });
 
 function sequence({ reduced = false, fail = false, deferred = false } = {}) {

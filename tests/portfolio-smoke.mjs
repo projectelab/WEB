@@ -74,7 +74,7 @@ test('audited media is unchanged, compatible, faststart and under the Cloudflare
 
 test('audit hardening exposes privacy consent and richer semantic metadata',async()=>{
  const home=await read('public/index.html');
- const contact=await read('public/assets/contact.20260922.js');
+ const contact=await read('public/assets/contact.20260923-editorial.js');
  assert.match(home,/ProfessionalService/);
  assert.match(home,/Producció audiovisual/);
  assert.match(home,/id="privacy-consent"/);
