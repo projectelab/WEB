@@ -39,7 +39,7 @@ test('home and indexes expose all six LAB lines while keeping HQ opt-in',async()
  }
 });
 test('all HQ clips preserve designated pages, posters and user-initiated playback',async()=>{
- const designated={'projectes/pugnator-nox-bellum':['boxing-event-01'],'projectes/federacio-catalana-esgrima':['esgrima-masculina-01','esgrima-masculina-02','esgrima-femenina-01','esgrima-femenina-02'],'laboratori/suro':['suro-poble-01','suro-poble-02'],'laboratori/territori':['territori-muntanya-01-v2','territori-historic-01'],'laboratori/ia-visual':['ia-visual-01'],'laboratori/lip-sync':['lip-sync-01']};
+ const designated={'projectes/nutrikom':['nutrikom-ntk-runners'],'projectes/pugnator-nox-bellum':['boxing-event-01'],'projectes/federacio-catalana-esgrima':['esgrima-masculina-01','esgrima-masculina-02','esgrima-femenina-01','esgrima-femenina-02'],'laboratori/suro':['suro-poble-01','suro-poble-02'],'laboratori/territori':['territori-muntanya-01-v2','territori-historic-01'],'laboratori/ia-visual':['ia-visual-01'],'laboratori/lip-sync':['lip-sync-01']};
  for(const [route,clips]of Object.entries(designated)){
   const html=await read(`public/${route}/index.html`);
   for(const clip of clips)assert(html.includes(`/hq/${clip}.mp4`),clip);
@@ -47,7 +47,7 @@ test('all HQ clips preserve designated pages, posters and user-initiated playbac
    assert.match(tag,/controls/);assert.match(tag,/poster="/);assert.match(tag,/preload="none"/);assert.doesNotMatch(tag,/autoplay/);
   }
  }
- const staticBrandPages={nutrikom:'logo-ntk.png','the-club-padel':'logo-the-club-padel.png'};
+ const staticBrandPages={'the-club-padel':'logo-the-club-padel.png'};
  for(const [route,asset] of Object.entries(staticBrandPages)){
   const html=await read(`public/projectes/${route}/index.html`);
   assert.doesNotMatch(html,/<video/);assert(html.includes(`/media/portfolio/${asset}`));
@@ -56,8 +56,8 @@ test('all HQ clips preserve designated pages, posters and user-initiated playbac
 });
 test('audited media is unchanged, compatible, faststart and under the Cloudflare asset limit',async()=>{
  const rows=JSON.parse(await read('docs/media-audit-20260922.json'));
- assert.equal(rows.filter(x=>x.path.includes('/hq/')).length,11);
- assert.equal(rows.filter(x=>x.path.includes('/previews-v2/')).length,7);
+ assert.equal(rows.filter(x=>x.path.includes('/hq/')).length,12);
+ assert.equal(rows.filter(x=>x.path.includes('/previews-v2/')).length,8);
  for(const row of rows){
   const bytes=await readFile(new URL(`../public${row.path}`,import.meta.url));
   assert.equal(createHash('sha256').update(bytes).digest('hex'),row.sha256,row.path);
@@ -111,11 +111,13 @@ test('client logo marquee links five real project pages and excludes Pata Negra'
 test('new amber-on-black client logos replace legacy identity previews',async()=>{
  const home=await read('public/index.html');
  const projects=await read('public/projectes/index.html');
+ assert.match(home,/\/media\/portfolio\/logo-ntk\.png/);
  for(const html of [home,projects]){
-  assert.match(html,/\/media\/portfolio\/logo-ntk\.png/);
   assert.match(html,/\/media\/portfolio\/logo-viu-svc\.png/);
   assert.match(html,/\/media\/portfolio\/logo-the-club-padel\.png/);
- assert.doesNotMatch(html,/previews-v2\/(?:nutrikom|viu-svc|the-club-padel)\.webp/);
+  assert.doesNotMatch(html,/previews-v2\/(?:viu-svc|the-club-padel)\.webp/);
+  assert.match(html,/previews-v2\/nutrikom-ntk-runners\.mp4/);
+  assert.match(html,/previews-v2\/nutrikom-ntk-runners\.webp/);
  }
  assert.doesNotMatch(home.match(/<div class="logo-marquee"[\s\S]*?<div class="work-grid">/)?.[0]||'',/pata-negra/i);
  assert.match(home,/portfolio\.20260923-premium-v2\.css/);
