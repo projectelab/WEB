@@ -3,7 +3,7 @@ import {readFile,stat,readdir} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import test from 'node:test';
 const read = path => readFile(new URL(`../${path}`, import.meta.url),'utf8');
-const routes=['/','/projectes/','/laboratori/','/automatizacion/','/privadesa/','/cookies/',...['nutrikom','pugnator-nox-bellum','the-club-padel','pata-negra','federacio-catalana-esgrima','viu-svc','producte-digital'].map(x=>`/projectes/${x}/`),...['suro','marina','territori','ia-visual','lip-sync','experiments'].map(x=>`/laboratori/${x}/`)];
+const routes=['/','/projectes/','/laboratori/','/automatizacion/','/privadesa/','/cookies/',...['nutrikom','pugnator-nox-bellum','the-club-padel','pata-negra','federacio-catalana-esgrima','viu-svc','ajuntament-sant-vicenc','producte-digital'].map(x=>`/projectes/${x}/`),...['suro','marina','territori','ia-visual','lip-sync','experiments'].map(x=>`/laboratori/${x}/`)];
 const labs=['suro','marina','territori','ia-visual','lip-sync','experiments'];
 test('all public routes have valid local assets, unique headings, accessible main and canonical SEO',async()=>{
  const sitemap=await read('public/sitemap.xml');
@@ -84,7 +84,7 @@ test('audit hardening exposes privacy consent and richer semantic metadata',asyn
  assert.match(contact,/privacy-consent/);
 });
 
-test('client logo marquee links the four featured clients and excludes Pata Negra',async()=>{
+test('client logo marquee links five real project pages and excludes Pata Negra',async()=>{
  const home=await read('public/index.html');
  const marquee=home.match(/<div class="logo-marquee"[\s\S]*?<div class="work-grid">/)?.[0];
  assert.ok(marquee,'Home exposes the client logo marquee');
@@ -94,11 +94,18 @@ test('client logo marquee links the four featured clients and excludes Pata Negr
   ['viu-svc','viu-svc'],
   ['the-club-padel','the-club-padel'],
   ['pugnator','pugnator-nox-bellum'],
+  ['ajuntament-svc','ajuntament-sant-vicenc'],
  ]){
   assert.match(marquee,new RegExp(`href="/projectes/${route}/"[^>]*><img src="/media/portfolio/logo-${logo}\\.png"`));
   await readFile(new URL(`../public/media/portfolio/logo-${logo}.png`,import.meta.url));
   await read(`public/projectes/${route}/index.html`);
  }
+ const sets=[...marquee.matchAll(/<div class="logo-marquee-set"[^>]*>([\s\S]*?)<\/div>/g)];
+ assert.equal(sets.length,2);
+ assert.deepEqual([...sets[0][1].matchAll(/href="([^"]+)"/g)].map(x=>x[1]),[...sets[1][1].matchAll(/href="([^"]+)"/g)].map(x=>x[1]));
+ const css=await read('public/assets/portfolio.20260923-premium-v2.css');
+ assert.match(css,/\.logo-marquee-set img\{[^}]*object-fit:contain/);
+ assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
 });
 
 test('new amber-on-black client logos replace legacy identity previews',async()=>{
@@ -108,8 +115,13 @@ test('new amber-on-black client logos replace legacy identity previews',async()=
   assert.match(html,/\/media\/portfolio\/logo-ntk\.png/);
   assert.match(html,/\/media\/portfolio\/logo-viu-svc\.png/);
   assert.match(html,/\/media\/portfolio\/logo-the-club-padel\.png/);
-  assert.doesNotMatch(html,/previews-v2\/(?:nutrikom|viu-svc|the-club-padel)\.webp/);
+ assert.doesNotMatch(html,/previews-v2\/(?:nutrikom|viu-svc|the-club-padel)\.webp/);
  }
  assert.doesNotMatch(home.match(/<div class="logo-marquee"[\s\S]*?<div class="work-grid">/)?.[0]||'',/pata-negra/i);
- assert.match(home,/portfolio\.20260923-premium\.css/);
+ assert.match(home,/portfolio\.20260923-premium-v2\.css/);
+ assert.match(projects,/logo-ajuntament-svc\.png/);
+ const town=await read('public/projectes/ajuntament-sant-vicenc/index.html');
+ assert.doesNotMatch(town,/<(?:img|video)\b/i);
+ const pata=await read('public/projectes/pata-negra/index.html');
+ assert.doesNotMatch(pata,/previews-v2\/pata-negra\.webp/);
 });
