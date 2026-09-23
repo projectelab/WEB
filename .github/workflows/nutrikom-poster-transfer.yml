@@ -1,4 +1,5 @@
 name: Stage Nutrikom poster
+# final-transfer
 on:
   push:
     branches:
@@ -21,11 +22,11 @@ jobs:
         run: |
           source .github/nutrikom-poster-transfer.env
           curl -L --fail --retry 3 --retry-delay 2 "$POSTER_URL" -o public/media/portfolio/previews-v2/nutrikom-ntk-runners.webp
-          echo "db178139b37e1e6560b4d22d23d41a17b4c5f5c953afa930743408e46fa28fcf  public/media/portfolio/previews-v2/nutrikom-ntk-runners.webp" | sha256sum -c -
-          test "$(stat -c%s public/media/portfolio/previews-v2/nutrikom-ntk-runners.webp)" -eq 84012
+          echo "31ad74201c8f558698e60099ea0e045cb958614a10dc65d6eb540f085ce56a44  public/media/portfolio/previews-v2/nutrikom-ntk-runners.webp" | sha256sum -c -
+          test "$(stat -c%s public/media/portfolio/previews-v2/nutrikom-ntk-runners.webp)" -eq 25494
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
       - run: npm ci
       - run: npm test
@@ -34,5 +35,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add public/media/portfolio/previews-v2/nutrikom-ntk-runners.webp
+          git rm .github/workflows/nutrikom-poster-transfer.yml .github/nutrikom-poster-transfer.env
           git commit -m "fix: add complete Nutrikom poster"
           git push origin HEAD:feat/nutrikom-real-video-20260923
