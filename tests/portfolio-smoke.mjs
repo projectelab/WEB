@@ -102,8 +102,14 @@ test('audited media is unchanged, compatible, faststart and under the Cloudflare
 test('audit hardening exposes privacy consent and richer semantic metadata',async()=>{
  const home=await read('public/index.html');
  const contact=await read('public/assets/contact.20260923-editorial.js');
- assert.match(home,/ProfessionalService/);
- assert.match(home,/Producció audiovisual/);
+ const jsonLd=home.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g);
+ assert.equal(jsonLd?.length,1);
+ const structuredData=JSON.parse(jsonLd[0].replace(/^<script[^>]*>|<\/script>$/g,''));
+ assert.equal(structuredData['@context'],'https://schema.org');
+ assert.equal(structuredData['@type'],'Organization');
+ assert.equal(structuredData.founder.name,'David Milla');
+ assert.deepEqual(structuredData.hasOfferCatalog.itemListElement.map(offer=>offer.itemOffered.name),
+  ['Producció audiovisual','Vídeo','Fotografia','Dron','Web','Producte digital','Automatització','IA visual']);
  assert.match(home,/id="privacy-consent"/);
  assert.match(home,/href="\/privadesa\/"/);
  assert.match(home,/href="\/cookies\/"/);
