@@ -47,9 +47,10 @@ test('all HQ clips preserve designated pages, posters and user-initiated playbac
    assert.match(tag,/controls/);assert.match(tag,/poster="/);assert.match(tag,/preload="none"/);assert.doesNotMatch(tag,/autoplay/);
   }
  }
- for(const route of ['nutrikom','the-club-padel']){
+ const staticBrandPages={nutrikom:'logo-ntk.png','the-club-padel':'logo-the-club-padel.png'};
+ for(const [route,asset] of Object.entries(staticBrandPages)){
   const html=await read(`public/projectes/${route}/index.html`);
-  assert.doesNotMatch(html,/<video/);assert(html.includes(`/previews-v2/${route}.webp`));
+  assert.doesNotMatch(html,/<video/);assert(html.includes(`/media/portfolio/${asset}`));
  }
  assert.match(await read('public/laboratori/ia-visual/index.html'),/sense col·laboració comercial ni aval/);
 });
@@ -98,4 +99,17 @@ test('client logo marquee links the four featured clients and excludes Pata Negr
   await readFile(new URL(`../public/media/portfolio/logo-${logo}.png`,import.meta.url));
   await read(`public/projectes/${route}/index.html`);
  }
+});
+
+test('new amber-on-black client logos replace legacy identity previews',async()=>{
+ const home=await read('public/index.html');
+ const projects=await read('public/projectes/index.html');
+ for(const html of [home,projects]){
+  assert.match(html,/\/media\/portfolio\/logo-ntk\.png/);
+  assert.match(html,/\/media\/portfolio\/logo-viu-svc\.png/);
+  assert.match(html,/\/media\/portfolio\/logo-the-club-padel\.png/);
+  assert.doesNotMatch(html,/previews-v2\/(?:nutrikom|viu-svc|the-club-padel)\.webp/);
+ }
+ assert.doesNotMatch(home.match(/<div class="logo-marquee"[\s\S]*?<div class="work-grid">/)?.[0]||'',/pata-negra/i);
+ assert.match(home,/portfolio\.20260923-premium\.css/);
 });
