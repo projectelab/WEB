@@ -117,78 +117,139 @@ test('home follows the editorial sequence with real featured projects', () => {
   assert.match(home, /<label for="need">Què necessites\?<\/label>/);
 });
 
-function sequence({ reduced = false, fail = false, deferred = false } = {}) {
-  const nodes = Object.fromEntries(['canvas','hero','boot','boot-copy','frame'].map(id => [id, element()]));
-  const listeners = {}, draws = [], fetches = [], waiting = [], timers = [], frames = [];
-  let scroll = 0, active = 0, peak = 0, decoded = 0, live = 0, peakLive = 0;
-  const context = { drawImage(image) { assert(!image.closed); draws.push(image.index); } };
-  nodes.canvas.getContext = () => context;
-  nodes.canvas.getBoundingClientRect = () => ({ width: 390, height: 844 });
-  nodes.hero.offsetHeight = 2844;
-  nodes.hero.querySelector = () => ({ offsetHeight: 844 });
-  nodes.hero.getBoundingClientRect = () => ({ top: -scroll, bottom: 2844 - scroll });
-  const fetch = async url => {
-    const index = Number(url.match(/(\d{4})\.webp/)[1]) - 1;
-    fetches.push(index); active++; peak = Math.max(peak, active);
-    if (deferred) await new Promise(resolve => waiting.push(resolve));
-    active--;
-    return { ok: !fail, status: fail ? 404 : 200, blob: async () => ({ index }) };
+test('home hero uses one lightweight one-shot video with the original still as fallback', async () => {
+  const tag = home.match(/<video class="hero-video"[^>]*>/)?.[0];
+  assert.ok(tag, 'hero video exists');
+  assert.match(tag, /data-src="\/media\/hero\/venda-once\.mp4"/);
+  assert.match(tag, /poster="\/frames\/v1\/frame_0001\.webp"/);
+  assert.match(tag, /\bmuted\b/);
+  assert.match(tag, /\bplaysinline\b/);
+  assert.match(tag, /preload="auto"/);
+  assert.doesNotMatch(tag, /\bautoplay\b|\bloop\b/);
+  assert.doesNotMatch(home, /<canvas\b|id="frame"/);
+  const bytes = await readFile(new URL('../public/media/hero/venda-once.mp4', import.meta.url));
+  assert(bytes.length < 25 * 1024 * 1024);
+  const atoms = []; let offset = 0;
+  while (offset + 8 <= bytes.length) {
+    let size = bytes.readUInt32BE(offset);
+    const atom = bytes.toString('ascii', offset + 4, offset + 8);
+    if (size === 1) size = Number(bytes.readBigUInt64BE(offset + 8));
+    atoms.push(atom);
+    if (!size) break;
+    offset += size;
+  }
+  assert(atoms.indexOf('moov') < atoms.indexOf('mdat'));
+});
+
+function heroVideo({ reduced = false, rejectPlay = false, scrollY = 0 } = {}) {
+  const attrs = {};
+  const globalListeners = {};
+  const videoListeners = {};
+  const mediaListeners = {};
+  const root = element();
+  const hero = element();
+  hero.getBoundingClientRect = () => ({ top: scrollY ? -scrollY : 0 });
+  const media = {
+    matches: reduced,
+    addEventListener(type, listener) { mediaListeners[type] = listener; }
   };
-  const createImageBitmap = async ({ index }) => {
-    decoded++; live++; peakLive = Math.max(live, peakLive);
-    return { width:1080,height:1920,index,closed:false,close() { this.closed = true; live--; } };
+  const video = {
+    dataset: { src: '/media/hero/venda-once.mp4' },
+    duration: 4.041667,
+    currentTime: 0,
+    loadCount: 0,
+    pauseCount: 0,
+    playCount: 0,
+    getAttribute(name) { return attrs[name]; },
+    removeAttribute(name) { delete attrs[name]; },
+    get src() { return attrs.src || ''; },
+    set src(value) { attrs.src = value; },
+    load() { this.loadCount++; },
+    pause() { this.pauseCount++; },
+    play() {
+      this.playCount++;
+      return rejectPlay ? Promise.reject(new Error('blocked')) : Promise.resolve();
+    },
+    addEventListener(type, listener) { videoListeners[type] = listener; }
   };
+  const window = { scrollY };
   vm.runInNewContext(homeSource, {
-    document: { querySelector: s => nodes[s.slice(1)] }, matchMedia: () => ({ matches: reduced }),
-    window: { createImageBitmap }, createImageBitmap, fetch, innerHeight:844, devicePixelRatio:1,
-    requestAnimationFrame: fn => { frames.push(fn); return frames.length; },
-    addEventListener: (k, fn) => { listeners[k] = fn; }, setTimeout: fn => { timers.push(fn); }
+    document: {
+      documentElement: root,
+      querySelector: selector => selector === '[data-hero-video]' ? video : selector === '#hero' ? hero : null
+    },
+    window,
+    matchMedia: () => media,
+    addEventListener: (type, listener) => { globalListeners[type] = listener; },
+    Set
   });
-  return { nodes, draws, fetches, timers,
-    scrollTo(y) { scroll = y; listeners.scroll(); }, resize() { listeners.resize(); },
-    step() { frames.splice(0).forEach(fn => fn()); },
-    async drain() {
-      for (let pass = 0; pass < 40; pass++) {
-        waiting.splice(0).forEach(fn => fn());
-        frames.splice(0).forEach(fn => fn());
-        await new Promise(resolve => setImmediate(resolve));
-        if (!waiting.length && !frames.length && !active) return;
-      }
-      assert.fail('Frame queue did not settle');
-    }, peak: () => peak, live: () => live, decoded: () => decoded, peakLive: () => peakLive
+  const event = extra => ({ cancelable: true, prevented: false, preventDefault() { this.prevented = true; }, ...extra });
+  return {
+    video, root, media,
+    wheel(deltaY) { const e = event({ deltaY }); globalListeners.wheel(e); return e; },
+    touchStart(y) { globalListeners.touchstart(event({ touches: [{ clientY: y }] })); },
+    touchMove(y) { const e = event({ touches: [{ clientY: y }] }); globalListeners.touchmove(e); return e; },
+    key(key) { const e = event({ key }); globalListeners.keydown(e); return e; },
+    end() { videoListeners.ended(); },
+    setReduced(value) { media.matches = value; mediaListeners.change?.({ matches: value }); }
   };
 }
 
-test('active portrait loader prioritizes the latest fast scroll, caps in-flight work and releases bitmaps', async () => {
-  const app = sequence({ deferred: true }); await app.drain();
-  assert.equal(app.draws.at(-1), 0);
-  for (const frame of [10, 35, 80, 50, 96]) {
-    app.scrollTo(frame / 96 * 2000); await app.drain();
-    assert.equal(app.draws.at(-1), frame);
-  }
-  app.scrollTo(1500); app.step(); app.step();
-  app.scrollTo(100); app.step(); app.step();
-  app.scrollTo(2000); await app.drain();
-  assert.equal(app.draws.at(-1), 96); assert(app.peak() <= 4);
-  assert(app.live() <= 8); assert(app.decoded() > 8);
-  app.resize(); await app.drain(); assert.equal(app.draws.at(-1), 96);
-  app.scrollTo(0); await app.drain(); assert.equal(app.draws.at(-1), 0);
+test('first downward scroll plays once, blocks scrolling, holds the final frame and then releases the page', async () => {
+  const app = heroVideo();
+  assert.equal(app.video.src, '/media/hero/venda-once.mp4');
+  assert.equal(app.video.loadCount, 1);
+  assert.equal(app.video.playCount, 0);
+
+  const first = app.wheel(120);
+  assert.equal(first.prevented, true);
+  assert.equal(app.video.playCount, 1);
+  assert(app.root.classList.contains('hero-playback-lock'));
+
+  const during = app.wheel(120);
+  assert.equal(during.prevented, true);
+  assert.equal(app.video.playCount, 1);
+
+  app.end();
+  assert.equal(app.root.classList.contains('hero-playback-lock'), false);
+  assert.equal(app.video.pauseCount, 1);
+  assert(Math.abs(app.video.currentTime - (app.video.duration - 1 / 24)) < 1e-6);
+
+  const after = app.wheel(120);
+  assert.equal(after.prevented, false);
+  assert.equal(app.video.playCount, 1);
 });
 
-test('missing frames retain the fallback, stop retry storms and release the loading overlay', async () => {
-  const app = sequence({ fail: true }); await app.drain();
-  app.scrollTo(1000); await app.drain();
-  app.scrollTo(1000); await app.drain();
-  app.scrollTo(1000); await app.drain();
-  assert.equal(app.fetches.length, new Set(app.fetches).size); assert.equal(app.draws.length, 0);
-  app.timers.forEach(fn => fn());
-  assert(app.nodes.boot.classList.contains('off'));
-  assert(!app.nodes.hero.classList.contains('ready'));
+test('touch and keyboard can trigger the one-shot hero while reduced motion never traps scrolling', async () => {
+  const touch = heroVideo();
+  touch.touchStart(700);
+  const swipe = touch.touchMove(620);
+  assert.equal(swipe.prevented, true);
+  assert.equal(touch.video.playCount, 1);
+
+  const keyboard = heroVideo();
+  const key = keyboard.key('ArrowDown');
+  assert.equal(key.prevented, true);
+  assert.equal(keyboard.video.playCount, 1);
+
+  const reduced = heroVideo({ reduced: true });
+  assert.equal(reduced.video.src, '');
+  assert.equal(reduced.video.playCount, 0);
+  const reducedScroll = reduced.wheel(120);
+  assert.equal(reducedScroll.prevented, false);
+  assert.equal(reduced.video.playCount, 0);
+
+  const blocked = heroVideo({ rejectPlay: true });
+  blocked.wheel(120);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(blocked.root.classList.contains('hero-playback-lock'), false);
 });
 
-test('reduced motion avoids frame fetches', async () => {
-  const reduced = sequence({ reduced: true }); await reduced.drain();
-  assert.equal(reduced.fetches.length, 0); assert(reduced.nodes.boot.classList.contains('off'));
+test('hero interception only applies at the top of the page', () => {
+  const app = heroVideo({ scrollY: 24 });
+  const event = app.wheel(120);
+  assert.equal(event.prevented, false);
+  assert.equal(app.video.playCount, 0);
 });
 
 test('demo keyboard navigation updates its panel label and playback can be stopped', () => {
