@@ -36,6 +36,45 @@ const CONTACT_MAX_AGE_MS = 180 * 24 * 60 * 60 * 1000;
 const LEAD_EMAIL_FROM = 'leads@desorden.cat';
 const LEAD_EMAIL_TO = 'lab@desorden.cat';
 
+const CONTENT_SECURITY_POLICY = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "frame-ancestors 'none'",
+  "frame-src 'none'",
+  "script-src 'self'",
+  "script-src-attr 'none'",
+  "style-src 'self' https://fonts.googleapis.com",
+  "style-src-attr 'none'",
+  "font-src 'self' https://fonts.gstatic.com",
+  "img-src 'self' data:",
+  "media-src 'self'",
+  "connect-src 'self'",
+  "form-action 'self'",
+  "worker-src 'self'",
+  "manifest-src 'self'",
+  "upgrade-insecure-requests",
+].join('; ');
+
+const SECURITY_HEADERS = {
+  'Content-Security-Policy': CONTENT_SECURITY_POLICY,
+  'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+};
+
+function withSecurityHeaders(response) {
+  const headers = new Headers(response.headers);
+  for (const [name, value] of Object.entries(SECURITY_HEADERS)) headers.set(name, value);
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 const isEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
 async function sendLeadNotification(env, lead) {
@@ -71,8 +110,7 @@ async function sendLeadNotification(env, lead) {
 }
 
 
-export default {
-  async fetch(request, env, ctx) {
+async function handleRequest(request, env, ctx) {
     const url = new URL(request.url);
 
     if (url.hostname === 'desorden.cat') {
@@ -277,8 +315,14 @@ export default {
 
     // Serve static assets from public/ (including /lab/).
     return env.ASSETS.fetch(request);
+}
+
+export default {
+  async fetch(request, env, ctx) {
+    return withSecurityHeaders(await handleRequest(request, env, ctx));
   },
 };
+
 export class ContactLeadStore extends DurableObject {
   constructor(ctx, env) {
     super(ctx, env);
