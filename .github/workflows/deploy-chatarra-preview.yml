@@ -34,8 +34,70 @@ jobs:
           rm -rf chatarra-preview-dist mirror
           mkdir -p mirror chatarra-preview-dist
 
-          wget -q -r -l 3 -np -nH -P mirror "$CURRENT_PREVIEW/"
-          cp -a mirror/. chatarra-preview-dist/
+          python - <<'PY'
+          from pathlib import Path
+          from urllib.parse import urljoin, urlparse
+          from urllib.request import Request, urlopen
+          import re
+
+          origin = "https://chatarra-preview.desorden-help-76b.workers.dev"
+          out = Path("chatarra-preview-dist")
+          out.mkdir(parents=True, exist_ok=True)
+
+          seeds = ["/", "/aviso-legal/", "/privacidad/", "/404.html", "/robots.txt", "/sitemap.xml"]
+          queue = list(seeds)
+          seen = set()
+
+          def target_for(path):
+              if path.endswith("/"):
+                  return out / path.lstrip("/") / "index.html"
+              p = out / path.lstrip("/")
+              if not p.suffix and path != "/":
+                  return p / "index.html"
+              return p
+
+          while queue:
+              path = queue.pop(0)
+              path = "/" + path.lstrip("/")
+              if path in seen:
+                  continue
+              seen.add(path)
+
+              url = origin + path
+              req = Request(url, headers={"User-Agent":"CHATARRA-Preview-Builder/1.0"})
+              try:
+                  with urlopen(req, timeout=20) as r:
+                      data = r.read()
+                      ctype = r.headers.get("content-type","")
+              except Exception as e:
+                  if path in seeds:
+                      raise
+                  print("skip", path, e)
+                  continue
+
+              dest = target_for(path)
+              dest.parent.mkdir(parents=True, exist_ok=True)
+              dest.write_bytes(data)
+
+              if "text/html" in ctype or dest.suffix == ".html":
+                  text = data.decode("utf-8", "ignore")
+                  refs = re.findall(r'''(?:src|href)=["']([^"'#]+)''', text, flags=re.I)
+                  for ref in refs:
+                      u = urlparse(urljoin(url, ref))
+                      if u.netloc == urlparse(origin).netloc and u.path:
+                          queue.append(u.path)
+              elif "text/css" in ctype or dest.suffix == ".css":
+                  text = data.decode("utf-8", "ignore")
+                  refs = re.findall(r'''url\((?:["']?)([^)"']+)''', text, flags=re.I)
+                  for ref in refs:
+                      if ref.startswith("data:"):
+                          continue
+                      u = urlparse(urljoin(url, ref))
+                      if u.netloc == urlparse(origin).netloc and u.path:
+                          queue.append(u.path)
+
+          print("mirrored", len(seen), "paths")
+          PY
 
           test -f chatarra-preview-dist/index.html
           test -d chatarra-preview-dist/assets
