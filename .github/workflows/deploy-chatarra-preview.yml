@@ -117,11 +117,11 @@ jobs:
           mkdir -p chatarra-preview-dist/media
           curl -L --fail --retry 2 "$CLIENT_VIDEO_URL" -o client-source.mp4
 
-          ffmpeg -y -i client-source.mp4 -an             -c:v libx264 -preset slow -crf 19 -pix_fmt yuv420p             -movflags +faststart             chatarra-preview-dist/media/chatarra-hero-loop-v8.mp4
+          ffmpeg -y -i client-source.mp4 -an             -c:v libx264 -preset slow -crf 19 -pix_fmt yuv420p             -movflags +faststart             chatarra-preview-dist/media/chatarra-hero-loop-v9.mp4
 
           ffmpeg -y -ss 0.25 -i client-source.mp4 -frames:v 1             -vf "scale=1080:1080"             chatarra-preview-dist/media/chatarra-hero-poster-v8.jpg
 
-          ffprobe -v error -select_streams v:0             -show_entries stream=codec_name,width,height             -of default=nw=1             chatarra-preview-dist/media/chatarra-hero-loop-v8.mp4             | grep -q "codec_name=h264"
+          ffprobe -v error -select_streams v:0             -show_entries stream=codec_name,width,height             -of default=nw=1             chatarra-preview-dist/media/chatarra-hero-loop-v9.mp4             | grep -q "codec_name=h264"
 
       - name: Replace former 3D block with client video
         shell: bash
@@ -135,7 +135,7 @@ jobs:
           s = html.read_text(encoding="utf-8")
 
           pattern = r'<div aria-hidden="true" class="sculpture-stage"[\s\S]*?</div></div><div class="container hero-bottom">'
-          replacement = '<div aria-hidden="true" class="sculpture-stage video-stage" data-client-video-v8="true"><video autoplay muted loop playsinline preload="auto" disablepictureinpicture tabindex="-1" class="sculpture-video hero-client-video" poster="/media/chatarra-hero-poster-v8.jpg"><source src="/media/chatarra-hero-loop-v8.mp4" type="video/mp4"></video></div></div><div class="container hero-bottom">'
+          replacement = '<div aria-hidden="true" class="sculpture-stage video-stage" data-client-video-v8="true"><video autoplay muted loop playsinline preload="auto" disablepictureinpicture tabindex="-1" class="sculpture-video hero-client-video" poster="/media/chatarra-hero-poster-v8.jpg"><source src="/media/chatarra-hero-loop-v9.mp4" type="video/mp4"></video></div></div><div class="container hero-bottom">'
 
           s2, count = re.subn(pattern, replacement, s, count=1)
           if count != 1:
@@ -158,7 +158,7 @@ jobs:
           PY
 
           grep -q 'data-client-video-v8="true"' chatarra-preview-dist/index.html
-          grep -q 'chatarra-hero-loop-v8.mp4' chatarra-preview-dist/index.html
+          grep -q 'chatarra-hero-loop-v9.mp4' chatarra-preview-dist/index.html
           ! grep -q 'orbit orbit-one' chatarra-preview-dist/index.html
           ! grep -q 'art-coordinate' chatarra-preview-dist/index.html
 
@@ -182,7 +182,7 @@ jobs:
             body="$(mktemp)"
             video_headers="$(mktemp)"
             status="$(curl -sS -L --max-time 20 -o "$body" -w '%{http_code}' "$CHATARRA_PREVIEW_URL/?v=8" || true)"
-            video_status="$(curl -sS -I -L --max-time 20 -o "$video_headers" -w '%{http_code}' "$CHATARRA_PREVIEW_URL/media/chatarra-hero-loop-v8.mp4" || true)"
+            video_status="$(curl -sS -I -L --max-time 20 -o "$video_headers" -w '%{http_code}' "$CHATARRA_PREVIEW_URL/media/chatarra-hero-loop-v9.mp4" || true)"
             if [[ "$status" == "200" && "$video_status" == "200" ]] &&                grep -q 'data-client-video-v8="true"' "$body" &&                grep -q 'autoplay' "$body" &&                grep -q 'loop' "$body" &&                grep -q 'playsinline' "$body"; then
               echo "Preview verified: $CHATARRA_PREVIEW_URL/?v=8"
               exit 0
