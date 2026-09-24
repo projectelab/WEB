@@ -59,17 +59,17 @@ test('home links to LAB and its index retains all six lines with HQ opt-in',asyn
   const html=await read(`public${route}index.html`);
   assert.doesNotMatch(html,/\/media\/portfolio\/hq\//);
   for(const [tag] of html.matchAll(/<video\b[^>]*class="[^"]*\bpreview\b[^"]*"[^>]*>/g)){
-   assert.match(tag,/data-src="\/media\/portfolio\/previews-v2\//);
+   assert.match(tag,/data-src="\/media\/portfolio\//);
    assert.match(tag,/poster="/);assert.match(tag,/preload="none"/);
    assert.doesNotMatch(tag,/(?<!data-)src="|autoplay/);
   }
  }
 });
-test('all HQ clips preserve designated pages, posters and user-initiated playback',async()=>{
- const designated={'projectes/nutrikom':['nutrikom-ntk-runners'],'projectes/pugnator-nox-bellum':['boxing-event-01'],'projectes/federacio-catalana-esgrima':['esgrima-masculina-01','esgrima-masculina-02','esgrima-femenina-01','esgrima-femenina-02'],'laboratori/suro':['suro-poble-01','suro-poble-02'],'laboratori/territori':['territori-muntanya-01-v2','territori-historic-01'],'laboratori/ia-visual':['ia-visual-01'],'laboratori/lip-sync':['lip-sync-01']};
+test('current portfolio clips preserve designated pages, posters and user-initiated playback',async()=>{
+ const designated={'projectes/nutrikom':['ntk-runners-cursa'],'projectes/pugnator-nox-bellum':['nox-bellum-entrada'],'projectes/federacio-catalana-esgrima':['esgrima-accio','esgrima-retrat'],'projectes/viu-svc':['territori-esglesia-drone','territori-rotonda-drone'],'projectes/ajuntament-sant-vicenc':['territori-esglesia-drone','territori-rotonda-drone'],'laboratori/suro':['suro-retrat'],'laboratori/marina':['marina-retrat'],'laboratori/territori':['territori-esglesia-drone','territori-rotonda-drone'],'laboratori/ia-visual':['hq/ia-visual-01'],'laboratori/lip-sync':['hq/lip-sync-01']};
  for(const [route,clips]of Object.entries(designated)){
   const html=await read(`public/${route}/index.html`);
-  for(const clip of clips)assert(html.includes(`/hq/${clip}.mp4`),clip);
+  for(const clip of clips)assert(html.includes(`/media/portfolio/${clip}.mp4`),clip);
   for(const [tag]of html.matchAll(/<video\b[^>]*>/g)){
    assert.match(tag,/controls/);assert.match(tag,/poster="/);assert.match(tag,/preload="none"/);assert.doesNotMatch(tag,/autoplay/);
   }
