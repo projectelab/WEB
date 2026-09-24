@@ -88,20 +88,40 @@ test('WhatsApp and email prepare encoded Catalan drafts, retain fields and never
   }
 });
 
-test('home follows the editorial sequence with real featured projects', () => {
-  const ids = ['hero','projectes','que-faig','lab','desorden','contacte'];
+test('home follows the phase 1 hierarchy with broad offer before two varied featured projects', async () => {
+  const ids = ['hero','que-faig','projectes','lab','desorden','contacte'];
   let previous = -1;
   for (const id of ids) {
     const position = home.indexOf(`id="${id}"`);
     assert(position > previous, id);
     previous = position;
   }
-  const featured = home.split('<div class="work-grid">')[1].split('<div class="more-work">')[0];
-  for (const slug of ['nutrikom','pugnator-nox-bellum','federacio-catalana-esgrima']) {
-    assert(featured.includes(`/projectes/${slug}/`), slug);
-  }
-  assert.equal((featured.match(/<strong>Objectiu\.<\/strong>/g) || []).length, 3);
+
+  assert.match(home, /David Milla · un únic interlocutor/);
   for (const label of ['01 / VISUAL','02 / DIGITAL','03 / SISTEMES']) assert(home.includes(label));
+
+  const featured = home.split('<div class="work-grid featured-work">')[1].split('<div class="more-work more-work--compact">')[0];
+  for (const slug of ['nutrikom','viu-svc']) assert(featured.includes(`/projectes/${slug}/`), slug);
+  for (const slug of ['pugnator-nox-bellum','federacio-catalana-esgrima','the-club-padel','pata-negra']) {
+    assert(!featured.includes(`/projectes/${slug}/`), `${slug} must stay compact`);
+  }
+  assert.equal((featured.match(/<article class="work-card/g) || []).length, 2);
+
+  const compact = home.split('<div class="work-links">')[1].split('</div></div>')[0];
+  for (const slug of ['pugnator-nox-bellum','federacio-catalana-esgrima','the-club-padel','pata-negra']) {
+    assert(compact.includes(`/projectes/${slug}/`), slug);
+  }
+  assert.match(home, /VEURE TOTS ELS PROJECTES/);
+
+  const siteCss = await read('public/assets/site.20260923-v2.css');
+  assert.match(siteCss, /\.hero\{height:180svh\}/);
+  assert.match(siteCss, /@media\(min-width:700px\)\{\.hero\{height:260svh\}/);
+  assert.match(siteCss, /@media\(prefers-reduced-motion:reduce\)[\s\S]*?\.hero\{height:100svh\}/);
+
+  const portfolioCss = await read('public/assets/portfolio.20260923-v3.css');
+  assert.match(portfolioCss, /\.offer-compact/);
+  assert.match(portfolioCss, /\.work-links/);
+
   assert.match(home, /href="\/automatizacion\/"/);
   assert.match(home, /href="\/laboratori\/"/);
   assert.match(home, /href="\/projectes\/producte-digital\/"/);
