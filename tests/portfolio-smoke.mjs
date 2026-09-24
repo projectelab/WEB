@@ -105,7 +105,7 @@ test('audited media is unchanged, compatible, faststart and under the Cloudflare
 
 test('audit hardening exposes privacy consent and richer semantic metadata',async()=>{
  const home=await read('public/index.html');
- const contact=await read('public/assets/contact.20260923-editorial.js');
+ const contact=await read('public/assets/contact.20260924-native.js');
  const jsonLd=home.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g);
  assert.equal(jsonLd?.length,1);
  const structuredData=JSON.parse(jsonLd[0].replace(/^<script[^>]*>|<\/script>$/g,''));
@@ -205,6 +205,41 @@ test('all public pages prevent horizontal overflow and project logos stay inside
   const html=await read(`public${route}index.html`);
   assert.match(html,/viewport-lock\.20260924-v1\.css/,`${route}: viewport lock stylesheet`);
  }
+});
+
+test('native contact flow persists leads before optional WhatsApp',async()=>{
+ const home=await read('public/index.html');
+ const contact=await read('public/assets/contact.20260924-native.js');
+ const worker=await read('src/worker.js');
+ const wrangler=JSON.parse(await read('wrangler.jsonc'));
+ const privacy=await read('public/privadesa/index.html');
+
+ assert.match(home,/contact-native\.20260924-v1\.css/);
+ assert.match(home,/contact\.20260924-native\.js/);
+ assert.match(home,/name="need" value="Visual \/ vídeo"/);
+ assert.match(home,/name="need" value="Web & digital"/);
+ assert.match(home,/ENVIAR CONSULTA/);
+ assert.match(home,/id="contact-success"/);
+ assert.match(home,/OBRIR WHATSAPP AMB DAVID/);
+ assert.doesNotMatch(home,/data-channel="email"/);
+
+ assert.match(contact,/fetch\('\/api\/contact'/);
+ assert.match(contact,/successWhatsApp\.href = whatsapp/);
+ assert.match(contact,/form\.hidden = true/);
+
+ assert.match(worker,/url\.pathname === '\/api\/contact'/);
+ assert.match(worker,/CONTACT_RATE_LIMITER\.limit/);
+ assert.match(worker,/class ContactLeadStore extends DurableObject/);
+ assert.match(worker,/INSERT INTO leads/);
+ assert.match(worker,/CONTACT_MAX_AGE_MS/);
+
+ assert.equal(wrangler.durable_objects.bindings[0].name,'CONTACT_LEADS');
+ assert.deepEqual(wrangler.migrations[0].new_sqlite_classes,['ContactLeadStore']);
+ assert.equal(wrangler.ratelimits[0].name,'CONTACT_RATE_LIMITER');
+ assert.equal(wrangler.ratelimits[0].simple.limit,5);
+
+ assert.match(privacy,/infraestructura tècnica de Cloudflare/);
+ assert.match(privacy,/180 dies/);
 });
 
 test('public routes expose permanent legal navigation and explicit contact consent',async()=>{
