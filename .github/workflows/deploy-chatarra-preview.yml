@@ -20,7 +20,7 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      PREVIEW_ZIP_URL: "https://sdmntprnznorth.oaiusercontent.com/files/00000000-6cd0-820b-badb-1b36ad1ee6f3/raw?se=2026-09-24T18%3A39%3A48Z&sp=r&sv=2026-02-06&sr=b&scid=d99911a4-f7b9-5e00-b58a-a32180c98ea8&skoid=5c9dda00-298b-4376-81e9-b4568c8a3c0f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-24T18%3A15%3A54Z&ske=2026-09-25T18%3A15%3A54Z&sks=b&skv=2026-02-06&sig=wPNvC/pv5kbd6HbM931mYvSNuF5RjaWoLUGf5pmbEfk%3D"
+      PREVIEW_ZIP_URL: "https://sdmntprcentralus.oaiusercontent.com/files/00000000-2b0c-81f5-98e9-7f8c3a7d5ccb/raw?se=2026-09-24T18%3A52%3A48Z&sp=r&sv=2026-02-06&sr=b&scid=6bdae300-c2ab-545b-9595-ec3322aff8e0&skoid=5c9dda00-298b-4376-81e9-b4568c8a3c0f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-24T17%3A47%3A14Z&ske=2026-09-25T17%3A47%3A14Z&sks=b&skv=2026-02-06&sig=N9lkhMiYOXiOxE49BhnfuY/DBTD0QEid9Ck%2BWKLHu1Y%3D"
 
     steps:
       - name: Checkout preview branch
