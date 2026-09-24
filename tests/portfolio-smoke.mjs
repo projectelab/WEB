@@ -3,7 +3,7 @@ import {readFile,stat,readdir} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import test from 'node:test';
 const read = path => readFile(new URL(`../${path}`, import.meta.url),'utf8');
-const routes=['/','/projectes/','/laboratori/','/automatizacion/','/avis-legal/','/privadesa/','/cookies/',...['nutrikom','pugnator-nox-bellum','the-club-padel','pata-negra','federacio-catalana-esgrima','viu-svc','ajuntament-sant-vicenc','producte-digital'].map(x=>`/projectes/${x}/`),...['suro','marina','territori','ia-visual','lip-sync','experiments'].map(x=>`/laboratori/${x}/`)];
+const routes=['/','/projectes/','/laboratori/','/automatizacion/','/avis-legal/','/privadesa/','/cookies/',...['nutrikom','pugnator-nox-bellum','the-club-padel','pata-negra','federacio-catalana-esgrima','viu-svc','ajuntament-sant-vicenc','producte-digital','percussio'].map(x=>`/projectes/${x}/`),...['suro','marina','territori','ia-visual','lip-sync','experiments'].map(x=>`/laboratori/${x}/`)];
 const labs=['suro','marina','territori','ia-visual','lip-sync','experiments'];
 test('public routes expose matching social metadata and valid heading order',async()=>{
  for(const route of routes){
@@ -50,6 +50,18 @@ test('all public routes have valid local assets, unique headings, accessible mai
  assert.match(await read('public/robots.txt'),/Disallow: \/lab\//);
  assert.doesNotMatch(sitemap,/<loc>https:\/\/www.desorden.cat\/lab\//);
 });
+test('sitemap exposes lastmod for every URL and Percussió is linked from the project index',async()=>{
+ const sitemap=await read('public/sitemap.xml');
+ const urls=[...sitemap.matchAll(/<url>([\s\S]*?)<\/url>/g)].map(x=>x[1]);
+ assert(urls.length>0);
+ for(const entry of urls) assert.match(entry,/<lastmod>2026-09-24<\/lastmod>/);
+ assert.match(sitemap,/<loc>https:\/\/www\.desorden\.cat\/projectes\/percussio\/<\/loc>/);
+ const projects=await read('public/projectes/index.html');
+ assert.match(projects,/href="\/projectes\/percussio\/"[^>]*>PERCUSSIÓ/);
+ const page=await read('public/projectes/percussio/index.html');
+ assert.match(page,/data-src|esdeveniment-percussio\.mp4/);
+});
+
 test('home links to LAB and its index retains all six lines with HQ opt-in',async()=>{
   const home=await read('public/index.html');
   assert(home.includes('href="/laboratori/"'));
@@ -70,7 +82,7 @@ test('home links to LAB and its index retains all six lines with HQ opt-in',asyn
  }
 });
 test('current portfolio clips preserve designated pages, posters and user-initiated playback',async()=>{
- const designated={'projectes/nutrikom':['ntk-runners-cursa'],'projectes/pugnator-nox-bellum':['nox-bellum-entrada'],'projectes/federacio-catalana-esgrima':['esgrima-accio','esgrima-retrat'],'projectes/viu-svc':['territori-rotonda-drone'],'projectes/ajuntament-sant-vicenc':['territori-esglesia-drone'],'laboratori/suro':['suro-retrat'],'laboratori/marina':['marina-retrat'],'laboratori/territori':['territori-esglesia-drone','territori-rotonda-drone'],'laboratori/ia-visual':['hq/ia-visual-01'],'laboratori/lip-sync':['hq/lip-sync-01']};
+ const designated={'projectes/nutrikom':['ntk-runners-cursa'],'projectes/pugnator-nox-bellum':['nox-bellum-entrada'],'projectes/federacio-catalana-esgrima':['esgrima-accio','esgrima-retrat'],'projectes/viu-svc':['territori-rotonda-drone'],'projectes/ajuntament-sant-vicenc':['territori-esglesia-drone'],'projectes/percussio':['esdeveniment-percussio'],'laboratori/suro':['suro-retrat'],'laboratori/marina':['marina-retrat'],'laboratori/territori':['territori-esglesia-drone','territori-rotonda-drone'],'laboratori/ia-visual':['hq/ia-visual-01'],'laboratori/lip-sync':['hq/lip-sync-01']};
  for(const [route,clips]of Object.entries(designated)){
   const html=await read(`public/${route}/index.html`);
   for(const clip of clips)assert(html.includes(`/media/portfolio/${clip}.mp4`),clip);
@@ -110,10 +122,20 @@ test('audit hardening exposes privacy consent and richer semantic metadata',asyn
  assert.equal(jsonLd?.length,1);
  const structuredData=JSON.parse(jsonLd[0].replace(/^<script[^>]*>|<\/script>$/g,''));
  assert.equal(structuredData['@context'],'https://schema.org');
- assert.equal(structuredData['@type'],'Organization');
- assert.equal(structuredData.founder.name,'David Milla');
- assert.deepEqual(structuredData.hasOfferCatalog.itemListElement.map(offer=>offer.itemOffered.name),
+ assert(Array.isArray(structuredData['@graph']));
+ const organization=structuredData['@graph'].find(item=>item['@type']==='Organization');
+ const person=structuredData['@graph'].find(item=>item['@type']==='Person');
+ assert.equal(organization?.['@id'],'https://www.desorden.cat/#organization');
+ assert.equal(organization?.founder?.['@id'],'https://www.desorden.cat/#david-milla');
+ assert.deepEqual(organization.hasOfferCatalog.itemListElement.map(offer=>offer.itemOffered.name),
   ['Producció audiovisual','Vídeo','Fotografia','Dron','Web','Producte digital','Automatització','IA visual']);
+ assert.equal(person?.name,'David Milla');
+ assert.equal(person?.email,'mailto:lab@desorden.cat');
+ assert.equal(person?.brand?.['@id'],'https://www.desorden.cat/#organization');
+ assert.equal(person?.worksFor?.['@id'],'https://www.desorden.cat/#organization');
+ assert.equal(person?.address?.addressLocality,'Sant Vicenç de Castellet');
+ assert.equal(person?.address?.addressRegion,'Barcelona');
+ assert.equal(person?.address?.addressCountry,'ES');
  assert.match(home,/id="privacy-consent"/);
  assert.match(home,/href="\/privadesa\/"/);
  assert.match(home,/href="\/cookies\/"/);
