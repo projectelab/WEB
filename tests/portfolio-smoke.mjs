@@ -155,8 +155,8 @@ test('client logo marquee links five real project pages and excludes Pata Negra'
   ['pugnator','pugnator-nox-bellum'],
   ['ajuntament-svc','ajuntament-sant-vicenc'],
  ]){
-  assert.match(marquee,new RegExp(`href="/projectes/${route}/"[^>]*><img src="/media/portfolio/logo-${logo}\\.png"`));
-  await readFile(new URL(`../public/media/portfolio/logo-${logo}.png`,import.meta.url));
+  assert.match(marquee,new RegExp(`href="/projectes/${route}/"[^>]*><img src="/media/portfolio/logo-${logo}\\.20260925\\.webp"`));
+  await readFile(new URL(`../public/media/portfolio/logo-${logo}.20260925.webp`,import.meta.url));
   await read(`public/projectes/${route}/index.html`);
  }
  const sets=[...marquee.matchAll(/<div class="logo-marquee-set"[^>]*>([\s\S]*?)<\/div>/g)];
