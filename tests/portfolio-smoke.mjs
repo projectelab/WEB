@@ -274,10 +274,10 @@ test('PageSpeed assets use local Anton and optimized versioned logos',async()=>{
 test('public markup is compatible with strict CSP without unsafe-inline or unsafe-eval',async()=>{
  const worker=await read('src/worker.js');
  assert.match(worker,/Content-Security-Policy/);
- assert.match(worker,/"script-src 'self'"/);
+ assert.match(worker,/"script-src 'self' https:\/\/static\.cloudflareinsights\.com"/);
  assert.match(worker,/"style-src 'self'"/);
  assert.match(worker,/"font-src 'self'"/);
- assert.match(worker,/"connect-src 'self'"/);
+ assert.match(worker,/"connect-src 'self' https:\/\/cloudflareinsights\.com"/);
  assert.match(worker,/"frame-ancestors 'none'"/);
  assert.match(worker,/"frame-src 'none'"/);
  assert.match(worker,/Strict-Transport-Security/);

@@ -171,7 +171,7 @@ test('worker applies strict security headers centrally to static and API respons
   assert.match(csp, /default-src 'self'/);
   assert.match(csp, /style-src 'self'/);
   assert.match(csp, /font-src 'self'/);
-  assert.match(csp, /connect-src 'self'/);
+  assert.match(csp, /connect-src 'self' https:\/\/cloudflareinsights\.com/);
   assert.match(csp, /frame-ancestors 'none'/);
   assert.match(csp, /frame-src 'none'/);
   assert.doesNotMatch(csp, /unsafe-inline|unsafe-eval/);
@@ -184,7 +184,7 @@ test('worker applies strict security headers centrally to static and API respons
   const api = await worker.fetch(request({ ...data, cliente: '' }), {});
   assert.equal(api.status, 400);
   assert.equal(api.headers.get('X-Frame-Options'), 'DENY');
-  assert.match(api.headers.get('Content-Security-Policy'), /connect-src 'self'/);
+  assert.match(api.headers.get('Content-Security-Policy'), /connect-src 'self' https:\/\/cloudflareinsights\.com/);
 });
 
 test('worker gives immutable cache only to versioned assets and versioned frame directory', async () => {
