@@ -216,3 +216,65 @@ jobs:
           grep -qi '^location: https://www.desorden.cat/$' "$redirect_clean"
 
           echo "Canonical redirect verified."
+
+      - name: Verify live security headers and contact API
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          origin="https://www.desorden.cat"
+          user_agent="DESORDEN-Security-Smoke-Test/1.0"
+          headers="$(mktemp)"
+          clean_headers="$(mktemp)"
+          body="$(mktemp)"
+
+          status="$(curl -sS -A "$user_agent" --max-time 20             -D "$headers" -o "$body" -w '%{http_code}' "$origin/" || true)"
+          tr -d '\r' < "$headers" > "$clean_headers"
+
+          test "$status" = "200" || {
+            echo "Expected 200 from $origin/, got $status"
+            sed -n '1,30p' "$clean_headers"
+            exit 1
+          }
+
+          grep -qi '^content-security-policy: ' "$clean_headers"
+          grep -qi "default-src 'self'" "$clean_headers"
+          grep -qi "script-src 'self'" "$clean_headers"
+          grep -qi "style-src 'self' https://fonts.googleapis.com" "$clean_headers"
+          grep -qi "font-src 'self' https://fonts.gstatic.com" "$clean_headers"
+          grep -qi "connect-src 'self'" "$clean_headers"
+          grep -qi "frame-ancestors 'none'" "$clean_headers"
+          grep -qi '^strict-transport-security: max-age=63072000; includeSubDomains; preload "$clean_headers"
+          grep -qi '^x-content-type-options: nosniff "$clean_headers"
+          grep -qi '^x-frame-options: DENY "$clean_headers"
+          grep -qi '^referrer-policy: strict-origin-when-cross-origin "$clean_headers"
+          grep -qi '^permissions-policy: camera=(), microphone=(), geolocation=() "$clean_headers"
+
+          if grep -qiE "unsafe-inline|unsafe-eval" "$clean_headers"; then
+            echo "CSP unexpectedly allows unsafe-inline or unsafe-eval."
+            exit 1
+          fi
+
+          font_status="$(curl -sS -A "$user_agent" --max-time 20             -o /dev/null -w '%{http_code}'             'https://fonts.googleapis.com/css2?family=Anton&display=swap' || true)"
+          test "$font_status" = "200" || {
+            echo "Google Fonts stylesheet unavailable: HTTP $font_status"
+            exit 1
+          }
+
+          api_headers="$(mktemp)"
+          api_clean="$(mktemp)"
+          api_body="$(mktemp)"
+          api_status="$(curl -sS -A "$user_agent" --max-time 20             -X POST "$origin/api/contact"             -H 'Content-Type: application/json'             --data '{"website":"security-check"}'             -D "$api_headers" -o "$api_body" -w '%{http_code}' || true)"
+          tr -d '\r' < "$api_headers" > "$api_clean"
+
+          test "$api_status" = "200" || {
+            echo "Expected 200 from /api/contact honeypot probe, got $api_status"
+            sed -n '1,30p' "$api_clean"
+            cat "$api_body"
+            exit 1
+          }
+          grep -q '"ok":true' "$api_body"
+          grep -qi '^content-security-policy: ' "$api_clean"
+          grep -qi '^x-frame-options: DENY "$api_clean"
+
+          echo "Live security headers, Google Fonts and /api/contact verified."
