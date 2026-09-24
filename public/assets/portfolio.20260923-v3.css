@@ -79,3 +79,14 @@
 
 /* Original brand mark + larger readable secondary text */
 .brand-meaning{font-size:clamp(14px,2vw,20px)}.case-proof{font-size:17.5px;line-height:1.72}.work-number{font-size:12.5px}
+
+/* Home hierarchy: reuse the offer content once, ahead of the selected work. */
+.offer-summary{padding-block:40px}
+.offer-summary .desorden-label{margin-top:0}
+.offer-summary .offer-author{margin:8px 0 24px;color:var(--g);font-size:15px}
+.offer-summary .product-grid{margin:24px 0;gap:24px}
+.offer-summary .product-grid h3{margin:6px 0;font-size:24px}
+.offer-summary .lead{margin:20px 0 8px}
+.projects .more-work .work-grid{gap:28px var(--gap)}
+.projects .more-work .work-grid .work-heading{margin-top:0}
+@media(min-width:700px){.offer-summary .product-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}

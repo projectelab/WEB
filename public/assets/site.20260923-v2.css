@@ -35,7 +35,9 @@ body.menu-open{overflow:hidden}
 .boot-line i{display:block;width:18%;height:100%;background:var(--o);animation:load 1s infinite alternate}
 @keyframes load{to{transform:translateX(455%)}}
 @keyframes boot-fallback{to{visibility:hidden;opacity:0}}
-.hero{height:260svh}.hero .sticky{width:min(100%,560px);margin-inline:auto}
+.hero{height:260svh}
+@media(max-width:699px) and (prefers-reduced-motion:no-preference){.hero{height:180svh}}
+.hero .sticky{width:min(100%,560px);margin-inline:auto}
 .sticky{position:sticky;top:0;height:100svh;overflow:hidden;background:#000}
 .hero canvas,.hero .fallback{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;margin:auto;transform:scaleX(-1) scale(.8);transform-origin:center;filter:grayscale(100%) contrast(1.2) brightness(.6)}
 .hero.ready .fallback{visibility:hidden}

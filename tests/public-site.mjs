@@ -89,7 +89,7 @@ test('WhatsApp and email prepare encoded Catalan drafts, retain fields and never
 });
 
 test('home follows the editorial sequence with real featured projects', () => {
-  const ids = ['hero','projectes','que-faig','lab','desorden','contacte'];
+  const ids = ['hero','que-faig','projectes','lab','desorden','contacte'];
   let previous = -1;
   for (const id of ids) {
     const position = home.indexOf(`id="${id}"`);
@@ -97,10 +97,18 @@ test('home follows the editorial sequence with real featured projects', () => {
     previous = position;
   }
   const featured = home.split('<div class="work-grid">')[1].split('<div class="more-work">')[0];
-  for (const slug of ['nutrikom','pugnator-nox-bellum','federacio-catalana-esgrima']) {
+  for (const slug of ['nutrikom','pugnator-nox-bellum']) {
     assert(featured.includes(`/projectes/${slug}/`), slug);
   }
-  assert.equal((featured.match(/<strong>Objectiu\.<\/strong>/g) || []).length, 3);
+  assert.equal((featured.match(/<article\b/g) || []).length, 2);
+  assert.equal((featured.match(/<strong>Objectiu\.<\/strong>/g) || []).length, 2);
+  const compact = home.split('<div class="more-work">')[1].split('<a class="submit projects-all"')[0];
+  for (const slug of ['pata-negra','viu-svc','federacio-catalana-esgrima','the-club-padel']) {
+    assert(compact.includes(`/projectes/${slug}/`), slug);
+  }
+  assert.doesNotMatch(compact, /<video\b/);
+  assert(home.indexOf('David Milla · un únic interlocutor') < home.indexOf('id="projectes"'));
+  assert.equal((home.match(/id="que-faig"/g) || []).length, 1);
   for (const label of ['01 / VISUAL','02 / DIGITAL','03 / SISTEMES']) assert(home.includes(label));
   assert.match(home, /href="\/automatizacion\/"/);
   assert.match(home, /href="\/laboratori\/"/);
