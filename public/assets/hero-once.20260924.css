@@ -1,0 +1,9 @@
+/* Versioned hero interaction overrides to avoid stale cached CSS. */
+.hero{height:100svh!important}
+.hero .sticky{width:min(100%,560px);margin-inline:auto;position:relative!important;top:auto!important;height:100svh!important}
+.hero-video,.hero .fallback{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;margin:auto;transform:scaleX(-1) scale(.8);transform-origin:center;filter:grayscale(100%) contrast(1.2) brightness(.6)}
+.hero-video{z-index:1}
+html.hero-playback-lock,html.hero-playback-lock body{overflow:hidden!important;overscroll-behavior:none}
+html.hero-playback-lock body{touch-action:none}
+html.hero-playback-lock .hero .hint{opacity:0;animation:none}
+@media(prefers-reduced-motion:reduce){.hero-video{display:none!important}}

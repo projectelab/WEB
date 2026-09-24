@@ -115,6 +115,8 @@ test('home follows the editorial sequence with real featured projects', () => {
   assert.match(home, /href="\/projectes\/producte-digital\/"/);
   for (const anchor of ['automatitzacio','rnd','com-treballem','qui-soc']) assert(home.includes(`id="${anchor}"`));
   assert.match(home, /<label for="need">Què necessites\?<\/label>/);
+  assert.match(home, /\/assets\/home\.hero-once\.20260924\.js/);
+  assert.match(home, /\/assets\/hero-once\.20260924\.css/);
 });
 
 test('home hero uses one lightweight one-shot video with the original still as fallback', async () => {
@@ -172,7 +174,11 @@ function heroVideo({ reduced = false, rejectPlay = false, scrollY = 0 } = {}) {
     },
     addEventListener(type, listener) { videoListeners[type] = listener; }
   };
-  const window = { scrollY };
+  const window = {
+    scrollY,
+    innerHeight: 844,
+    scrollTo(x, y) { this.scrollY = y; }
+  };
   vm.runInNewContext(homeSource, {
     document: {
       documentElement: root,
@@ -190,6 +196,7 @@ function heroVideo({ reduced = false, rejectPlay = false, scrollY = 0 } = {}) {
     touchStart(y) { globalListeners.touchstart(event({ touches: [{ clientY: y }] })); },
     touchMove(y) { const e = event({ touches: [{ clientY: y }] }); globalListeners.touchmove(e); return e; },
     key(key) { const e = event({ key }); globalListeners.keydown(e); return e; },
+    scrollTo(y) { window.scrollY = y; globalListeners.scroll?.(); },
     end() { videoListeners.ended(); },
     setReduced(value) { media.matches = value; mediaListeners.change?.({ matches: value }); }
   };
@@ -245,8 +252,15 @@ test('touch and keyboard can trigger the one-shot hero while reduced motion neve
   assert.equal(blocked.root.classList.contains('hero-playback-lock'), false);
 });
 
-test('hero interception only applies at the top of the page', () => {
-  const app = heroVideo({ scrollY: 24 });
+test('native scroll fallback triggers the hero on mobile even if touch interception is bypassed', () => {
+  const app = heroVideo();
+  app.scrollTo(48);
+  assert.equal(app.video.playCount, 1);
+  assert(app.root.classList.contains('hero-playback-lock'));
+});
+
+test('hero interception only applies near the top of the page', () => {
+  const app = heroVideo({ scrollY: 500 });
   const event = app.wheel(120);
   assert.equal(event.prevented, false);
   assert.equal(app.video.playCount, 0);
