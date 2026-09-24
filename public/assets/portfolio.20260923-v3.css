@@ -49,6 +49,9 @@
 .case-media{margin:0;max-width:540px;width:100%}
 .case-media video{width:100%;height:auto;object-fit:cover;display:block;background:#000}
 .case-media figcaption{margin-top:14px;color:var(--g);font:14px/1.6 var(--meta)}
+.project-brand{display:flex;align-items:center;min-height:88px;max-width:540px;margin:30px 0 0}
+.project-brand img{display:block;width:auto;height:auto;max-width:min(68vw,280px);max-height:118px;object-fit:contain}
+.lab-home-grid{margin-top:32px}
 .identity-art{max-width:420px;margin:0}.identity-art--brand{max-width:280px;margin-inline:auto}
 .identity-art img{display:block;width:100%;height:auto}
 .case-page .contact{padding-top:80px}

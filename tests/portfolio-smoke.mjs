@@ -53,6 +53,10 @@ test('all public routes have valid local assets, unique headings, accessible mai
 test('home links to LAB and its index retains all six lines with HQ opt-in',async()=>{
   const home=await read('public/index.html');
   assert(home.includes('href="/laboratori/"'));
+  assert(home.includes('href="/laboratori/suro/"'));
+  assert(home.includes('href="/laboratori/marina/"'));
+  assert.match(home,/data-src="\/media\/portfolio\/suro-retrat\.mp4"/);
+  assert.match(home,/data-src="\/media\/portfolio\/marina-retrat\.mp4"/);
   const labIndex=await read('public/laboratori/index.html');
   for(const slug of labs) assert(labIndex.includes(`href="/laboratori/${slug}/"`),slug);
  for(const route of ['/','/projectes/','/laboratori/']){
@@ -66,7 +70,7 @@ test('home links to LAB and its index retains all six lines with HQ opt-in',asyn
  }
 });
 test('current portfolio clips preserve designated pages, posters and user-initiated playback',async()=>{
- const designated={'projectes/nutrikom':['ntk-runners-cursa'],'projectes/pugnator-nox-bellum':['nox-bellum-entrada'],'projectes/federacio-catalana-esgrima':['esgrima-accio','esgrima-retrat'],'projectes/viu-svc':['territori-esglesia-drone','territori-rotonda-drone'],'projectes/ajuntament-sant-vicenc':['territori-esglesia-drone','territori-rotonda-drone'],'laboratori/suro':['suro-retrat'],'laboratori/marina':['marina-retrat'],'laboratori/territori':['territori-esglesia-drone','territori-rotonda-drone'],'laboratori/ia-visual':['hq/ia-visual-01'],'laboratori/lip-sync':['hq/lip-sync-01']};
+ const designated={'projectes/nutrikom':['ntk-runners-cursa'],'projectes/pugnator-nox-bellum':['nox-bellum-entrada'],'projectes/federacio-catalana-esgrima':['esgrima-accio','esgrima-retrat'],'projectes/viu-svc':['territori-rotonda-drone'],'projectes/ajuntament-sant-vicenc':['territori-esglesia-drone'],'laboratori/suro':['suro-retrat'],'laboratori/marina':['marina-retrat'],'laboratori/territori':['territori-esglesia-drone','territori-rotonda-drone'],'laboratori/ia-visual':['hq/ia-visual-01'],'laboratori/lip-sync':['hq/lip-sync-01']};
  for(const [route,clips]of Object.entries(designated)){
   const html=await read(`public/${route}/index.html`);
   for(const clip of clips)assert(html.includes(`/media/portfolio/${clip}.mp4`),clip);
@@ -157,9 +161,20 @@ test('client logos and new portfolio videos replace legacy previews',async()=>{
  assert.match(projects,/\/media\/portfolio\/territori-rotonda-drone\.mp4/);
  assert.doesNotMatch(home.match(/<div class="logo-marquee"[\s\S]*?<div class="work-grid">/)?.[0]||'',/pata-negra/i);
  assert.match(home,/portfolio\.20260923-v3\.css/);
+ const viu=await read('public/projectes/viu-svc/index.html');
+ assert.match(viu,/\/media\/portfolio\/territori-rotonda-drone\.mp4/);
+ assert.doesNotMatch(viu,/\/media\/portfolio\/territori-esglesia-drone\.mp4/);
+ assert.match(viu,/\/media\/portfolio\/logo-viu-svc\.png/);
  const town=await read('public/projectes/ajuntament-sant-vicenc/index.html');
  assert.match(town,/\/media\/portfolio\/territori-esglesia-drone\.mp4/);
- assert.match(town,/\/media\/portfolio\/territori-rotonda-drone\.mp4/);
+ assert.doesNotMatch(town,/\/media\/portfolio\/territori-rotonda-drone\.mp4/);
+ assert.match(town,/\/media\/portfolio\/logo-ajuntament-svc\.png/);
+ const ntk=await read('public/projectes/nutrikom/index.html');
+ assert.match(ntk,/\/media\/portfolio\/logo-ntk\.png/);
+ const pugnator=await read('public/projectes/pugnator-nox-bellum/index.html');
+ assert.match(pugnator,/\/media\/portfolio\/logo-pugnator\.png/);
+ const fencing=await read('public/projectes/federacio-catalana-esgrima/index.html');
+ assert.match(fencing,/https:\/\/esgrima\.cat\/wp-content\/uploads\/2024\/08\/FCELogo\.png/);
  const pata=await read('public/projectes/pata-negra/index.html');
  assert.doesNotMatch(pata,/previews-v2\/pata-negra\.webp/);
 });
