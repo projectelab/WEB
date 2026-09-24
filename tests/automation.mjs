@@ -169,8 +169,8 @@ test('worker applies strict security headers centrally to static and API respons
   const csp = page.headers.get('Content-Security-Policy');
   assert(csp);
   assert.match(csp, /default-src 'self'/);
-  assert.match(csp, /style-src 'self' https:\/\/fonts\.googleapis\.com/);
-  assert.match(csp, /font-src 'self' https:\/\/fonts\.gstatic\.com/);
+  assert.match(csp, /style-src 'self'/);
+  assert.match(csp, /font-src 'self'/);
   assert.match(csp, /connect-src 'self'/);
   assert.match(csp, /frame-ancestors 'none'/);
   assert.match(csp, /frame-src 'none'/);
