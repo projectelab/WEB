@@ -159,3 +159,31 @@ test('specific POST route precedes SAT proxy; existing static and proxy contract
     }
   }
 });
+
+test('worker applies strict security headers centrally to static and API responses', async () => {
+  const worker = workerWith(async () => new Response('confirmation'));
+  const env = {
+    ASSETS: { fetch: async () => new Response('<!doctype html><title>ok</title>', { headers: { 'Content-Type': 'text/html' } }) }
+  };
+  const page = await worker.fetch(new Request('https://www.desorden.cat/'), env);
+  const csp = page.headers.get('Content-Security-Policy');
+  assert(csp);
+  assert.match(csp, /default-src 'self'/);
+  assert.match(csp, /style-src 'self' https:\/\/fonts\.googleapis\.com/);
+  assert.match(csp, /font-src 'self' https:\/\/fonts\.gstatic\.com/);
+  assert.match(csp, /connect-src 'self'/);
+  assert.match(csp, /frame-ancestors 'none'/);
+  assert.match(csp, /frame-src 'none'/);
+  assert.doesNotMatch(csp, /unsafe-inline|unsafe-eval/);
+  assert.equal(page.headers.get('Strict-Transport-Security'), 'max-age=63072000; includeSubDomains; preload');
+  assert.equal(page.headers.get('X-Content-Type-Options'), 'nosniff');
+  assert.equal(page.headers.get('X-Frame-Options'), 'DENY');
+  assert.equal(page.headers.get('Referrer-Policy'), 'strict-origin-when-cross-origin');
+  assert.equal(page.headers.get('Permissions-Policy'), 'camera=(), microphone=(), geolocation=()');
+
+  const api = await worker.fetch(request({ ...data, cliente: '' }), {});
+  assert.equal(api.status, 400);
+  assert.equal(api.headers.get('X-Frame-Options'), 'DENY');
+  assert.match(api.headers.get('Content-Security-Policy'), /connect-src 'self'/);
+});
+
