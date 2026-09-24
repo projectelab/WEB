@@ -1,0 +1,72 @@
+name: Finalize PageSpeed HTML
+
+on:
+  push:
+    branches:
+      - perf/pagespeed-mobile-20260925
+    paths:
+      - .github/workflows/finalize-pagespeed-html.yml
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: perf/pagespeed-mobile-20260925
+      - name: Make page CSS non-blocking and preload local font
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          root = Path('public')
+          for path in root.rglob('*.html'):
+              text = path.read_text(encoding='utf-8')
+              if '/assets/site.20260925-v3.css' not in text and '/assets/site.20260925-v4.css' not in text:
+                  continue
+
+              text = text.replace('/assets/site.20260925-v3.css','/assets/site.20260925-v4.css')
+
+              preload = '<link rel="preload" href="/assets/fonts/anton-latin.20260925.woff2" as="font" type="font/woff2" crossorigin>'
+              if preload not in text:
+                  text = text.replace(
+                      '<link rel="stylesheet" href="/assets/site.20260925-v4.css">',
+                      preload + '\n<link rel="stylesheet" href="/assets/site.20260925-v4.css">'
+                  )
+
+              changed_extra = False
+              for name in ('home-extras.20260925-v1.css','portfolio-extras.20260925-v1.css','automation-extras.20260925-v1.css'):
+                  normal = f'<link rel="stylesheet" href="/assets/{name}">'
+                  if normal in text:
+                      async_link = f'<link rel="stylesheet" href="/assets/{name}" media="print" data-noncritical-css>'
+                      fallback = f'<noscript><link rel="stylesheet" href="/assets/{name}"></noscript>'
+                      text = text.replace(normal, async_link + '\n' + fallback)
+                      changed_extra = True
+
+              if changed_extra and '/assets/noncritical-css.20260925-v1.js' not in text:
+                  text = text.replace(
+                      '</head>',
+                      '<script src="/assets/noncritical-css.20260925-v1.js" defer></script>\n</head>'
+                  )
+
+              path.write_text(text, encoding='utf-8')
+          PY
+      - name: Commit HTML updates
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/**/*.html public/*.html
+          if git diff --cached --quiet; then
+            echo 'No HTML updates required.'
+            exit 0
+          fi
+          git commit -m 'perf: defer noncritical CSS and preload local font'
+          git push origin HEAD:perf/pagespeed-mobile-20260925
