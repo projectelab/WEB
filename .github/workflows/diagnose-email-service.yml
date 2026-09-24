@@ -1,0 +1,92 @@
+name: Diagnose email delivery
+
+on:
+  push:
+    branches:
+      - diag/email-service-20260925
+    paths:
+      - .github/workflows/diagnose-email-service.yml
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      RAW_CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      RAW_CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Normalize credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          raw="$RAW_CLOUDFLARE_API_TOKEN"
+          compact="$(printf '%s' "$raw" | tr -d '\r\n' | sed -E 's/^[[:space:]]+//;s/[[:space:]]+$//')"
+          token="$compact"
+          if [[ "$token" == [Bb]earer\ * ]]; then token="${token#* }"; fi
+          if [[ "$token" == CLOUDFLARE_API_TOKEN=* ]]; then token="${token#*=}"; fi
+          token="$(printf '%s' "$token" | tr -d '"' | tr -d "'" | sed -E 's/^[[:space:]]+//;s/[[:space:]]+$//')"
+          account_id="$(printf '%s' "$RAW_CLOUDFLARE_ACCOUNT_ID" | tr -d '\r\n[:space:]')"
+          echo "::add-mask::$token"
+          echo "::add-mask::$account_id"
+          echo "CLOUDFLARE_API_TOKEN=$token" >> "$GITHUB_ENV"
+          echo "CLOUDFLARE_ACCOUNT_ID=$account_id" >> "$GITHUB_ENV"
+
+      - name: Inspect deployed send_email binding
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sS --fail-with-body             "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts/webl/settings"             -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"             > /tmp/settings.json
+          echo "SEND_EMAIL_BINDING"
+          jq -c '.result.bindings[] | select(.type=="send_email") | {name,type,destination_address,allowed_destination_addresses,allowed_sender_addresses}' /tmp/settings.json
+
+      - name: Resolve zone and inspect Email Sending onboarding
+        shell: bash
+        run: |
+          set -euo pipefail
+          zone_json="$(curl -sS --fail-with-body             "https://api.cloudflare.com/client/v4/zones?name=desorden.cat"             -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN")"
+          zone_id="$(jq -r '.result[0].id // empty' <<< "$zone_json")"
+          test -n "$zone_id"
+          echo "::add-mask::$zone_id"
+          echo "ZONE_ID=$zone_id" >> "$GITHUB_ENV"
+
+          echo "EMAIL_SENDING_SUBDOMAINS"
+          response="$(curl -sS             -w '\nHTTP_STATUS:%{http_code}\n'             "https://api.cloudflare.com/client/v4/zones/$zone_id/email/sending/subdomains"             -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN")"
+          printf '%s\n' "$response" | sed -n '1,/HTTP_STATUS:/p' | head -c 12000
+          echo
+
+      - name: Inspect public DNS for routing and sending
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "DNS_ROOT_MX"; dig +short MX desorden.cat || true
+          echo "DNS_ROOT_SPF"; dig +short TXT desorden.cat | grep -i 'spf1' || true
+          echo "DNS_ROUTING_DKIM"; dig +short TXT cf2024-1._domainkey.desorden.cat || true
+          echo "DNS_SENDING_MX"; dig +short MX cf-bounce.desorden.cat || true
+          echo "DNS_SENDING_SPF"; dig +short TXT cf-bounce.desorden.cat | grep -i 'spf1' || true
+          echo "DNS_SENDING_DKIM"; dig +short TXT cf-bounce._domainkey.desorden.cat || true
+          echo "DNS_DMARC"; dig +short TXT _dmarc.desorden.cat || true
+
+      - name: Query recent Email Sending events
+        shell: bash
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          start="$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%SZ)"
+          end="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          cat >/tmp/query.json <<'JSON'
+          {
+            "query":"query RecentEmailEvents($zoneTag: string!, $start: Time!, $end: Time!) { viewer { zones(filter: { zoneTag: $zoneTag }) { emailSendingAdaptive(filter: { datetime_geq: $start, datetime_leq: $end }, limit: 50, orderBy: [datetime_DESC]) { datetime from to subject status eventType sendingDomain messageId errorCause errorDetail dkim dmarc spf isSpam } } } }",
+            "variables":{"zoneTag":"ZONE_PLACEHOLDER","start":"START_PLACEHOLDER","end":"END_PLACEHOLDER"}
+          }
+          JSON
+          jq --arg z "$ZONE_ID" --arg s "$start" --arg e "$end"             '.variables.zoneTag=$z | .variables.start=$s | .variables.end=$e' /tmp/query.json >/tmp/query2.json
+          curl -sS --fail-with-body https://api.cloudflare.com/client/v4/graphql             -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"             -H 'Content-Type: application/json'             --data-binary @/tmp/query2.json >/tmp/graphql.json
+          echo "RECENT_EMAIL_EVENTS_TO_LAB"
+          jq -c '.data.viewer.zones[0].emailSendingAdaptive[]? | select(.to=="lab@desorden.cat" or .from=="leads@desorden.cat")' /tmp/graphql.json
+          echo "GRAPHQL_ERRORS"
+          jq -c '.errors // []' /tmp/graphql.json
