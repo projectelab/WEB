@@ -38,19 +38,13 @@ jobs:
           for f in robots.txt sitemap.xml favicon.svg 404.html _headers; do
             curl -fsSL "$ORIGIN/$f" -o "chatarra-v6-dist/$f" || true
           done
-          python - <<'PY'
-          import re, urllib.request
-          from pathlib import Path
-          origin="https://chatarra-preview.desorden-help-76b.workers.dev"
-          root=Path("chatarra-v6-dist")
-          html=(root/"index.html").read_text(encoding="utf-8")
-          paths=sorted(set(re.findall(r'/(?:assets|images|fonts)/[A-Za-z0-9._/-]+', html)))
-          for path in paths:
-              dest=root/path.lstrip("/")
-              dest.parent.mkdir(parents=True, exist_ok=True)
-              urllib.request.urlretrieve(origin+path, dest)
-          print("mirrored", len(paths), "assets")
-          PY
+          grep -Eo '/(assets|images|fonts)/[A-Za-z0-9._/-]+' chatarra-v6-dist/index.html | sort -u > /tmp/chatarra-assets.txt
+          while IFS= read -r path; do
+            dest="chatarra-v6-dist/${path#/}"
+            mkdir -p "$(dirname "$dest")"
+            curl -fsSL -A "DESORDEN-Preview-Mirror/1.0" "$ORIGIN$path" -o "$dest"
+          done < /tmp/chatarra-assets.txt
+          echo "mirrored $(wc -l < /tmp/chatarra-assets.txt) assets"
 
       - name: Generate continuous 3D MP4
         shell: bash
