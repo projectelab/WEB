@@ -20,7 +20,7 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      PREVIEW_ZIP_URL: "https://sdmntprukwest.oaiusercontent.com/files/00000000-4e34-8243-a245-7bb059be4f3d/raw?se=2026-09-24T19%3A32%3A28Z&sp=r&sv=2026-02-06&sr=b&scid=a853a89a-5d48-53b4-ac3c-ac513ea76210&skoid=5c9dda00-298b-4376-81e9-b4568c8a3c0f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-24T19%3A14%3A43Z&ske=2026-09-25T19%3A14%3A43Z&sks=b&skv=2026-02-06&sig=TQ5HBffIQpTsFW58r8RYEd7p20ve6rP4PishMlvopqM%3D"
+      PREVIEW_ZIP_URL: "https://sdmntprbrazilsouth.oaiusercontent.com/files/00000000-7788-820e-b1b1-d165e14e6160/raw?se=2026-09-24T20%3A01%3A23Z&sp=r&sv=2026-02-06&sr=b&scid=a3b02965-1bfb-55db-9744-58057519e758&skoid=5c9dda00-298b-4376-81e9-b4568c8a3c0f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-24T14%3A11%3A36Z&ske=2026-09-25T14%3A11%3A36Z&sks=b&skv=2026-02-06&sig=C9ZFCBWIeZs3cvd6v5UsX47bQYd5IWczdQPTJrZF7Wo%3D"
 
     steps:
       - name: Checkout preview branch
@@ -32,11 +32,14 @@ jobs:
           set -euo pipefail
           curl -L --fail --retry 2 "$PREVIEW_ZIP_URL" -o preview.zip
           unzip -q preview.zip -d preview-src
-          test -f preview-src/chatarra/dist/index.html
+          test -f preview-src/chatarra-landing-preview-v6/dist/index.html
+          test -f preview-src/chatarra-landing-preview-v6/dist/media/scrap-3d-loop.webm
+          test -f preview-src/chatarra-landing-preview-v6/dist/media/scrap-3d-loop.mp4
           rm -rf chatarra-preview-dist
-          cp -a preview-src/chatarra/dist chatarra-preview-dist
+          cp -a preview-src/chatarra-landing-preview-v6/dist chatarra-preview-dist
           grep -q 'noindex, follow' chatarra-preview-dist/index.html
           grep -q 'Disallow: /' chatarra-preview-dist/robots.txt
+          grep -q '<video' chatarra-preview-dist/index.html
 
       - name: Verify Cloudflare authentication
         run: npx --yes wrangler@4 whoami
@@ -58,7 +61,7 @@ jobs:
           for attempt in {1..8}; do
             body="$(mktemp)"
             status="$(curl -sS -L --max-time 20 -o "$body" -w '%{http_code}' "$CHATARRA_PREVIEW_URL/" || true)"
-            if [[ "$status" == "200" ]] && grep -q 'Recogida' "$body" && grep -q '602 513 274' "$body" && grep -q 'chatarra-3d-v5' "$body"; then
+            if [[ "$status" == "200" ]] && grep -q 'Recogida' "$body" && grep -q '602 513 274' "$body" && grep -q '<video' "$body"; then
               echo "Preview verified: $CHATARRA_PREVIEW_URL"
               exit 0
             fi
