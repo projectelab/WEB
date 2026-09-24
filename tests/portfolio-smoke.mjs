@@ -252,6 +252,25 @@ test('automation uses native contact flow and commercial project CTAs avoid mail
  }
 });
 
+test('PageSpeed assets use local Anton and optimized versioned logos',async()=>{
+ const font=await readFile(new URL('../public/assets/fonts/anton-latin.20260925.woff2',import.meta.url));
+ assert(font.length>10000);
+ const site=await read('public/assets/site.20260925-v3.css');
+ assert.match(site,/@font-face/);
+ assert.match(site,/anton-latin\.20260925\.woff2/);
+ assert.match(site,/font-display:swap/);
+
+ for(const route of routes){
+  const html=await read(`public${route}index.html`);
+  assert.doesNotMatch(html,/fonts\.googleapis\.com|fonts\.gstatic\.com/,`${route}: Google Fonts dependency`);
+ }
+ for(const name of ['ajuntament-svc','fce','ntk','pugnator','the-club-padel','viu-svc']){
+  const path=new URL(`../public/media/portfolio/logo-${name}.20260925.webp`,import.meta.url);
+  const info=await stat(path);
+  assert(info.size<200000,`logo-${name}: optimized size`);
+ }
+});
+
 test('public markup is compatible with strict CSP without unsafe-inline or unsafe-eval',async()=>{
  const worker=await read('src/worker.js');
  assert.match(worker,/Content-Security-Policy/);
