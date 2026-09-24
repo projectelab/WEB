@@ -196,6 +196,17 @@ test('home featured videos stay compact at 3:4 and use the amber DESORDEN wordma
  assert.match(css,/\.brand-wordmark\{[^}]*color:var\(--o\)/);
 });
 
+test('all public pages prevent horizontal overflow and project logos stay inside the viewport',async()=>{
+ const css=await read('public/assets/viewport-lock.20260924-v1.css');
+ assert.match(css,/html,body\{[^}]*overflow-x:hidden[^}]*overflow-x:clip/);
+ assert.match(css,/body\{touch-action:pan-y pinch-zoom\}/);
+ assert.match(css,/\.project-brand img\{[^}]*max-width:min\(68vw,280px\)!important/);
+ for(const route of routes){
+  const html=await read(`public${route}index.html`);
+  assert.match(html,/viewport-lock\.20260924-v1\.css/,`${route}: viewport lock stylesheet`);
+ }
+});
+
 test('public routes expose permanent legal navigation and explicit contact consent',async()=>{
  for(const route of routes){
   const html=await read(`public${route}index.html`);
