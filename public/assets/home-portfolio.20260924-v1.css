@@ -1,0 +1,25 @@
+/* Home-only corrections: keep featured portfolio media compact and consistent. */
+.projects>.inner>.work-grid .work-media{
+  position:relative;
+  left:auto;
+  width:100%;
+  height:auto;
+  max-width:none;
+  max-height:none;
+  margin-left:0;
+  transform:none;
+  aspect-ratio:3/4;
+}
+.projects>.inner>.work-grid .work-media video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.brand-wordmark{
+  display:block;
+  color:var(--o);
+  font:clamp(56px,16vw,132px)/.86 var(--anton);
+  letter-spacing:-.03em;
+  text-transform:uppercase;
+  overflow-wrap:anywhere;
+}
