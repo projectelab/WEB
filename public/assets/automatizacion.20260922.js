@@ -37,7 +37,7 @@
       demoStatus.textContent = step.status;
       demoBody.innerHTML = step.html;
       document.querySelector('#demo-panel').setAttribute('aria-labelledby', `demo-tab-${demoIndex}`);
-      demoMeter.className = `demo-meter-step-${demoIndex + 1}`;
+      demoMeter.style.width = `${((demoIndex + 1) / demo.length) * 100}%`;
       demoSteps.forEach((button, position) => {
         const active = position === demoIndex;
         button.classList.toggle('is-active', active);
