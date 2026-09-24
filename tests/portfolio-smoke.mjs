@@ -196,7 +196,9 @@ test('client logos and new portfolio videos replace legacy previews',async()=>{
  const pugnator=await read('public/projectes/pugnator-nox-bellum/index.html');
  assert.match(pugnator,/\/media\/portfolio\/logo-pugnator\.png/);
  const fencing=await read('public/projectes/federacio-catalana-esgrima/index.html');
- assert.match(fencing,/https:\/\/esgrima\.cat\/wp-content\/uploads\/2024\/08\/FCELogo\.png/);
+ assert.match(fencing,/\/media\/portfolio\/logo-fce\.png/);
+ assert.doesNotMatch(fencing,/https:\/\/esgrima\.cat\/wp-content\/uploads\/2024\/08\/FCELogo\.png/);
+ await readFile(new URL('../public/media/portfolio/logo-fce.png',import.meta.url));
  const pata=await read('public/projectes/pata-negra/index.html');
  assert.doesNotMatch(pata,/previews-v2\/pata-negra\.webp/);
 });
@@ -226,6 +228,27 @@ test('all public pages prevent horizontal overflow and project logos stay inside
  for(const route of routes){
   const html=await read(`public${route}index.html`);
   assert.match(html,/viewport-lock\.20260924-v1\.css/,`${route}: viewport lock stylesheet`);
+ }
+});
+
+test('automation uses native contact flow and commercial project CTAs avoid mailto',async()=>{
+ const automation=await read('public/automatizacion/index.html');
+ assert.match(automation,/contact-native\.20260924-v1\.css/);
+ assert.match(automation,/contact\.20260924-native\.js/);
+ assert.match(automation,/name="need" value="Automatització" checked hidden/);
+ assert.match(automation,/id="privacy-consent"/);
+ assert.match(automation,/id="contact-success"/);
+ assert.match(automation,/ENVIAR CONSULTA/);
+ assert.doesNotMatch(automation,/data-channel="email"|data-channel="whatsapp"/);
+
+ for(const slug of ['nutrikom','pugnator-nox-bellum','the-club-padel','pata-negra','federacio-catalana-esgrima','viu-svc','ajuntament-sant-vicenc','producte-digital']){
+  const html=await read(`public/projectes/${slug}/index.html`);
+  assert.match(html,/href="\/#contacte">ENVIAR CONSULTA ›<\/a>/,slug);
+  assert.doesNotMatch(html,/<a class="channel" href="mailto:lab@desorden\.cat">CORREU ›<\/a>/,slug);
+ }
+ for(const legal of ['avis-legal','privadesa']){
+  const html=await read(`public/${legal}/index.html`);
+  assert.match(html,/mailto:lab@desorden\.cat/,legal);
  }
 });
 
