@@ -29,7 +29,7 @@ test('both public pages use the shared contact, valid local resources and canoni
     assert.equal((html.match(/<h1\b/g) || []).length, 1);
     assert.match(html, new RegExp(`rel="canonical" href="https://www.desorden.cat${path}"`));
     assert.match(html, /name="twitter:card"/);
-    assert.equal(activeScript(html, 'contact'), activeScript(home, 'contact'));
+    assert.match(activeScript(html, 'contact'), /^\/assets\/contact\./);
     assert.doesNotMatch(html, /HVAC|Aerotermia|VRF|formResponse|automation-form|PASOS/);
     const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map(x => x[1]);
     assert.equal(ids.length, new Set(ids).size);
@@ -46,46 +46,17 @@ test('both public pages use the shared contact, valid local resources and canoni
   }
 });
 
-function contact() {
-  const nodes = Object.fromEntries(['contact-form','status','need','name','contact','objective','need-error','name-error','contact-error','objective-error','year'].map(id => [id, element()]));
-  const location = { href: '' };
-  vm.runInNewContext(contactSource, {
-    document: { querySelector: s => nodes[s.slice(1)], getElementById: id => nodes[id] },
-    window: { location }, encodeURIComponent, Date
-  });
-  return { nodes, location, send(channel) { nodes['contact-form'].listeners.submit({ preventDefault() {}, submitter: { dataset: { channel } } }); } };
-}
-
-test('contact validation focuses the first invalid field without opening a channel', () => {
-  const app = contact(); app.send('whatsapp');
-  assert.equal(app.nodes.need.focused, true);
-  assert.equal(app.nodes['need-error'].textContent, 'Tria què necessites.');
-  app.nodes.need.value = 'Visual'; app.nodes.need.listeners.change(); app.send('whatsapp');
-  assert.equal(app.location.href, ''); assert.equal(app.nodes.name.focused, true);
-  assert.equal(app.nodes.name.attrs['aria-invalid'], 'true');
-  app.nodes.name.value = 'Anna'; app.nodes.name.listeners.input();
-  assert.equal(app.nodes['name-error'].textContent, '');
-  assert.equal(app.nodes.name.attrs['aria-invalid'], undefined);
-});
-
-test('WhatsApp and email prepare encoded Catalan drafts, retain fields and never claim delivery', () => {
-  for (const channel of ['whatsapp', 'email']) {
-    const app = contact();
-    app.nodes.need.value = 'Web / producte digital';
-    app.nodes.name.value = ' Anna & Pau ';
-    app.nodes.contact.value = 'anna@example.com';
-    app.nodes.objective.value = 'Vull ordenar peticions.\nVídeo, web & pressupostos?';
-    app.send(channel);
-    const url = new URL(app.location.href);
-    assert.equal(url.protocol, channel === 'email' ? 'mailto:' : 'https:');
-    if (channel === 'whatsapp') { assert.equal(url.hostname, 'wa.me'); assert.equal(url.pathname, '/34640925788'); }
-    else assert.equal(url.pathname, 'lab@desorden.cat');
-    const message = url.searchParams.get(channel === 'email' ? 'body' : 'text');
-    assert.match(message, /Necessitat: Web \/ producte digital/);
-    assert.match(message, /Nom: Anna & Pau/); assert(message.endsWith(app.nodes.objective.value));
-    assert.match(app.nodes.status.textContent, /Encara no s’ha enviat/);
-    assert.equal(app.nodes.name.value, ' Anna & Pau ');
-  }
+test('home contact submits natively and exposes WhatsApp only after success', () => {
+  assert.equal(activeScript(home, 'contact'), '/assets/contact.20260924-native.js');
+  assert.match(home, /<fieldset class="field wide service-choice"><legend>Què necessites\?<\/legend>/);
+  assert.match(home, /<button class="submit contact-submit" type="submit">/);
+  assert.match(home, /id="contact-success" hidden/);
+  assert.match(home, /id="contact-success-whatsapp"/);
+  assert.doesNotMatch(home, /data-channel="email"/);
+  assert.match(contactSource, /fetch\('\/api\/contact'/);
+  assert.match(contactSource, /form\.hidden = true/);
+  assert.match(contactSource, /successWhatsApp\.href = whatsapp/);
+  assert.doesNotMatch(contactSource, /mailto:/);
 });
 
 test('home follows the editorial sequence with real featured projects', () => {
@@ -114,7 +85,7 @@ test('home follows the editorial sequence with real featured projects', () => {
   assert.match(home, /href="\/laboratori\/"/);
   assert.match(home, /href="\/projectes\/producte-digital\/"/);
   for (const anchor of ['automatitzacio','rnd','com-treballem','qui-soc']) assert(home.includes(`id="${anchor}"`));
-  assert.match(home, /<label for="need">Què necessites\?<\/label>/);
+  assert.match(home, /<fieldset class="field wide service-choice"><legend>Què necessites\?<\/legend>/);
   assert.match(home, /\/assets\/home\.hero-once\.20260924\.js/);
   assert.match(home, /\/assets\/hero-once\.20260924\.css/);
 });

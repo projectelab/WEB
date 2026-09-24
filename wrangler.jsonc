@@ -21,5 +21,31 @@
     "run_worker_first": true,
     "not_found_handling": "404-page",
     "html_handling": "auto-trailing-slash"
-  }
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "CONTACT_LEADS",
+        "class_name": "ContactLeadStore"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "ContactLeadStore"
+      ]
+    }
+  ],
+  "ratelimits": [
+    {
+      "name": "CONTACT_RATE_LIMITER",
+      "namespace_id": "20260924",
+      "simple": {
+        "limit": 5,
+        "period": 60
+      }
+    }
+  ]
 }

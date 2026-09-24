@@ -1,3 +1,5 @@
+import { DurableObject } from 'cloudflare:workers';
+
 const SAT_API_ORIGIN = 'https://panasonic-sat-api.desorden-help-76b.workers.dev';
 
 const LAB_OPERATOR_NAME_BOOTSTRAP = `
@@ -23,6 +25,15 @@ const AUTOMATION_SERVICES = new Set([
   'Consulta técnica',
 ]);
 const AUTOMATION_PRIORITIES = new Set(['ALTA', 'MEDIA', 'BAJA']);
+const CONTACT_SERVICES = new Set([
+  'Visual / vídeo',
+  'Web & digital',
+  'Automatització',
+  'Combinació',
+  'No ho tinc clar',
+]);
+const CONTACT_MAX_AGE_MS = 180 * 24 * 60 * 60 * 1000;
+
 
 export default {
   async fetch(request, env) {
@@ -31,6 +42,73 @@ export default {
     if (url.hostname === 'desorden.cat') {
       url.hostname = 'www.desorden.cat';
       return Response.redirect(url.toString(), 301);
+    }
+
+    if (request.method === 'POST' && url.pathname === '/api/contact') {
+      const reply = (body, status = 200) => Response.json(body, {
+        status,
+        headers: { 'Cache-Control': 'no-store' },
+      });
+      const origin = request.headers.get('Origin');
+      if (origin) {
+        try {
+          if (new URL(origin).hostname !== url.hostname) {
+            return reply({ ok: false, error: 'Origen no permès.' }, 403);
+          }
+        } catch {
+          return reply({ ok: false, error: 'Origen no permès.' }, 403);
+        }
+      }
+      const contentLength = Number(request.headers.get('Content-Length') || 0);
+      if (contentLength > 8192) {
+        return reply({ ok: false, error: 'Sol·licitud massa gran.' }, 413);
+      }
+      const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+      const rate = await env.CONTACT_RATE_LIMITER.limit({ key: ip });
+      if (!rate.success) return reply({ ok: false, error: 'Massa intents. Torna-ho a provar d’aquí a un minut.' }, 429);
+
+      let data;
+      try {
+        data = await request.json();
+      } catch {
+        return reply({ ok: false, error: 'Sol·licitud no vàlida.' }, 400);
+      }
+      if (!data || typeof data !== 'object' || Array.isArray(data)) {
+        return reply({ ok: false, error: 'Sol·licitud no vàlida.' }, 400);
+      }
+      if (typeof data.website === 'string' && data.website.trim()) {
+        return reply({ ok: true });
+      }
+      const values = {};
+      for (const [key, max] of [['name',150],['contact',254],['service',80],['objective',2000]]) {
+        if (typeof data[key] !== 'string') return reply({ ok: false, error: 'Camps no vàlids.' }, 400);
+        values[key] = data[key].trim();
+        if (!values[key] || values[key].length > max) return reply({ ok: false, error: 'Camps no vàlids.' }, 400);
+      }
+      if (values.name.length < 2 || values.contact.length < 5 || values.objective.length < 10) {
+        return reply({ ok: false, error: 'Revisa els camps obligatoris.' }, 400);
+      }
+      if (!CONTACT_SERVICES.has(values.service)) {
+        return reply({ ok: false, error: 'Servei no vàlid.' }, 400);
+      }
+      if (data.consent !== true) {
+        return reply({ ok: false, error: 'Cal acceptar la política de privadesa.' }, 400);
+      }
+
+      const id = env.CONTACT_LEADS.idFromName('desorden-contact-leads');
+      const store = env.CONTACT_LEADS.get(id);
+      const stored = await store.fetch('https://contact.internal/store', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...values,
+          source: 'web',
+          consentAt: Date.now(),
+        }),
+      });
+      if (!stored.ok) return reply({ ok: false, error: 'No s’ha pogut guardar la consulta.' }, 502);
+      const result = await stored.json();
+      return reply({ ok: true, id: result.id });
     }
 
     if (request.method === 'POST' && url.pathname === '/automatizacion/submit') {
@@ -159,3 +237,48 @@ export default {
     return env.ASSETS.fetch(request);
   },
 };
+export class ContactLeadStore extends DurableObject {
+  constructor(ctx, env) {
+    super(ctx, env);
+    this.ctx.storage.sql.exec(`
+      CREATE TABLE IF NOT EXISTS leads (
+        id TEXT PRIMARY KEY,
+        created_at INTEGER NOT NULL,
+        name TEXT NOT NULL,
+        contact TEXT NOT NULL,
+        service TEXT NOT NULL,
+        objective TEXT NOT NULL,
+        source TEXT NOT NULL,
+        status TEXT NOT NULL,
+        consent_at INTEGER NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS leads_created_at ON leads(created_at);
+    `);
+  }
+
+  async fetch(request) {
+    const url = new URL(request.url);
+    if (request.method !== 'POST' || url.pathname !== '/store') {
+      return new Response('Not found', { status: 404 });
+    }
+    const data = await request.json();
+    const id = crypto.randomUUID();
+    const now = Date.now();
+    this.ctx.storage.sql.exec(
+      `INSERT INTO leads (id, created_at, name, contact, service, objective, source, status, consent_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 'new', ?)`,
+      id, now, data.name, data.contact, data.service, data.objective, data.source, data.consentAt
+    );
+    await this.ctx.storage.setAlarm(now + 24 * 60 * 60 * 1000);
+    return Response.json({ ok: true, id });
+  }
+
+  async alarm() {
+    const cutoff = Date.now() - CONTACT_MAX_AGE_MS;
+    this.ctx.storage.sql.exec('DELETE FROM leads WHERE created_at < ?', cutoff);
+    const row = this.ctx.storage.sql.exec('SELECT COUNT(*) AS count FROM leads').one();
+    if (Number(row.count) > 0) {
+      await this.ctx.storage.setAlarm(Date.now() + 24 * 60 * 60 * 1000);
+    }
+  }
+}
