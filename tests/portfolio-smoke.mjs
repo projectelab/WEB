@@ -119,7 +119,7 @@ test('audit hardening exposes privacy consent and richer semantic metadata',asyn
 
 test('client logo marquee links five real project pages and excludes Pata Negra',async()=>{
  const home=await read('public/index.html');
- const marquee=home.match(/<div class="logo-marquee"[\s\S]*?<div class="work-grid featured-work">/)?.[0];
+ const marquee=home.match(/<div class="logo-marquee"[\s\S]*?<div class="work-grid">/)?.[0];
  assert.ok(marquee,'Home exposes the client logo marquee');
  assert.doesNotMatch(marquee,/pata-negra/i);
  for(const [logo,route]of [
@@ -152,7 +152,7 @@ test('new amber-on-black client logos replace legacy identity previews',async()=
   assert.match(html,/previews-v2\/nutrikom-ntk-runners\.mp4/);
   assert.match(html,/previews-v2\/nutrikom-ntk-runners\.webp/);
  }
- assert.doesNotMatch(home.match(/<div class="logo-marquee"[\s\S]*?<div class="work-grid featured-work">/)?.[0]||'',/pata-negra/i);
+ assert.doesNotMatch(home.match(/<div class="logo-marquee"[\s\S]*?<div class="work-grid">/)?.[0]||'',/pata-negra/i);
  assert.match(home,/portfolio\.20260923-v3\.css/);
  assert.match(projects,/logo-ajuntament-svc\.png/);
  const town=await read('public/projectes/ajuntament-sant-vicenc/index.html');

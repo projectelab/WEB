@@ -35,7 +35,7 @@ body.menu-open{overflow:hidden}
 .boot-line i{display:block;width:18%;height:100%;background:var(--o);animation:load 1s infinite alternate}
 @keyframes load{to{transform:translateX(455%)}}
 @keyframes boot-fallback{to{visibility:hidden;opacity:0}}
-.hero{height:180svh}.hero .sticky{width:min(100%,560px);margin-inline:auto}
+.hero{height:260svh}.hero .sticky{width:min(100%,560px);margin-inline:auto}
 .sticky{position:sticky;top:0;height:100svh;overflow:hidden;background:#000}
 .hero canvas,.hero .fallback{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;margin:auto;transform:scaleX(-1) scale(.8);transform-origin:center;filter:grayscale(100%) contrast(1.2) brightness(.6)}
 .hero.ready .fallback{visibility:hidden}
@@ -125,7 +125,7 @@ footer{padding:18px 0 max(18px,env(safe-area-inset-bottom));color:var(--g);font-
 .automation footer{padding-inline:18px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;border:0}
 .automation footer a{min-height:44px;display:flex;align-items:center}
 
-@media(min-width:700px){.hero{height:260svh}.services{height:165svh}.automation .offers,.automation .form{grid-template-columns:repeat(2,minmax(0,1fr))}.automation .wide{grid-column:1/-1}}
+@media(min-width:700px){.services{height:165svh}.automation .offers,.automation .form{grid-template-columns:repeat(2,minmax(0,1fr))}.automation .wide{grid-column:1/-1}}
 
 @media(max-height:500px){.services .sticky{padding-top:16px}.stage{height:36svh}.hero-title-wrapper{top:14svh}.services-head p{font-size:12px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}.boot{display:none}.hero{height:100svh}.hero canvas{display:none}.hero.ready .fallback{visibility:visible}.services{height:auto}.services .sticky{position:relative;height:auto;padding-block:34px}.stage,.service-index{display:none}.service-list{position:static;width:auto;height:auto;clip:auto;padding:0 18px 24px;margin:0;list-style:none;display:grid;gap:12px;color:var(--o);font:28px/1.3 var(--anton)}}
