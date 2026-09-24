@@ -179,6 +179,13 @@ test('client logos and new portfolio videos replace legacy previews',async()=>{
  assert.doesNotMatch(pata,/previews-v2\/pata-negra\.webp/);
 });
 
+test('portfolio videos use responsive three-quarter frames',async()=>{
+ const css=await read('public/assets/portfolio.20260923-v3.css');
+ assert.match(css,/\.work-media\{[^}]*width:100%[^}]*aspect-ratio:3\/4/);
+ assert.match(css,/\.case-media\{[^}]*max-width:none[^}]*width:100%/);
+ assert.match(css,/\.case-media video\{[^}]*width:100%[^}]*aspect-ratio:3\/4[^}]*object-fit:cover/);
+});
+
 test('public routes expose permanent legal navigation and explicit contact consent',async()=>{
  for(const route of routes){
   const html=await read(`public${route}index.html`);
