@@ -186,6 +186,16 @@ test('portfolio videos use responsive three-quarter frames',async()=>{
  assert.match(css,/\.case-media video\{[^}]*width:100%[^}]*aspect-ratio:3\/4[^}]*object-fit:cover/);
 });
 
+test('home featured videos stay compact at 3:4 and use the amber DESORDEN wordmark',async()=>{
+ const home=await read('public/index.html');
+ const css=await read('public/assets/home-portfolio.20260924-v1.css');
+ assert.match(home,/home-portfolio\.20260924-v1\.css/);
+ assert.match(home,/<span class="brand-wordmark">DESORDEN<\/span>/);
+ assert.doesNotMatch(home,/desorden-logo-original-v2\.png/);
+ assert.match(css,/\.projects>\.inner>\.work-grid \.work-media\{[^}]*width:100%[^}]*aspect-ratio:3\/4/);
+ assert.match(css,/\.brand-wordmark\{[^}]*color:var\(--o\)/);
+});
+
 test('public routes expose permanent legal navigation and explicit contact consent',async()=>{
  for(const route of routes){
   const html=await read(`public${route}index.html`);
