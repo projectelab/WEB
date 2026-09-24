@@ -182,7 +182,7 @@ test('client logos and new portfolio videos replace legacy previews',async()=>{
  assert.match(projects,/\/media\/portfolio\/territori-esglesia-drone\.mp4/);
  assert.match(projects,/\/media\/portfolio\/territori-rotonda-drone\.mp4/);
  assert.doesNotMatch(home.match(/<div class="logo-marquee"[\s\S]*?<div class="work-grid">/)?.[0]||'',/pata-negra/i);
- assert.match(home,/portfolio\.20260924-v4\.css/);
+ assert.match(home,/home-extras\.20260925-v1\.css/);
  const viu=await read('public/projectes/viu-svc/index.html');
  assert.match(viu,/\/media\/portfolio\/territori-rotonda-drone\.mp4/);
  assert.doesNotMatch(viu,/\/media\/portfolio\/territori-esglesia-drone\.mp4/);
