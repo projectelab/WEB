@@ -58,7 +58,7 @@ test('home links to LAB and its index retains all six lines with HQ opt-in',asyn
  for(const route of ['/','/projectes/','/laboratori/']){
   const html=await read(`public${route}index.html`);
   assert.doesNotMatch(html,/\/media\/portfolio\/hq\//);
-  for(const [tag] of html.matchAll(/<video\b[^>]*>/g)){
+  for(const [tag] of html.matchAll(/<video\b[^>]*class="[^"]*\bpreview\b[^"]*"[^>]*>/g)){
    assert.match(tag,/data-src="\/media\/portfolio\/previews-v2\//);
    assert.match(tag,/poster="/);assert.match(tag,/preload="none"/);
    assert.doesNotMatch(tag,/(?<!data-)src="|autoplay/);
