@@ -13,33 +13,85 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     permissions:
       contents: read
 
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      PREVIEW_ZIP_URL: "https://sdmntprbrazilsouth.oaiusercontent.com/files/00000000-2be0-820e-b21e-fd11d62c18f1/raw?se=2026-09-24T20%3A10%3A17Z&sp=r&sv=2026-02-06&sr=b&scid=9e904b28-6e01-5cf7-a363-8575e39ca09f&skoid=5c9dda00-298b-4376-81e9-b4568c8a3c0f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-24T18%3A59%3A19Z&ske=2026-09-25T18%3A59%3A19Z&sks=b&skv=2026-02-06&sig=57P3/K2nEhtzqjpaUD7/PFP855hzmRi1GJhfGbFW1Dg%3D"
+      CLIENT_VIDEO_URL: "https://sdmntprnznorth.oaiusercontent.com/files/00000000-b2e4-820b-a964-6bb82f9d782d/raw?se=2026-09-24T20%3A23%3A39Z&sp=r&sv=2026-02-06&sr=b&scid=30691bcf-cd65-56fe-bc66-531b31555ea7&skoid=5c9dda00-298b-4376-81e9-b4568c8a3c0f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-24T18%3A15%3A45Z&ske=2026-09-25T18%3A15%3A45Z&sks=b&skv=2026-02-06&sig=J4AvCR%2BNixfM5q%2BIqVXo%2BA4Rmbua6gGZJgPgev0jrYM%3D"
+      CURRENT_PREVIEW: "https://chatarra-preview.desorden-help-76b.workers.dev"
 
     steps:
       - name: Checkout preview branch
         uses: actions/checkout@v4
 
-      - name: Download landing preview package
+      - name: Rebuild preview from current public version
         shell: bash
         run: |
           set -euo pipefail
-          curl -L --fail --retry 2 "$PREVIEW_ZIP_URL" -o preview.zip
-          unzip -q preview.zip -d preview-src
-          test -f preview-src/chatarra-landing-preview-v6/dist/index.html
-          test -f preview-src/chatarra-landing-preview-v6/dist/media/scrap-3d-loop-v7.webm
-          test -f preview-src/chatarra-landing-preview-v6/dist/media/scrap-3d-loop-v7.mp4
-          rm -rf chatarra-preview-dist
-          cp -a preview-src/chatarra-landing-preview-v6/dist chatarra-preview-dist
-          grep -q 'noindex, follow' chatarra-preview-dist/index.html
-          grep -q 'Disallow: /' chatarra-preview-dist/robots.txt
-          grep -q '<video' chatarra-preview-dist/index.html
+          rm -rf chatarra-preview-dist mirror
+          mkdir -p mirror chatarra-preview-dist
+
+          wget -q -r -l 3 -np -nH -P mirror "$CURRENT_PREVIEW/"
+          cp -a mirror/. chatarra-preview-dist/
+
+          test -f chatarra-preview-dist/index.html
+          test -d chatarra-preview-dist/assets
+          test -d chatarra-preview-dist/images
+
+      - name: Prepare client hero video
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p chatarra-preview-dist/media
+          curl -L --fail --retry 2 "$CLIENT_VIDEO_URL" -o client-source.mp4
+
+          ffmpeg -y -i client-source.mp4 -an             -c:v libx264 -preset slow -crf 19 -pix_fmt yuv420p             -movflags +faststart             chatarra-preview-dist/media/chatarra-hero-loop-v8.mp4
+
+          ffmpeg -y -ss 0.25 -i client-source.mp4 -frames:v 1             -vf "scale=1080:1080"             chatarra-preview-dist/media/chatarra-hero-poster-v8.jpg
+
+          ffprobe -v error -select_streams v:0             -show_entries stream=codec_name,width,height             -of default=nw=1             chatarra-preview-dist/media/chatarra-hero-loop-v8.mp4             | grep -q "codec_name=h264"
+
+      - name: Replace former 3D block with client video
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          html = Path("chatarra-preview-dist/index.html")
+          s = html.read_text(encoding="utf-8")
+
+          pattern = r'<div aria-hidden="true" class="sculpture-stage"[\s\S]*?</div></div><div class="container hero-bottom">'
+          replacement = '<div aria-hidden="true" class="sculpture-stage video-stage" data-client-video-v8="true"><video autoplay muted loop playsinline preload="auto" disablepictureinpicture tabindex="-1" class="sculpture-video hero-client-video" poster="/media/chatarra-hero-poster-v8.jpg"><source src="/media/chatarra-hero-loop-v8.mp4" type="video/mp4"></video></div></div><div class="container hero-bottom">'
+
+          s2, count = re.subn(pattern, replacement, s, count=1)
+          if count != 1:
+              raise SystemExit(f"Hero visual replacement failed: {count}")
+
+          s2 = s2.replace("</body>", '<script>window.addEventListener("DOMContentLoaded",()=>{const v=document.querySelector(".hero-client-video");if(!v)return;v.muted=true;v.loop=true;v.playsInline=true;const p=()=>v.play().catch(()=>{});p();document.addEventListener("visibilitychange",()=>{if(!document.hidden)p()});});</script></body>')
+          html.write_text(s2, encoding="utf-8")
+
+          css_files = list(Path("chatarra-preview-dist/assets").glob("*.css"))
+          if not css_files:
+              raise SystemExit("CSS asset not found")
+          css = css_files[0]
+          css.write_text(css.read_text(encoding="utf-8") + r'''
+          /* V8: client-supplied video replaces the 3D artwork. */
+          .video-stage{position:relative!important;overflow:hidden!important;width:100%!important;margin:0!important;aspect-ratio:1/1!important;background:#111711!important;isolation:isolate!important}
+          .hero-client-video{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;object-position:center center!important;transform:none!important;animation:none!important;border:0!important;margin:0!important;padding:0!important;pointer-events:none!important;background:#111711!important}
+          @media(max-width:650px){.video-stage{width:calc(100% + 40px)!important;margin-left:-20px!important;height:auto!important;aspect-ratio:1/1!important;margin-top:12px!important;margin-bottom:-6px!important}}
+          @media(min-width:651px){.video-stage{align-self:center!important;max-width:620px!important;justify-self:end!important}}
+          ''', encoding="utf-8")
+          PY
+
+          grep -q 'data-client-video-v8="true"' chatarra-preview-dist/index.html
+          grep -q 'chatarra-hero-loop-v8.mp4' chatarra-preview-dist/index.html
+          ! grep -q 'orbit orbit-one' chatarra-preview-dist/index.html
+          ! grep -q 'art-coordinate' chatarra-preview-dist/index.html
 
       - name: Verify Cloudflare authentication
         run: npx --yes wrangler@4 whoami
@@ -50,23 +102,23 @@ jobs:
           set -euo pipefail
           npx --yes wrangler@4 deploy --config wrangler.chatarra-preview.jsonc 2>&1 | tee wrangler-preview.log
           url="$(grep -Eo 'https://[^[:space:]]+\.workers\.dev' wrangler-preview.log | tail -1 || true)"
-          test -n "$url" || { echo "Unable to detect workers.dev URL"; cat wrangler-preview.log; exit 1; }
+          test -n "$url"
           echo "CHATARRA_PREVIEW_URL=$url" >> "$GITHUB_ENV"
-          echo "Preview URL: $url"
 
-      - name: Smoke test preview
+      - name: Smoke test public preview
         shell: bash
         run: |
           set -euo pipefail
-          for attempt in {1..8}; do
+          for attempt in {1..10}; do
             body="$(mktemp)"
-            status="$(curl -sS -L --max-time 20 -o "$body" -w '%{http_code}' "$CHATARRA_PREVIEW_URL/" || true)"
-            if [[ "$status" == "200" ]] && grep -q 'Recogida' "$body" && grep -q '602 513 274' "$body" && grep -q '<video' "$body"; then
-              echo "Preview verified: $CHATARRA_PREVIEW_URL"
+            video_headers="$(mktemp)"
+            status="$(curl -sS -L --max-time 20 -o "$body" -w '%{http_code}' "$CHATARRA_PREVIEW_URL/?v=8" || true)"
+            video_status="$(curl -sS -I -L --max-time 20 -o "$video_headers" -w '%{http_code}' "$CHATARRA_PREVIEW_URL/media/chatarra-hero-loop-v8.mp4" || true)"
+            if [[ "$status" == "200" && "$video_status" == "200" ]] &&                grep -q 'data-client-video-v8="true"' "$body" &&                grep -q 'autoplay' "$body" &&                grep -q 'loop' "$body" &&                grep -q 'playsinline' "$body"; then
+              echo "Preview verified: $CHATARRA_PREVIEW_URL/?v=8"
               exit 0
             fi
-            echo "Waiting for preview ($attempt/8), status=$status"
+            echo "Waiting for preview ($attempt/10), page=$status video=$video_status"
             sleep 5
           done
-          echo "Preview smoke test failed."
           exit 1
