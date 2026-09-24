@@ -1,0 +1,60 @@
+.service-choice{border:0;padding:0;margin:0}
+.service-choice legend{display:block;margin-bottom:10px;color:var(--g);font:13px/1.5 var(--meta)}
+.service-chips{display:flex;flex-wrap:wrap;gap:10px}
+.service-chip{position:relative}
+.service-chip input{position:absolute;opacity:0;pointer-events:none}
+.service-chip span{display:inline-flex;align-items:center;min-height:44px;padding:8px 14px;border:1px solid var(--l);color:var(--g);font:13px/1.35 var(--meta);cursor:pointer}
+.service-chip input:checked+span{border-color:var(--o);color:var(--o)}
+.service-chip input:focus-visible+span{outline:2px solid var(--w);outline-offset:3px}
+.contact-trust{margin:2px 0 0;color:var(--g);font-size:12.5px;line-height:1.55}
+.contact-trust span{display:block}
+.contact-submit.is-loading{opacity:.7;cursor:wait}
+.contact-submit[aria-busy="true"]::before{content:"";width:12px;height:12px;border:1px solid currentColor;border-right-color:transparent;border-radius:50%;animation:contact-spin .7s linear infinite}
+@keyframes contact-spin{to{transform:rotate(360deg)}}
+.contact-success{max-width:700px;margin-top:28px;padding-top:24px;border-top:1px solid var(--l)}
+.contact-success[hidden]{display:none}
+.contact-success h3{margin:10px 0 14px;color:var(--o);font:clamp(28px,6vw,42px)/1.05 var(--anton)}
+.contact-success p{max-width:54ch;color:var(--g);font-size:17px;line-height:1.65}
+.contact-success .submit{margin-top:12px}
+.hp-field{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important}
+
+.automation .demo-meter i.demo-meter-step-1{width:33.333%}
+.automation .demo-meter i.demo-meter-step-2{width:66.666%}
+.automation .demo-meter i.demo-meter-step-3{width:100%}
+
+/* Global viewport containment: the site scrolls vertically, never sideways. */
+html,body{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+  overflow-x:clip;
+  overscroll-behavior-x:none;
+}
+body{touch-action:pan-y pinch-zoom}
+.shell,main,section,.inner,article,figure,.work-grid,.work-card,.work-media,.hq-gallery,.case-media,.project-brand{
+  min-width:0;
+  max-width:100%;
+}
+img,video,svg,canvas{
+  max-width:100%;
+}
+.project-brand{
+  width:100%;
+  overflow:hidden;
+}
+.project-brand img{
+  display:block;
+  width:auto!important;
+  height:auto!important;
+  max-width:min(68vw,280px)!important;
+  max-height:118px;
+  object-fit:contain;
+}
+.hq-gallery,.case-media{
+  width:100%;
+  overflow:hidden;
+}
+.case-media video{
+  width:100%;
+  max-width:100%;
+}
