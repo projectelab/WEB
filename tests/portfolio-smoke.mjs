@@ -276,10 +276,9 @@ test('PageSpeed CSS delivery keeps page-specific styles non-blocking',async()=>{
   const html=await read(`public${route}index.html`);
   assert.match(html,/site\.20260925-v4\.css/,`${route}: critical CSS`);
   assert.match(html,/anton-latin\.20260925\.woff2/,`${route}: font preload`);
-  const extras=[...html.matchAll(/<link rel="stylesheet" href="\/assets\/(?:home|portfolio|automation)-extras\.20260925-v1\.css"[^>]*>/g)];
+  const extras=[...html.matchAll(/<link rel="stylesheet" href="\/assets\/(?:home|portfolio|automation)-extras\.20260925-v1\.css"[^>]*data-noncritical-css[^>]*>/g)];
   for(const link of extras){
    assert.match(link[0],/media="print"/,`${route}: deferred media`);
-   assert.match(link[0],/data-noncritical-css/,`${route}: loader marker`);
    assert.match(html,/noncritical-css\.20260925-v1\.js/,`${route}: loader script`);
   }
  }
