@@ -8,6 +8,7 @@
 .work-card{min-width:0}
 .work-media{position:relative;aspect-ratio:9/16;max-height:75svh;background:#000;overflow:hidden}
 .work-media video,.work-media img{display:block;width:100%;height:100%;object-fit:contain}
+.work-media video{object-fit:cover}
 .work-media--identity{aspect-ratio:auto;height:clamp(132px,22vw,180px);display:grid;place-items:center;overflow:visible}
 .work-media--identity .cover-link{position:absolute;inset:0;display:grid;place-items:center}
 .work-media--identity img{width:auto;height:auto;max-width:84%;max-height:clamp(132px,22vw,180px);object-fit:contain}
@@ -46,7 +47,7 @@
 .project-hero-media{padding-block:16px 48px}
 .hq-gallery{display:grid;gap:var(--gap);align-items:start;margin-top:24px}
 .case-media{margin:0;max-width:540px;width:100%}
-.case-media video{width:100%;height:auto;aspect-ratio:9/16;object-fit:contain;display:block;background:#000}
+.case-media video{width:100%;height:auto;object-fit:cover;display:block;background:#000}
 .case-media figcaption{margin-top:14px;color:var(--g);font:14px/1.6 var(--meta)}
 .identity-art{max-width:420px;margin:0}.identity-art--brand{max-width:280px;margin-inline:auto}
 .identity-art img{display:block;width:100%;height:auto}
