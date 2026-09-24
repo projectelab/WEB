@@ -170,9 +170,9 @@ test('client logo marquee links five real project pages and excludes Pata Negra'
 test('client logos and new portfolio videos replace legacy previews',async()=>{
  const home=await read('public/index.html');
  const projects=await read('public/projectes/index.html');
- assert.match(home,/\/media\/portfolio\/logo-ntk\.png/);
- assert.match(home,/\/media\/portfolio\/logo-viu-svc\.png/);
- assert.match(home,/\/media\/portfolio\/logo-the-club-padel\.png/);
+ assert.match(home,/\/media\/portfolio\/logo-ntk\.20260925\.webp/);
+ assert.match(home,/\/media\/portfolio\/logo-viu-svc\.20260925\.webp/);
+ assert.match(home,/\/media\/portfolio\/logo-the-club-padel\.20260925\.webp/);
  assert.doesNotMatch(home,/previews-v2\/(?:viu-svc|the-club-padel|nutrikom-ntk-runners)\.(?:mp4|webp)/);
  for(const html of [home,projects]){
   assert.match(html,/\/media\/portfolio\/ntk-runners-cursa\.mp4/);
@@ -186,17 +186,17 @@ test('client logos and new portfolio videos replace legacy previews',async()=>{
  const viu=await read('public/projectes/viu-svc/index.html');
  assert.match(viu,/\/media\/portfolio\/territori-rotonda-drone\.mp4/);
  assert.doesNotMatch(viu,/\/media\/portfolio\/territori-esglesia-drone\.mp4/);
- assert.match(viu,/\/media\/portfolio\/logo-viu-svc\.png/);
+ assert.match(viu,/\/media\/portfolio\/logo-viu-svc\.20260925\.webp/);
  const town=await read('public/projectes/ajuntament-sant-vicenc/index.html');
  assert.match(town,/\/media\/portfolio\/territori-esglesia-drone\.mp4/);
  assert.doesNotMatch(town,/\/media\/portfolio\/territori-rotonda-drone\.mp4/);
- assert.match(town,/\/media\/portfolio\/logo-ajuntament-svc\.png/);
+ assert.match(town,/\/media\/portfolio\/logo-ajuntament-svc\.20260925\.webp/);
  const ntk=await read('public/projectes/nutrikom/index.html');
- assert.match(ntk,/\/media\/portfolio\/logo-ntk\.png/);
+ assert.match(ntk,/\/media\/portfolio\/logo-ntk\.20260925\.webp/);
  const pugnator=await read('public/projectes/pugnator-nox-bellum/index.html');
- assert.match(pugnator,/\/media\/portfolio\/logo-pugnator\.png/);
+ assert.match(pugnator,/\/media\/portfolio\/logo-pugnator\.20260925\.webp/);
  const fencing=await read('public/projectes/federacio-catalana-esgrima/index.html');
- assert.match(fencing,/\/media\/portfolio\/logo-fce\.png/);
+ assert.match(fencing,/\/media\/portfolio\/logo-fce\.20260925\.webp/);
  assert.doesNotMatch(fencing,/https:\/\/esgrima\.cat\/wp-content\/uploads\/2024\/08\/FCELogo\.png/);
  await readFile(new URL('../public/media/portfolio/logo-fce.20260925.webp',import.meta.url));
  const pata=await read('public/projectes/pata-negra/index.html');
