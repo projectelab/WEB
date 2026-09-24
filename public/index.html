@@ -26,25 +26,45 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "DESORDEN",
-  "url": "https://www.desorden.cat/",
-  "founder": { "@type": "Person", "name": "David Milla" },
-  "hasOfferCatalog": {
-    "@type": "OfferCatalog",
-    "name": "Serveis",
-    "itemListElement": [
-      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Producció audiovisual" } },
-      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Vídeo" } },
-      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Fotografia" } },
-      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Dron" } },
-      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Web" } },
-      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Producte digital" } },
-      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Automatització" } },
-      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "IA visual" } }
-    ]
-  },
-  "sameAs": ["https://www.instagram.com/desorden.cat/"]
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://www.desorden.cat/#organization",
+      "name": "DESORDEN",
+      "url": "https://www.desorden.cat/",
+      "founder": { "@id": "https://www.desorden.cat/#david-milla" },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Serveis",
+        "itemListElement": [
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Producció audiovisual" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Vídeo" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Fotografia" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Dron" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Web" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Producte digital" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Automatització" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "IA visual" } }
+        ]
+      },
+      "sameAs": ["https://www.instagram.com/desorden.cat/"]
+    },
+    {
+      "@type": "Person",
+      "@id": "https://www.desorden.cat/#david-milla",
+      "name": "David Milla",
+      "url": "https://www.desorden.cat/",
+      "email": "mailto:lab@desorden.cat",
+      "brand": { "@id": "https://www.desorden.cat/#organization" },
+      "worksFor": { "@id": "https://www.desorden.cat/#organization" },
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Sant Vicenç de Castellet",
+        "addressRegion": "Barcelona",
+        "addressCountry": "ES"
+      }
+    }
+  ]
 }
 </script>
 <link rel="stylesheet" href="/assets/viewport-lock.20260924-v1.css">
