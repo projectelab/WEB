@@ -19,7 +19,9 @@
   const clearError = (id) => {
     const field = id === 'need'
       ? form.querySelector('input[name="need"]:checked')
-      : fields[id];
+      : id === 'privacy'
+        ? fields.consent
+        : fields[id];
     field?.removeAttribute('aria-invalid');
     const error = document.querySelector(`#${id}-error`);
     if (error) error.textContent = '';
