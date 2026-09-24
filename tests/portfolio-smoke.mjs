@@ -237,6 +237,13 @@ test('native contact flow persists leads before optional WhatsApp',async()=>{
  assert.deepEqual(wrangler.migrations[0].new_sqlite_classes,['ContactLeadStore']);
  assert.equal(wrangler.ratelimits[0].name,'CONTACT_RATE_LIMITER');
  assert.equal(wrangler.ratelimits[0].simple.limit,5);
+ assert.equal(wrangler.send_email[0].name,'LEAD_EMAIL');
+ assert.match(worker,/LEAD_EMAIL_FROM = 'leads@desorden\.cat'/);
+ assert.match(worker,/LEAD_EMAIL_TO = 'lab@desorden\.cat'/);
+ assert.match(worker,/sendLeadNotification\(env/);
+ assert.match(worker,/ctx\?\.waitUntil/);
+ assert.match(worker,/replyTo = lead\.contact/);
+ assert.match(worker,/Lead email notification failed/);
 
  assert.match(privacy,/infraestructura tècnica de Cloudflare/);
  assert.match(privacy,/180 dies/);

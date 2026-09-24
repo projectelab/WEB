@@ -33,10 +33,46 @@ const CONTACT_SERVICES = new Set([
   'No ho tinc clar',
 ]);
 const CONTACT_MAX_AGE_MS = 180 * 24 * 60 * 60 * 1000;
+const LEAD_EMAIL_FROM = 'leads@desorden.cat';
+const LEAD_EMAIL_TO = 'lab@desorden.cat';
+
+const isEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+async function sendLeadNotification(env, lead) {
+  if (!env.LEAD_EMAIL?.send) return;
+  const subject = `Nou lead DESORDEN — ${lead.service} — ${lead.name}`;
+  const lines = [
+    'Nou lead rebut des de desorden.cat',
+    '',
+    `Nom: ${lead.name}`,
+    `Contacte: ${lead.contact}`,
+    `Servei: ${lead.service}`,
+    `ID: ${lead.id}`,
+    '',
+    'Projecte:',
+    lead.objective,
+  ];
+  const message = {
+    to: LEAD_EMAIL_TO,
+    from: { email: LEAD_EMAIL_FROM, name: 'DESORDEN Leads' },
+    subject,
+    text: lines.join('\n'),
+  };
+  if (isEmail(lead.contact)) message.replyTo = lead.contact;
+  try {
+    await env.LEAD_EMAIL.send(message);
+  } catch (error) {
+    console.error('Lead email notification failed', {
+      code: error?.code || 'UNKNOWN',
+      message: error?.message || String(error),
+      leadId: lead.id,
+    });
+  }
+}
 
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
     if (url.hostname === 'desorden.cat') {
@@ -108,6 +144,12 @@ export default {
       });
       if (!stored.ok) return reply({ ok: false, error: 'No s’ha pogut guardar la consulta.' }, 502);
       const result = await stored.json();
+      const notification = sendLeadNotification(env, {
+        id: result.id,
+        ...values,
+      });
+      if (ctx?.waitUntil) ctx.waitUntil(notification);
+      else await notification;
       return reply({ ok: true, id: result.id });
     }
 
