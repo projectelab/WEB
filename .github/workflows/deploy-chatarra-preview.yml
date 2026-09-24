@@ -103,6 +103,13 @@ jobs:
           test -d chatarra-preview-dist/assets
           test -d chatarra-preview-dist/images
 
+      - name: Install FFmpeg
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+
       - name: Prepare client hero video
         shell: bash
         run: |
