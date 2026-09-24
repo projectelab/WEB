@@ -252,6 +252,35 @@ test('automation uses native contact flow and commercial project CTAs avoid mail
  }
 });
 
+test('public markup is compatible with strict CSP without unsafe-inline or unsafe-eval',async()=>{
+ const worker=await read('src/worker.js');
+ assert.match(worker,/Content-Security-Policy/);
+ assert.match(worker,/"script-src 'self'"/);
+ assert.match(worker,/"style-src 'self' https:\/\/fonts\.googleapis\.com"/);
+ assert.match(worker,/"font-src 'self' https:\/\/fonts\.gstatic\.com"/);
+ assert.match(worker,/"connect-src 'self'"/);
+ assert.match(worker,/"frame-ancestors 'none'"/);
+ assert.match(worker,/"frame-src 'none'"/);
+ assert.match(worker,/Strict-Transport-Security/);
+ assert.match(worker,/max-age=63072000; includeSubDomains; preload/);
+ assert.doesNotMatch(worker,/unsafe-inline|unsafe-eval/);
+
+ for(const route of routes){
+  const html=await read(`public${route}index.html`);
+  assert.doesNotMatch(html,/<style\b/i,`${route}: inline <style>`);
+  assert.doesNotMatch(html,/\sstyle="/i,`${route}: inline style attribute`);
+  const inlineScripts=[...html.matchAll(/<script(?![^>]*\bsrc=)([^>]*)>/gi)];
+  for(const script of inlineScripts)
+   assert.match(script[1],/type="application\/ld\+json"/i,`${route}: unexpected inline script`);
+ }
+ const automation=await read('public/automatizacion/index.html');
+ assert.match(automation,/automation-csp\.20260924-v1\.css/);
+ assert.match(automation,/automatizacion\.20260924-csp-v1\.js/);
+ const automationJs=await read('public/assets/automatizacion.20260924-csp-v1.js');
+ assert.doesNotMatch(automationJs,/\.style\./);
+ assert.match(automationJs,/demo-meter-step-/);
+});
+
 test('native contact flow persists leads before optional WhatsApp',async()=>{
  const home=await read('public/index.html');
  const contact=await read('public/assets/contact.20260924-native.js');
