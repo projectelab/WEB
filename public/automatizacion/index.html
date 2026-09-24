@@ -16,6 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/site.20260923-v2.css">
+<link rel="stylesheet" href="/assets/contact-native.20260924-v1.css">
 <link rel="stylesheet" href="/assets/viewport-lock.20260924-v1.css">
 </head>
 <body class="automation">
@@ -56,18 +57,45 @@
 </div>
 </div></section>
 <section class="section contact" id="solicitud" data-n="04" aria-labelledby="request-title"><div class="inner">
-<p class="desorden-label">04 / CONTACTE</p><h2 class="display" id="request-title">EXPLICA’M<br>EL TEU PROCÉS.</h2><p class="lead">Quina feina repetitiva vols simplificar?</p><form class="form" id="contact-form" aria-describedby="contact-help" novalidate>
+<p class="desorden-label">04 / CONTACTE</p>
+<h2 class="display" id="request-title">EXPLICA’M<br>EL TEU PROCÉS.</h2>
+<p class="lead">Quina feina repetitiva vols simplificar?</p>
+
+<form class="form" id="contact-form" aria-describedby="contact-help" novalidate>
+<input type="radio" name="need" value="Automatització" checked hidden>
+<small class="error" id="need-error"></small>
+
 <div class="field"><label for="name">Nom</label><input id="name" name="name" autocomplete="name" required minlength="2" maxlength="150" aria-describedby="name-error"><small class="error" id="name-error"></small></div>
-<div class="field"><label for="contact">Contacte</label><input id="contact" name="contact" required minlength="5" maxlength="254" placeholder="Correu, telèfon o Instagram" aria-describedby="contact-error"><small class="error" id="contact-error"></small></div>
-<div class="field wide"><label for="objective">Què vols fer o millorar?</label><textarea id="objective" name="objective" required minlength="10" maxlength="2000" placeholder="Explica'm breument què necessites." aria-describedby="objective-error"></textarea><small class="error" id="objective-error"></small></div>
-<div class="contact-actions wide"><button class="submit" type="submit" data-channel="whatsapp">PER WHATSAPP <span aria-hidden="true">›</span></button><button class="submit" type="submit" data-channel="email">PER CORREU <span aria-hidden="true">›</span></button></div>
+<div class="field"><label for="contact">Email o telèfon</label><input id="contact" name="contact" required minlength="5" maxlength="254" placeholder="On et va millor rebre resposta?" aria-describedby="contact-error"><small class="error" id="contact-error"></small></div>
+<div class="field wide"><label for="objective">Què vols automatitzar o millorar?</label><textarea id="objective" name="objective" required minlength="10" maxlength="2000" placeholder="Explica'm breument quin procés vols simplificar." aria-describedby="objective-error"></textarea><small class="error" id="objective-error"></small></div>
+
+<div class="hp-field" aria-hidden="true"><label for="website">Web</label><input id="website" name="website" tabindex="-1" autocomplete="off"></div>
+
+<label class="privacy-consent wide"><input id="privacy-consent" name="privacy-consent" type="checkbox" required aria-describedby="privacy-error"><span>He llegit la <a href="/privadesa/">informació sobre protecció de dades</a> i consent que DESORDEN tracti les dades que facilito per atendre aquesta consulta.</span></label>
+<small class="error wide" id="privacy-error"></small>
+
+<div class="privacy-layer wide"><strong>Protecció de dades:</strong> responsable: David Milla / DESORDEN · finalitat: atendre la teva consulta · legitimació: consentiment i, quan correspongui, mesures precontractuals a petició teva · drets: accés, rectificació, supressió i altres drets a <a href="mailto:lab@desorden.cat">lab@desorden.cat</a>.</div>
+
+<div class="contact-trust wide"><span>✓ Resposta habitual en menys de 24 h feiners.</span><span>✓ Sense trucades comercials insistents.</span></div>
+
+<div class="contact-actions wide"><button class="submit contact-submit" type="submit"><span>ENVIAR CONSULTA</span><i aria-hidden="true">›</i></button></div>
 <p class="status wide" id="status" role="status" aria-live="polite"></p>
 </form>
-<p class="note" id="contact-help">S'obrirà WhatsApp o el teu correu amb el missatge preparat. Tu decideixes quan l'envies.</p>
-<div class="channels"><a class="channel" href="https://wa.me/34640925788" target="_blank" rel="noopener noreferrer">WHATSAPP ›</a><a class="channel" href="mailto:lab@desorden.cat">CORREU ›</a><a class="channel" href="https://www.instagram.com/desorden.cat/" target="_blank" rel="noopener noreferrer">INSTAGRAM ›</a></div><noscript><style>#contact-form,#contact-help,.demo-console,.menu-btn{display:none}</style><p class="note">Pots contactar directament pels enllaços de WhatsApp i correu.</p></noscript>
+
+<div class="contact-success" id="contact-success" hidden tabindex="-1">
+<p class="case-kicker">✓ CONSULTA REBUDA</p>
+<h3>GRÀCIES, <span id="contact-success-name"></span>.</h3>
+<p>He rebut les dades del teu projecte i et respondré pel contacte que m’has indicat.</p>
+<p>Si vols continuar ara mateix, pots obrir WhatsApp amb el missatge ja preparat.</p>
+<a class="submit" id="contact-success-whatsapp" href="#" target="_blank" rel="noopener noreferrer"><span>OBRIR WHATSAPP AMB DAVID</span><i aria-hidden="true">›</i></a>
+</div>
+
+<p class="note" id="contact-help">La consulta s’envia directament des d’aquesta web. WhatsApp queda com a opció addicional després de l’enviament.</p>
+<div class="channels"><a class="channel" href="https://wa.me/34640925788" target="_blank" rel="noopener noreferrer">WHATSAPP ›</a><a class="channel" href="/#contacte">FORMULARI GENERAL ›</a><a class="channel" href="https://www.instagram.com/desorden.cat/" target="_blank" rel="noopener noreferrer">INSTAGRAM ›</a></div>
+<noscript><style>#contact-form,#contact-help,.demo-console,.menu-btn{display:none}</style><p class="note">Pots contactar directament pels enllaços de WhatsApp i Instagram.</p></noscript>
 </div></section>
 </main><footer><span>DESORDEN · <span id="year">2026</span></span><a href="/">TORNAR A L’INICI ›</a><nav class="legal-links" aria-label="Informació legal"><a href="/avis-legal/">Avís legal</a><a href="/privadesa/">Privadesa</a><a href="/cookies/">Cookies</a></nav></footer>
-</div><script src="/assets/contact.20260923-editorial.js" defer></script>
+</div><script src="/assets/contact.20260924-native.js" defer></script>
 <script src="/assets/menu.20260922.js" defer></script>
 <script src="/assets/automatizacion.20260922.js" defer></script>
 </body></html>
