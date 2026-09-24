@@ -77,8 +77,15 @@ function workerWith(fetch) {
       super(input, init?.body ? { ...init, duplex: 'half' } : init);
     }
   }
-  return vm.runInNewContext(workerSource.replace('export default', 'globalThis.worker ='), {
-    URL, URLSearchParams, Request: WorkerRequest, Response, Headers, AbortSignal, fetch, Set
+  const executableWorkerSource = workerSource
+    .replace(/^import .*$/m, '')
+    .replace('export class ContactLeadStore', 'class ContactLeadStore')
+    .replace('export default', 'globalThis.worker =');
+  class DurableObject {
+    constructor(ctx, env) { this.ctx = ctx; this.env = env; }
+  }
+  return vm.runInNewContext(executableWorkerSource, {
+    URL, URLSearchParams, Request: WorkerRequest, Response, Headers, AbortSignal, fetch, Set, DurableObject
   });
 }
 const data = { cliente: 'Demo', empresa: 'Empresa Demo', telefono: '640925788', email: 'demo@example.com',
