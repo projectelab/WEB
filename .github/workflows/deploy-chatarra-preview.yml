@@ -20,7 +20,7 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      PREVIEW_ZIP_URL: "https://sdmntprnortheu.oaiusercontent.com/files/00000000-9b24-81f4-8db9-fabbde2f095f/raw?se=2026-09-24T20%3A54%3A27Z&sp=r&sv=2026-02-06&sr=b&scid=557b9013-0e24-58b0-9599-046349f0197d&skoid=5c9dda00-298b-4376-81e9-b4568c8a3c0f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-24T20%3A42%3A18Z&ske=2026-09-25T20%3A42%3A18Z&sks=b&skv=2026-02-06&sig=lPLGleaCm/tIh1zR3Kq8FZmTwwVkEuQefHtI4a6NHeI%3D"
+      PREVIEW_ZIP_URL: "https://sdmntprdenmarkeast.oaiusercontent.com/files/00000000-6570-8210-af44-0e6ab712461b/raw?se=2026-09-24T20%3A56%3A03Z&sp=r&sv=2026-02-06&sr=b&scid=0484ed0b-7df9-506e-a935-82e3ef8283e4&skoid=5c9dda00-298b-4376-81e9-b4568c8a3c0f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-24T20%3A46%3A45Z&ske=2026-09-25T20%3A46%3A45Z&sks=b&skv=2026-02-06&sig=TkBZ9mfQ/qqflt61Ic5Xr/lOfxQk3MAOAFfbvT5LRSk%3D"
 
     steps:
       - name: Checkout preview branch
@@ -42,14 +42,13 @@ jobs:
           rm -rf chatarra-preview-dist
           cp -a preview-src/chatarra-landing-preview-v11/dist chatarra-preview-dist
 
-          grep -q 'hero-cobre-v11' chatarra-preview-dist/index.html
+          grep -q 'hero-cobre-v11.webp' chatarra-preview-dist/index.html
           grep -q 'material-photos' chatarra-preview-dist/index.html
           grep -q '/images/cobre.webp' chatarra-preview-dist/index.html
           grep -q '/images/acero.webp' chatarra-preview-dist/index.html
-          grep -q 'noindex, follow' chatarra-preview-dist/index.html
-          grep -q 'hero-cobre-v11.webp' chatarra-preview-dist/index.html
           ! grep -q '<video' chatarra-preview-dist/index.html
           grep -R -q 'hero-static-image' chatarra-preview-dist/assets
+          grep -q 'noindex, follow' chatarra-preview-dist/index.html
 
       - name: Verify Cloudflare authentication
         run: npx --yes wrangler@4 whoami
@@ -69,24 +68,29 @@ jobs:
           set -euo pipefail
           for attempt in {1..10}; do
             body="$(mktemp)"
-            cobre_headers="$(mktemp)"
-            acero_headers="$(mktemp)"
-            hero_headers="$(mktemp)"
             css_body="$(mktemp)"
-
             page_status="$(curl -sS -L --max-time 20 -o "$body" -w '%{http_code}' "$CHATARRA_PREVIEW_URL/?v=11" || true)"
-            css_path="$(grep -oE '/assets/[^"[:space:]]+\.css' "$body" | head -1)"
-            css_status="$(curl -sS -L --max-time 20 -o "$css_body" -w '%{http_code}' "$CHATARRA_PREVIEW_URL$css_path" || true)"
+            hero_status="$(curl -sS -I -L --max-time 20 -o /dev/null -w '%{http_code}' "$CHATARRA_PREVIEW_URL/images/hero-cobre-v11.webp" || true)"
+            cobre_status="$(curl -sS -I -L --max-time 20 -o /dev/null -w '%{http_code}' "$CHATARRA_PREVIEW_URL/images/cobre.webp" || true)"
+            acero_status="$(curl -sS -I -L --max-time 20 -o /dev/null -w '%{http_code}' "$CHATARRA_PREVIEW_URL/images/acero.webp" || true)"
 
-            if [[ "$page_status" == "200" && "$cobre_status" == "200" && "$acero_status" == "200" && "$hero_status" == "200" ]] &&                grep -q 'hero-cobre-v11' "$body" &&                grep -q 'chatarra-hero-loop-v9.mp4' "$body" &&                grep -q '/images/cobre.webp' "$body" &&                grep -q '/images/acero.webp' "$body" && \
+            css_path="$(grep -oE '/assets/[^"[:space:]]+\.css' "$body" | head -1 || true)"
+            css_status="000"
+            if [[ -n "$css_path" ]]; then
+              css_status="$(curl -sS -L --max-time 20 -o "$css_body" -w '%{http_code}' "$CHATARRA_PREVIEW_URL$css_path" || true)"
+            fi
+
+            if [[ "$page_status" == "200" && "$hero_status" == "200" && "$cobre_status" == "200" && "$acero_status" == "200" && "$css_status" == "200" ]] && \
                grep -q 'hero-cobre-v11.webp' "$body" && \
-               ! grep -q '<video' "$body"; then
-               grep -q 'hero-static-image' "$css_body"
+               grep -q '/images/cobre.webp' "$body" && \
+               grep -q '/images/acero.webp' "$body" && \
+               ! grep -q '<video' "$body" && \
+               grep -q 'hero-static-image' "$css_body"; then
               echo "V11 verified: $CHATARRA_PREVIEW_URL/?v=11"
               exit 0
             fi
 
-            echo "Waiting for V11 ($attempt/10), page=$page_status cobre=$cobre_status acero=$acero_status"
+            echo "Waiting for V11 ($attempt/10): page=$page_status hero=$hero_status cobre=$cobre_status acero=$acero_status css=$css_status"
             sleep 5
           done
           exit 1
