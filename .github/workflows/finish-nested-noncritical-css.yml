@@ -1,0 +1,52 @@
+name: Finish nested noncritical CSS
+
+on:
+  push:
+    branches:
+      - perf/defer-noncritical-css-20260925
+    paths:
+      - .github/workflows/finish-nested-noncritical-css.yml
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: perf/defer-noncritical-css-20260925
+      - name: Update remaining nested HTML
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          for path in Path('public').rglob('*.html'):
+              text = path.read_text(encoding='utf-8')
+              if '/assets/site.20260925-v3.css' not in text:
+                  continue
+              text = text.replace('/assets/site.20260925-v3.css','/assets/site.20260925-v4.css')
+              preload = '<link rel="preload" href="/assets/fonts/anton-latin.20260925.woff2" as="font" type="font/woff2" crossorigin>'
+              if preload not in text:
+                  text = text.replace('<link rel="stylesheet" href="/assets/site.20260925-v4.css">', preload + '\n<link rel="stylesheet" href="/assets/site.20260925-v4.css">')
+              changed_extra = False
+              for name in ('home-extras.20260925-v1.css','portfolio-extras.20260925-v1.css','automation-extras.20260925-v1.css'):
+                  normal = f'<link rel="stylesheet" href="/assets/{name}">'
+                  if normal in text:
+                      text = text.replace(normal, f'<link rel="stylesheet" href="/assets/{name}" media="print" data-noncritical-css>\n<noscript><link rel="stylesheet" href="/assets/{name}"></noscript>')
+                      changed_extra = True
+              if changed_extra and '/assets/noncritical-css.20260925-v1.js' not in text:
+                  text = text.replace('</head>','<script src="/assets/noncritical-css.20260925-v1.js" defer></script>\n</head>')
+              path.write_text(text, encoding='utf-8')
+          PY
+      - name: Commit nested HTML
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public
+          git commit -m 'perf: defer CSS on nested public pages'
+          git push origin HEAD:perf/defer-noncritical-css-20260925
