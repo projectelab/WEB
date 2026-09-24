@@ -160,3 +160,14 @@ test('new amber-on-black client logos replace legacy identity previews',async()=
  const pata=await read('public/projectes/pata-negra/index.html');
  assert.doesNotMatch(pata,/previews-v2\/pata-negra\.webp/);
 });
+
+test('public routes expose permanent legal navigation and explicit contact consent',async()=>{
+ for(const route of routes){
+  const html=await read(`public${route}index.html`);
+  for(const href of ['/avis-legal/','/privadesa/','/cookies/'])
+   assert(html.includes(`href="${href}"`),`${route}: missing ${href}`);
+ }
+ const home=await read('public/index.html');
+ assert.match(home,/consent que DESORDEN tracti les dades que facilito per atendre aquesta consulta/);
+ assert.match(home,/legitimació: consentiment i, quan correspongui, mesures precontractuals a petició teva/);
+});
