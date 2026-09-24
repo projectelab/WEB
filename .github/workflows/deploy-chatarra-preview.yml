@@ -20,39 +20,41 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      PREVIEW_ZIP_URL: "https://sdmntpritalynorth.oaiusercontent.com/files/00000000-0194-8246-aa4a-cec93b1bfa0a/raw?se=2026-09-24T20%3A49%3A50Z&sp=r&sv=2026-02-06&sr=b&scid=85704e9d-f2da-5e58-83d8-833604dffceb&skoid=5c9dda00-298b-4376-81e9-b4568c8a3c0f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-24T20%3A42%3A19Z&ske=2026-09-25T20%3A42%3A19Z&sks=b&skv=2026-02-06&sig=NcfOwlySYvjSBmVBvAuLy9hzhhfd%2BbKzulUDLdaBl94%3D"
+      PREVIEW_ZIP_URL: "https://sdmntprnortheu.oaiusercontent.com/files/00000000-9b24-81f4-8db9-fabbde2f095f/raw?se=2026-09-24T20%3A54%3A27Z&sp=r&sv=2026-02-06&sr=b&scid=557b9013-0e24-58b0-9599-046349f0197d&skoid=5c9dda00-298b-4376-81e9-b4568c8a3c0f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-24T20%3A42%3A18Z&ske=2026-09-25T20%3A42%3A18Z&sks=b&skv=2026-02-06&sig=lPLGleaCm/tIh1zR3Kq8FZmTwwVkEuQefHtI4a6NHeI%3D"
 
     steps:
       - name: Checkout preview branch
         uses: actions/checkout@v4
 
-      - name: Prepare V10 package
+      - name: Prepare V11 package
         shell: bash
         run: |
           set -euo pipefail
           curl -L --fail --retry 2 "$PREVIEW_ZIP_URL" -o preview.zip
           unzip -q preview.zip -d preview-src
 
-          test -f preview-src/chatarra-landing-preview-v10/dist/index.html
-          test -f preview-src/chatarra-landing-preview-v10/dist/media/chatarra-hero-loop-v9.mp4
-          test -f preview-src/chatarra-landing-preview-v10/dist/images/cobre.webp
-          test -f preview-src/chatarra-landing-preview-v10/dist/images/acero.webp
+          test -f preview-src/chatarra-landing-preview-v11/dist/index.html
+          test -f preview-src/chatarra-landing-preview-v11/dist/images/hero-cobre-v11.webp
+          test -f preview-src/chatarra-landing-preview-v11/dist/images/hero-cobre-v11.avif
+          test -f preview-src/chatarra-landing-preview-v11/dist/images/cobre.webp
+          test -f preview-src/chatarra-landing-preview-v11/dist/images/acero.webp
 
           rm -rf chatarra-preview-dist
-          cp -a preview-src/chatarra-landing-preview-v10/dist chatarra-preview-dist
+          cp -a preview-src/chatarra-landing-preview-v11/dist chatarra-preview-dist
 
-          grep -q 'client-video-v10' chatarra-preview-dist/index.html
-          grep -q 'chatarra-hero-loop-v9.mp4' chatarra-preview-dist/index.html
+          grep -q 'hero-cobre-v11' chatarra-preview-dist/index.html
           grep -q 'material-photos' chatarra-preview-dist/index.html
           grep -q '/images/cobre.webp' chatarra-preview-dist/index.html
           grep -q '/images/acero.webp' chatarra-preview-dist/index.html
           grep -q 'noindex, follow' chatarra-preview-dist/index.html
-          grep -R -q 'object-fit:contain' chatarra-preview-dist/assets
+          grep -q 'hero-cobre-v11.webp' chatarra-preview-dist/index.html
+          ! grep -q '<video' chatarra-preview-dist/index.html
+          grep -R -q 'hero-static-image' chatarra-preview-dist/assets
 
       - name: Verify Cloudflare authentication
         run: npx --yes wrangler@4 whoami
 
-      - name: Deploy V10
+      - name: Deploy V11
         shell: bash
         run: |
           set -euo pipefail
@@ -61,31 +63,30 @@ jobs:
           test -n "$url"
           echo "CHATARRA_PREVIEW_URL=$url" >> "$GITHUB_ENV"
 
-      - name: Smoke test V10
+      - name: Smoke test V11
         shell: bash
         run: |
           set -euo pipefail
           for attempt in {1..10}; do
             body="$(mktemp)"
-            video_headers="$(mktemp)"
             cobre_headers="$(mktemp)"
             acero_headers="$(mktemp)"
+            hero_headers="$(mktemp)"
             css_body="$(mktemp)"
 
-            page_status="$(curl -sS -L --max-time 20 -o "$body" -w '%{http_code}' "$CHATARRA_PREVIEW_URL/?v=10" || true)"
-            video_status="$(curl -sS -I -L --max-time 20 -o "$video_headers" -w '%{http_code}' "$CHATARRA_PREVIEW_URL/media/chatarra-hero-loop-v9.mp4" || true)"
-            cobre_status="$(curl -sS -I -L --max-time 20 -o "$cobre_headers" -w '%{http_code}' "$CHATARRA_PREVIEW_URL/images/cobre.webp" || true)"
-            acero_status="$(curl -sS -I -L --max-time 20 -o "$acero_headers" -w '%{http_code}' "$CHATARRA_PREVIEW_URL/images/acero.webp" || true)"
+            page_status="$(curl -sS -L --max-time 20 -o "$body" -w '%{http_code}' "$CHATARRA_PREVIEW_URL/?v=11" || true)"
             css_path="$(grep -oE '/assets/[^"[:space:]]+\.css' "$body" | head -1)"
             css_status="$(curl -sS -L --max-time 20 -o "$css_body" -w '%{http_code}' "$CHATARRA_PREVIEW_URL$css_path" || true)"
 
-            if [[ "$page_status" == "200" && "$video_status" == "200" && "$cobre_status" == "200" && "$acero_status" == "200" && "$css_status" == "200" ]] &&                grep -q 'client-video-v10' "$body" &&                grep -q 'chatarra-hero-loop-v9.mp4' "$body" &&                grep -q '/images/cobre.webp' "$body" &&                grep -q '/images/acero.webp' "$body" && \
-               grep -q 'object-fit:contain' "$css_body"; then
-              echo "V10 verified: $CHATARRA_PREVIEW_URL/?v=10"
+            if [[ "$page_status" == "200" && "$cobre_status" == "200" && "$acero_status" == "200" && "$hero_status" == "200" ]] &&                grep -q 'hero-cobre-v11' "$body" &&                grep -q 'chatarra-hero-loop-v9.mp4' "$body" &&                grep -q '/images/cobre.webp' "$body" &&                grep -q '/images/acero.webp' "$body" && \
+               grep -q 'hero-cobre-v11.webp' "$body" && \
+               ! grep -q '<video' "$body"; then
+               grep -q 'hero-static-image' "$css_body"
+              echo "V11 verified: $CHATARRA_PREVIEW_URL/?v=11"
               exit 0
             fi
 
-            echo "Waiting for V10 ($attempt/10), page=$page_status video=$video_status cobre=$cobre_status acero=$acero_status"
+            echo "Waiting for V11 ($attempt/10), page=$page_status cobre=$cobre_status acero=$acero_status"
             sleep 5
           done
           exit 1
