@@ -255,7 +255,7 @@ test('automation uses native contact flow and commercial project CTAs avoid mail
 test('PageSpeed assets use local Anton and optimized versioned logos',async()=>{
  const font=await readFile(new URL('../public/assets/fonts/anton-latin.20260925.woff2',import.meta.url));
  assert(font.length>10000);
- const site=await read('public/assets/site.20260925-v3.css');
+ const site=await read('public/assets/site.20260925-v4.css');
  assert.match(site,/@font-face/);
  assert.match(site,/anton-latin\.20260925\.woff2/);
  assert.match(site,/font-display:swap/);
@@ -268,6 +268,20 @@ test('PageSpeed assets use local Anton and optimized versioned logos',async()=>{
   const path=new URL(`../public/media/portfolio/logo-${name}.20260925.webp`,import.meta.url);
   const info=await stat(path);
   assert(info.size<200000,`logo-${name}: optimized size`);
+ }
+});
+
+test('PageSpeed CSS delivery keeps page-specific styles non-blocking',async()=>{
+ for(const route of routes){
+  const html=await read(`public${route}index.html`);
+  assert.match(html,/site\.20260925-v4\.css/,`${route}: critical CSS`);
+  assert.match(html,/anton-latin\.20260925\.woff2/,`${route}: font preload`);
+  const extras=[...html.matchAll(/<link rel="stylesheet" href="\/assets\/(?:home|portfolio|automation)-extras\.20260925-v1\.css"[^>]*>/g)];
+  for(const link of extras){
+   assert.match(link[0],/media="print"/,`${route}: deferred media`);
+   assert.match(link[0],/data-noncritical-css/,`${route}: loader marker`);
+   assert.match(html,/noncritical-css\.20260925-v1\.js/,`${route}: loader script`);
+  }
  }
 });
 
