@@ -169,8 +169,8 @@ test('worker applies strict security headers centrally to static and API respons
   const csp = page.headers.get('Content-Security-Policy');
   assert(csp);
   assert.match(csp, /default-src 'self'/);
-  assert.match(csp, /style-src 'self' https:\/\/fonts\.googleapis\.com/);
-  assert.match(csp, /font-src 'self' https:\/\/fonts\.gstatic\.com/);
+  assert.match(csp, /style-src 'self'/);
+  assert.match(csp, /font-src 'self'/);
   assert.match(csp, /connect-src 'self'/);
   assert.match(csp, /frame-ancestors 'none'/);
   assert.match(csp, /frame-src 'none'/);
@@ -185,5 +185,25 @@ test('worker applies strict security headers centrally to static and API respons
   assert.equal(api.status, 400);
   assert.equal(api.headers.get('X-Frame-Options'), 'DENY');
   assert.match(api.headers.get('Content-Security-Policy'), /connect-src 'self'/);
+});
+
+test('worker gives immutable cache only to versioned assets and versioned frame directory', async () => {
+  const worker = workerWith(async () => new Response('upstream'));
+  const env = { ASSETS: { fetch: async () => new Response('asset') } };
+  const immutable = 'public, max-age=31536000, immutable';
+  const shortCache = 'public, max-age=86400, stale-while-revalidate=604800';
+
+  for (const url of [
+    'https://www.desorden.cat/assets/site.20260925-v3.css',
+    'https://www.desorden.cat/assets/fonts/anton-latin.20260925.woff2',
+    'https://www.desorden.cat/media/portfolio/logo-ntk.20260925.webp',
+    'https://www.desorden.cat/frames/v1/frame_0001.webp'
+  ]) {
+    const response = await worker.fetch(new Request(url), env);
+    assert.equal(response.headers.get('Cache-Control'), immutable, url);
+  }
+
+  const legacy = await worker.fetch(new Request('https://www.desorden.cat/media/portfolio/ntk-runners-cursa.webp'), env);
+  assert.equal(legacy.headers.get('Cache-Control'), shortCache);
 });
 
