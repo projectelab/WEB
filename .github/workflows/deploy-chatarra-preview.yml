@@ -13,159 +13,45 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 10
     permissions:
       contents: read
 
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      CLIENT_VIDEO_URL: "https://sdmntprnznorth.oaiusercontent.com/files/00000000-b2e4-820b-a964-6bb82f9d782d/raw?se=2026-09-24T20%3A23%3A39Z&sp=r&sv=2026-02-06&sr=b&scid=30691bcf-cd65-56fe-bc66-531b31555ea7&skoid=5c9dda00-298b-4376-81e9-b4568c8a3c0f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-24T18%3A15%3A45Z&ske=2026-09-25T18%3A15%3A45Z&sks=b&skv=2026-02-06&sig=J4AvCR%2BNixfM5q%2BIqVXo%2BA4Rmbua6gGZJgPgev0jrYM%3D"
-      CURRENT_PREVIEW: "https://chatarra-preview.desorden-help-76b.workers.dev"
+      PREVIEW_ZIP_URL: "https://sdmntprnortheu.oaiusercontent.com/files/00000000-9dcc-81f4-ae49-87fdbbd03f10/raw?se=2026-09-24T20%3A44%3A46Z&sp=r&sv=2026-02-06&sr=b&scid=2dde962d-c4bf-5a6a-a7e2-3c1dbac0a54a&skoid=5c9dda00-298b-4376-81e9-b4568c8a3c0f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-24T19%3A21%3A51Z&ske=2026-09-25T19%3A21%3A51Z&sks=b&skv=2026-02-06&sig=RvlBASVVlUUtSBzcP3rPT2tEbiivNm56BMZQzulSidQ%3D"
 
     steps:
       - name: Checkout preview branch
         uses: actions/checkout@v4
 
-      - name: Rebuild preview from current public version
+      - name: Prepare V9 package
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf chatarra-preview-dist mirror
-          mkdir -p mirror chatarra-preview-dist
+          curl -L --fail --retry 2 "$PREVIEW_ZIP_URL" -o preview.zip
+          unzip -q preview.zip -d preview-src
 
-          python - <<'PY'
-          from pathlib import Path
-          from urllib.parse import urljoin, urlparse
-          from urllib.request import Request, urlopen
-          import re
+          test -f preview-src/chatarra-landing-preview-v9/dist/index.html
+          test -f preview-src/chatarra-landing-preview-v9/dist/media/chatarra-hero-loop-v9.mp4
+          test -f preview-src/chatarra-landing-preview-v9/dist/images/cobre.webp
+          test -f preview-src/chatarra-landing-preview-v9/dist/images/acero.webp
 
-          origin = "https://chatarra-preview.desorden-help-76b.workers.dev"
-          out = Path("chatarra-preview-dist")
-          out.mkdir(parents=True, exist_ok=True)
+          rm -rf chatarra-preview-dist
+          cp -a preview-src/chatarra-landing-preview-v9/dist chatarra-preview-dist
 
-          seeds = ["/", "/aviso-legal/", "/privacidad/", "/404.html", "/robots.txt", "/sitemap.xml"]
-          queue = list(seeds)
-          seen = set()
-
-          def target_for(path):
-              if path.endswith("/"):
-                  return out / path.lstrip("/") / "index.html"
-              p = out / path.lstrip("/")
-              if not p.suffix and path != "/":
-                  return p / "index.html"
-              return p
-
-          while queue:
-              path = queue.pop(0)
-              path = "/" + path.lstrip("/")
-              if path in seen:
-                  continue
-              seen.add(path)
-
-              url = origin + path
-              req = Request(url, headers={"User-Agent":"CHATARRA-Preview-Builder/1.0"})
-              try:
-                  with urlopen(req, timeout=20) as r:
-                      data = r.read()
-                      ctype = r.headers.get("content-type","")
-              except Exception as e:
-                  if path in seeds:
-                      raise
-                  print("skip", path, e)
-                  continue
-
-              dest = target_for(path)
-              dest.parent.mkdir(parents=True, exist_ok=True)
-              dest.write_bytes(data)
-
-              if "text/html" in ctype or dest.suffix == ".html":
-                  text = data.decode("utf-8", "ignore")
-                  refs = re.findall(r'''(?:src|href)=["']([^"'#]+)''', text, flags=re.I)
-                  for ref in refs:
-                      u = urlparse(urljoin(url, ref))
-                      if u.netloc == urlparse(origin).netloc and u.path:
-                          queue.append(u.path)
-              elif "text/css" in ctype or dest.suffix == ".css":
-                  text = data.decode("utf-8", "ignore")
-                  refs = re.findall(r'''url\((?:["']?)([^)"']+)''', text, flags=re.I)
-                  for ref in refs:
-                      if ref.startswith("data:"):
-                          continue
-                      u = urlparse(urljoin(url, ref))
-                      if u.netloc == urlparse(origin).netloc and u.path:
-                          queue.append(u.path)
-
-          print("mirrored", len(seen), "paths")
-          PY
-
-          test -f chatarra-preview-dist/index.html
-          test -d chatarra-preview-dist/assets
-          test -d chatarra-preview-dist/images
-
-      - name: Install FFmpeg
-        shell: bash
-        run: |
-          set -euo pipefail
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq ffmpeg
-
-      - name: Prepare client hero video
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p chatarra-preview-dist/media
-          curl -L --fail --retry 2 "$CLIENT_VIDEO_URL" -o client-source.mp4
-
-          ffmpeg -y -i client-source.mp4 -an             -c:v libx264 -preset slow -crf 19 -pix_fmt yuv420p             -movflags +faststart             chatarra-preview-dist/media/chatarra-hero-loop-v9.mp4
-
-          ffmpeg -y -ss 0.25 -i client-source.mp4 -frames:v 1             -vf "scale=1080:1080"             chatarra-preview-dist/media/chatarra-hero-poster-v8.jpg
-
-          ffprobe -v error -select_streams v:0             -show_entries stream=codec_name,width,height             -of default=nw=1             chatarra-preview-dist/media/chatarra-hero-loop-v9.mp4             | grep -q "codec_name=h264"
-
-      - name: Replace former 3D block with client video
-        shell: bash
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          from pathlib import Path
-          import re
-
-          html = Path("chatarra-preview-dist/index.html")
-          s = html.read_text(encoding="utf-8")
-
-          pattern = r'<div aria-hidden="true" class="sculpture-stage"[\s\S]*?</div></div><div class="container hero-bottom">'
-          replacement = '<div aria-hidden="true" class="sculpture-stage video-stage" data-client-video-v8="true"><video autoplay muted loop playsinline preload="auto" disablepictureinpicture tabindex="-1" class="sculpture-video hero-client-video" poster="/media/chatarra-hero-poster-v8.jpg"><source src="/media/chatarra-hero-loop-v9.mp4" type="video/mp4"></video></div></div><div class="container hero-bottom">'
-
-          s2, count = re.subn(pattern, replacement, s, count=1)
-          if count != 1:
-              raise SystemExit(f"Hero visual replacement failed: {count}")
-
-          s2 = s2.replace("</body>", '<script>window.addEventListener("DOMContentLoaded",()=>{const v=document.querySelector(".hero-client-video");if(!v)return;v.muted=true;v.loop=true;v.playsInline=true;const p=()=>v.play().catch(()=>{});p();document.addEventListener("visibilitychange",()=>{if(!document.hidden)p()});});</script></body>')
-          html.write_text(s2, encoding="utf-8")
-
-          css_files = list(Path("chatarra-preview-dist/assets").glob("*.css"))
-          if not css_files:
-              raise SystemExit("CSS asset not found")
-          css = css_files[0]
-          css.write_text(css.read_text(encoding="utf-8") + r'''
-          /* V8: client-supplied video replaces the 3D artwork. */
-          .video-stage{position:relative!important;overflow:hidden!important;width:100%!important;margin:0!important;aspect-ratio:1/1!important;background:#111711!important;isolation:isolate!important}
-          .hero-client-video{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;object-position:center center!important;transform:none!important;animation:none!important;border:0!important;margin:0!important;padding:0!important;pointer-events:none!important;background:#111711!important}
-          @media(max-width:650px){.video-stage{width:calc(100% + 40px)!important;margin-left:-20px!important;height:auto!important;aspect-ratio:1/1!important;margin-top:12px!important;margin-bottom:-6px!important}}
-          @media(min-width:651px){.video-stage{align-self:center!important;max-width:620px!important;justify-self:end!important}}
-          ''', encoding="utf-8")
-          PY
-
-          grep -q 'data-client-video-v8="true"' chatarra-preview-dist/index.html
+          grep -q 'client-video-v9' chatarra-preview-dist/index.html
           grep -q 'chatarra-hero-loop-v9.mp4' chatarra-preview-dist/index.html
-          ! grep -q 'orbit orbit-one' chatarra-preview-dist/index.html
-          ! grep -q 'art-coordinate' chatarra-preview-dist/index.html
+          grep -q 'material-photos' chatarra-preview-dist/index.html
+          grep -q '/images/cobre.webp' chatarra-preview-dist/index.html
+          grep -q '/images/acero.webp' chatarra-preview-dist/index.html
+          grep -q 'noindex, follow' chatarra-preview-dist/index.html
 
       - name: Verify Cloudflare authentication
         run: npx --yes wrangler@4 whoami
 
-      - name: Deploy isolated preview Worker
+      - name: Deploy V9
         shell: bash
         run: |
           set -euo pipefail
@@ -174,20 +60,27 @@ jobs:
           test -n "$url"
           echo "CHATARRA_PREVIEW_URL=$url" >> "$GITHUB_ENV"
 
-      - name: Smoke test public preview
+      - name: Smoke test V9
         shell: bash
         run: |
           set -euo pipefail
           for attempt in {1..10}; do
             body="$(mktemp)"
             video_headers="$(mktemp)"
-            status="$(curl -sS -L --max-time 20 -o "$body" -w '%{http_code}' "$CHATARRA_PREVIEW_URL/?v=8" || true)"
+            cobre_headers="$(mktemp)"
+            acero_headers="$(mktemp)"
+
+            page_status="$(curl -sS -L --max-time 20 -o "$body" -w '%{http_code}' "$CHATARRA_PREVIEW_URL/?v=9" || true)"
             video_status="$(curl -sS -I -L --max-time 20 -o "$video_headers" -w '%{http_code}' "$CHATARRA_PREVIEW_URL/media/chatarra-hero-loop-v9.mp4" || true)"
-            if [[ "$status" == "200" && "$video_status" == "200" ]] &&                grep -q 'data-client-video-v8="true"' "$body" &&                grep -q 'autoplay' "$body" &&                grep -q 'loop' "$body" &&                grep -q 'playsinline' "$body"; then
-              echo "Preview verified: $CHATARRA_PREVIEW_URL/?v=8"
+            cobre_status="$(curl -sS -I -L --max-time 20 -o "$cobre_headers" -w '%{http_code}' "$CHATARRA_PREVIEW_URL/images/cobre.webp" || true)"
+            acero_status="$(curl -sS -I -L --max-time 20 -o "$acero_headers" -w '%{http_code}' "$CHATARRA_PREVIEW_URL/images/acero.webp" || true)"
+
+            if [[ "$page_status" == "200" && "$video_status" == "200" && "$cobre_status" == "200" && "$acero_status" == "200" ]] &&                grep -q 'client-video-v9' "$body" &&                grep -q 'chatarra-hero-loop-v9.mp4' "$body" &&                grep -q '/images/cobre.webp' "$body" &&                grep -q '/images/acero.webp' "$body"; then
+              echo "V9 verified: $CHATARRA_PREVIEW_URL/?v=9"
               exit 0
             fi
-            echo "Waiting for preview ($attempt/10), page=$status video=$video_status"
+
+            echo "Waiting for V9 ($attempt/10), page=$page_status video=$video_status cobre=$cobre_status acero=$acero_status"
             sleep 5
           done
           exit 1
