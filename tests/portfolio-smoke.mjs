@@ -141,22 +141,25 @@ test('client logo marquee links five real project pages and excludes Pata Negra'
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
 });
 
-test('new amber-on-black client logos replace legacy identity previews',async()=>{
+test('client logos and new portfolio videos replace legacy previews',async()=>{
  const home=await read('public/index.html');
  const projects=await read('public/projectes/index.html');
  assert.match(home,/\/media\/portfolio\/logo-ntk\.png/);
+ assert.match(home,/\/media\/portfolio\/logo-viu-svc\.png/);
+ assert.match(home,/\/media\/portfolio\/logo-the-club-padel\.png/);
+ assert.doesNotMatch(home,/previews-v2\/(?:viu-svc|the-club-padel|nutrikom-ntk-runners)\.(?:mp4|webp)/);
  for(const html of [home,projects]){
-  assert.match(html,/\/media\/portfolio\/logo-viu-svc\.png/);
-  assert.match(html,/\/media\/portfolio\/logo-the-club-padel\.png/);
-  assert.doesNotMatch(html,/previews-v2\/(?:viu-svc|the-club-padel)\.webp/);
-  assert.match(html,/previews-v2\/nutrikom-ntk-runners\.mp4/);
-  assert.match(html,/previews-v2\/nutrikom-ntk-runners\.webp/);
+  assert.match(html,/\/media\/portfolio\/ntk-runners-cursa\.mp4/);
+  assert.match(html,/\/media\/portfolio\/ntk-runners-cursa\.webp/);
  }
+ assert.match(projects,/\/media\/portfolio\/esgrima-accio\.mp4/);
+ assert.match(projects,/\/media\/portfolio\/territori-esglesia-drone\.mp4/);
+ assert.match(projects,/\/media\/portfolio\/territori-rotonda-drone\.mp4/);
  assert.doesNotMatch(home.match(/<div class="logo-marquee"[\s\S]*?<div class="work-grid">/)?.[0]||'',/pata-negra/i);
  assert.match(home,/portfolio\.20260923-v3\.css/);
- assert.match(projects,/logo-ajuntament-svc\.png/);
  const town=await read('public/projectes/ajuntament-sant-vicenc/index.html');
- assert.doesNotMatch(town,/<(?:img|video)\b/i);
+ assert.match(town,/\/media\/portfolio\/territori-esglesia-drone\.mp4/);
+ assert.match(town,/\/media\/portfolio\/territori-rotonda-drone\.mp4/);
  const pata=await read('public/projectes/pata-negra/index.html');
  assert.doesNotMatch(pata,/previews-v2\/pata-negra\.webp/);
 });
