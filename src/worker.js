@@ -49,6 +49,20 @@ export default {
         status,
         headers: { 'Cache-Control': 'no-store' },
       });
+      const origin = request.headers.get('Origin');
+      if (origin) {
+        try {
+          if (new URL(origin).hostname !== url.hostname) {
+            return reply({ ok: false, error: 'Origen no permès.' }, 403);
+          }
+        } catch {
+          return reply({ ok: false, error: 'Origen no permès.' }, 403);
+        }
+      }
+      const contentLength = Number(request.headers.get('Content-Length') || 0);
+      if (contentLength > 8192) {
+        return reply({ ok: false, error: 'Sol·licitud massa gran.' }, 413);
+      }
       const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
       const rate = await env.CONTACT_RATE_LIMITER.limit({ key: ip });
       if (!rate.success) return reply({ ok: false, error: 'Massa intents. Torna-ho a provar d’aquí a un minut.' }, 429);
