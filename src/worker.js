@@ -44,9 +44,9 @@ const CONTENT_SECURITY_POLICY = [
   "frame-src 'none'",
   "script-src 'self'",
   "script-src-attr 'none'",
-  "style-src 'self' https://fonts.googleapis.com",
+  "style-src 'self'",
   "style-src-attr 'none'",
-  "font-src 'self' https://fonts.gstatic.com",
+  "font-src 'self'",
   "img-src 'self' data:",
   "media-src 'self'",
   "connect-src 'self'",
@@ -68,6 +68,30 @@ const SECURITY_HEADERS = {
 function withSecurityHeaders(response) {
   const headers = new Headers(response.headers);
   for (const [name, value] of Object.entries(SECURITY_HEADERS)) headers.set(name, value);
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
+function withAssetCaching(request, response) {
+  if (request.method !== 'GET' && request.method !== 'HEAD') return response;
+  const path = new URL(request.url).pathname;
+  const headers = new Headers(response.headers);
+  const versionedFile = /\.20\d{6}(?:[-.])/.test(path);
+
+  if (path.startsWith('/frames/v1/')) {
+    headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+  } else if (path.startsWith('/assets/') || path.startsWith('/media/')) {
+    headers.set(
+      'Cache-Control',
+      versionedFile
+        ? 'public, max-age=31536000, immutable'
+        : 'public, max-age=86400, stale-while-revalidate=604800'
+    );
+  }
+
   return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,
@@ -319,7 +343,8 @@ async function handleRequest(request, env, ctx) {
 
 export default {
   async fetch(request, env, ctx) {
-    return withSecurityHeaders(await handleRequest(request, env, ctx));
+    const response = await handleRequest(request, env, ctx);
+    return withSecurityHeaders(withAssetCaching(request, response));
   },
 };
 
