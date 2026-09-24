@@ -1,0 +1,69 @@
+name: Deploy CHATARRA preview to Cloudflare
+
+on:
+  push:
+    branches:
+      - preview/chatarra-client-20260924
+  workflow_dispatch:
+
+concurrency:
+  group: chatarra-preview
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      PREVIEW_ZIP_URL: "https://sdmntprnznorth.oaiusercontent.com/files/00000000-6cd0-820b-badb-1b36ad1ee6f3/raw?se=2026-09-24T18%3A39%3A48Z&sp=r&sv=2026-02-06&sr=b&scid=d99911a4-f7b9-5e00-b58a-a32180c98ea8&skoid=5c9dda00-298b-4376-81e9-b4568c8a3c0f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-24T18%3A15%3A54Z&ske=2026-09-25T18%3A15%3A54Z&sks=b&skv=2026-02-06&sig=wPNvC/pv5kbd6HbM931mYvSNuF5RjaWoLUGf5pmbEfk%3D"
+
+    steps:
+      - name: Checkout preview branch
+        uses: actions/checkout@v4
+
+      - name: Download landing preview package
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 2 "$PREVIEW_ZIP_URL" -o preview.zip
+          unzip -q preview.zip -d preview-src
+          test -f preview-src/chatarra/dist/index.html
+          rm -rf chatarra-preview-dist
+          cp -a preview-src/chatarra/dist chatarra-preview-dist
+          grep -q 'noindex, follow' chatarra-preview-dist/index.html
+          grep -q 'Disallow: /' chatarra-preview-dist/robots.txt
+
+      - name: Verify Cloudflare authentication
+        run: npx --yes wrangler@4 whoami
+
+      - name: Deploy isolated preview Worker
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4 deploy --config wrangler.chatarra-preview.jsonc 2>&1 | tee wrangler-preview.log
+          url="$(grep -Eo 'https://[^[:space:]]+\.workers\.dev' wrangler-preview.log | tail -1 || true)"
+          test -n "$url" || { echo "Unable to detect workers.dev URL"; cat wrangler-preview.log; exit 1; }
+          echo "CHATARRA_PREVIEW_URL=$url" >> "$GITHUB_ENV"
+          echo "Preview URL: $url"
+
+      - name: Smoke test preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in {1..8}; do
+            body="$(mktemp)"
+            status="$(curl -sS -L --max-time 20 -o "$body" -w '%{http_code}' "$CHATARRA_PREVIEW_URL/" || true)"
+            if [[ "$status" == "200" ]] && grep -q 'Recogida' "$body" && grep -q '602 513 274' "$body"; then
+              echo "Preview verified: $CHATARRA_PREVIEW_URL"
+              exit 0
+            fi
+            echo "Waiting for preview ($attempt/8), status=$status"
+            sleep 5
+          done
+          echo "Preview smoke test failed."
+          exit 1
