@@ -65,7 +65,7 @@ test('home follows the editorial sequence with real featured projects', () => {
     assert(position > previous, id);
     previous = position;
   }
-  const featured = home.split('<div class="work-grid">')[1].split('<div class="more-work">')[0];
+  const featured = home.split('<div class="work-grid" data-project-stack>')[1].split('<div class="more-work">')[0];
   for (const href of ['/projectes/viu-svc/','/projectes/federacio-catalana-esgrima/','/laboratori/suro/','/projectes/ajuntament-sant-vicenc/','/laboratori/marina/']) {
     assert(featured.includes(href), href);
   }

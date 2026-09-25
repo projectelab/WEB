@@ -226,7 +226,7 @@ test('home project videos are full-width and keep the amber DESORDEN wordmark',a
  const home=await read('public/index.html');
  const css=await read('public/assets/home-portfolio.20260924-v1.css');
  assert.match(home,/media-fullbleed\.20260925-v4\.css/);
- assert.match(home,/projects-inline\.20260925-v3\.js/);
+ assert.match(home,/projects-inline\.20260925-v4\.js/);
  assert.match(home,/<span class="brand-wordmark">DESORDEN<\/span>/);
  assert.doesNotMatch(home,/desorden-logo-original-v2\.png/);
  assert.match(css,/\.brand-wordmark\{[^}]*color:var\(--o\)/);
@@ -237,7 +237,7 @@ test('project cards expand their existing project content inline instead of navi
  const projects=await read('public/projectes/index.html');
  const js=await read('public/assets/projects-inline.20260925-v3.js');
  const lab=await read('public/laboratori/index.html');
- assert.match(home,/projects-inline\.20260925-v3\.js/);
+ assert.match(home,/projects-inline\.20260925-v4\.js/);
  assert.match(projects,/projects-inline\.20260925-v3\.js/);
  assert.match(lab,/projects-inline\.20260925-v3\.js/);
  assert.match(js,/event\.preventDefault\(\)/);
