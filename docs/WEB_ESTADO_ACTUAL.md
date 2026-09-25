@@ -7,7 +7,8 @@ Actualizado: **25-09-2026**
 - Producción: https://www.desorden.cat
 - Repositorio canónico: https://github.com/projectelab/WEB
 - Rama de producción: `main`
-- SHA de `main`: `f4f3dd0844b532c36830a3621a394cdde0586237`
+- Baseline funcional de producción verificado antes de esta sincronización documental: `f4f3dd0844b532c36830a3621a394cdde0586237`
+- Para obtener el SHA vivo de `main`, consultar GitHub u `origin/main`; no se fija aquí para evitar que el propio commit documental lo deje obsoleto.
 
 ## Últimos cambios relevantes
 
@@ -182,5 +183,7 @@ Estos datos son anteriores al lanzamiento de los clusters del 25/09/2026 y no si
 6. No cambiar titles, canonicals o arquitectura sin una señal concreta que lo justifique.
 
 ## Regla de actualización
+
+Los SHA incrustados en este documento identifican baselines funcionales o commits de cambios concretos, no pretenden ser un puntero autorreferencial al último commit documental de `main`.
 
 Este documento debe reflejar el estado operativo vigente. No sustituye el historial de PRs ni auditorías fechadas. Los documentos históricos conservan su fecha y contexto original.
