@@ -1,0 +1,107 @@
+/* Only the existing five home features participate in the mobile stack. */
+[data-stack-video]{display:none}
+.stack-video-link{display:none}
+@media(max-width:699px){
+  #projectes [data-project-stack]{
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    align-items:start;
+    gap:20svh;
+    width:calc(100% + 2 * var(--gutter) - 24px);
+    max-width:none;
+    margin-inline:calc(12px - var(--gutter));
+    padding-bottom:0;
+    isolation:isolate;
+  }
+  #projectes [data-project-stack]::after{
+    content:"";
+    display:block;
+    height:20svh;
+  }
+  [data-project-stack]>.work-card{
+    --stack-index:0;
+    --stack-depth:0;
+    position:sticky;
+    top:calc(24px + var(--stack-index) * 12px);
+    z-index:calc(var(--stack-index) + 1);
+    margin:0;
+    padding-bottom:16px;
+    background:var(--b);
+    transform:scale(calc(1 - var(--stack-depth) * .02));
+    transform-origin:50% 0;
+    transition:transform .2s ease-out;
+  }
+  [data-project-stack]>.work-card:nth-child(2){--stack-index:1}
+  [data-project-stack]>.work-card:nth-child(3){--stack-index:2}
+  [data-project-stack]>.work-card:nth-child(4){--stack-index:3}
+  [data-project-stack]>.work-card:nth-child(5){--stack-index:4}
+  #projectes [data-project-stack]>.work-card>.work-media{
+    display:block!important;
+    position:relative;
+    left:auto;
+    width:100%;
+    height:auto;
+    max-height:calc(100svh - 280px);
+    aspect-ratio:3/4;
+    margin:0;
+    transform:none;
+    overflow:hidden;
+    background:var(--b);
+  }
+  #projectes [data-project-stack] .work-media video{
+    display:block;
+    position:absolute;
+    inset:0;
+    width:100%!important;
+    height:100%!important;
+    max-width:100%!important;
+    margin:0;
+    object-fit:contain;
+  }
+  [data-project-stack] .work-media--viu-brand img,
+  [data-project-stack] .work-meta,
+  [data-project-stack] .project-inline{display:none!important}
+  [data-project-stack] .stack-video-link{
+    display:block;
+    position:absolute;
+    inset:0;
+    z-index:4;
+  }
+  [data-project-stack] .media-toggle.media-dot{
+    display:grid;
+    width:44px;
+    height:44px;
+    min-width:44px;
+    min-height:44px;
+  }
+  [data-project-stack] .media-toggle.media-dot[hidden]{display:none}
+  [data-project-stack] .media-toggle.media-dot::before{
+    width:18px;
+    height:18px;
+    border-radius:0;
+    background:var(--o);
+    clip-path:polygon(0 0,33% 0,33% 100%,0 100%,0 0,67% 0,100% 0,100% 100%,67% 100%,67% 0);
+  }
+  [data-project-stack] .media-toggle.media-dot[data-state="paused"]::before,
+  [data-project-stack] .media-toggle.media-dot[data-state="ended"]::before{
+    background:#f4f4f4;
+    clip-path:polygon(15% 0,100% 50%,15% 100%);
+  }
+  [data-project-stack] .work-heading{margin:12px 0 8px;gap:10px}
+  [data-project-stack] .work-heading h3{font-size:26px}
+  [data-project-stack] .work-heading a{display:inline-block;min-height:44px}
+  #projectes [data-project-stack] .work-copy{font-size:15px;line-height:1.45}
+  /* Keyboard users can revisit any covered link without a hidden focus target. */
+  [data-project-stack]:has(:focus-visible)>.work-card,
+  [data-project-stack]>.work-card:has(:focus-visible){position:relative;top:auto;transform:none}
+}
+@media(max-width:699px) and (prefers-reduced-motion:reduce){
+  #projectes [data-project-stack]{padding-bottom:0;gap:48px}
+  #projectes [data-project-stack]::after{display:none}
+  [data-project-stack]>.work-card{
+    position:relative;
+    top:auto;
+    transform:none;
+    transition:none;
+  }
+}

@@ -85,7 +85,7 @@ test('home follows the editorial sequence with real featured projects', () => {
   assert.match(home, /href="\/projectes\/producte-digital\/"/);
   for (const anchor of ['automatitzacio','rnd','com-treballem','qui-soc']) assert(home.includes(`id="${anchor}"`));
   assert.match(home, /<fieldset class="field wide service-choice"><legend>Què necessites\?<\/legend>/);
-  assert.match(home, /\/assets\/home\.hero-once\.20260925\.js/);
+  assert.match(home, /\/assets\/home\.hero-once\.20260925-v2\.js/);
   assert.match(home, /\/assets\/home-extras\.20260925-v2\.css/);
   assert.doesNotMatch(home, /vertical-story|card-fullscreen\.20260925|card-expand/);
   assert.match(home, /<div class="product-grid">/);
@@ -115,12 +115,14 @@ test('home hero uses one lightweight one-shot video with the original still as f
   assert(atoms.indexOf('moov') < atoms.indexOf('mdat'));
 });
 
-function heroVideo({ reduced = false, rejectPlay = false, scrollY = 0 } = {}) {
+function heroVideo({ reduced = false, rejectPlay = false, scrollY = 0, mobile = false, storage = new Map(), storageFails = false } = {}) {
+  const timers = new Map();
   const attrs = {};
   const globalListeners = {};
   const videoListeners = {};
   const mediaListeners = {};
   const root = element();
+  root.style.overflow = '';
   const hero = element();
   hero.getBoundingClientRect = () => ({ top: scrollY ? -scrollY : 0 });
   const media = {
@@ -149,6 +151,7 @@ function heroVideo({ reduced = false, rejectPlay = false, scrollY = 0 } = {}) {
   const window = {
     scrollY,
     innerHeight: 844,
+    location: {hash: ""},
     scrollTo(x, y) { this.scrollY = y; }
   };
   vm.runInNewContext(homeSource, {
@@ -157,13 +160,19 @@ function heroVideo({ reduced = false, rejectPlay = false, scrollY = 0 } = {}) {
       querySelector: selector => selector === '[data-hero-video]' ? video : selector === '#hero' ? hero : null
     },
     window,
-    matchMedia: () => media,
+    matchMedia: query => query.includes("max-width") ? {matches: mobile} : media,
+    sessionStorage: { getItem: key => {if(storageFails) throw Error("unavailable"); return storage.get(key);}, setItem: (key,value) => storage.set(key,value) },
+    setTimeout: (fn,ms) => {timers.set(fn,ms); return fn;},
+    clearTimeout: id => timers.delete(id),
     addEventListener: (type, listener) => { globalListeners[type] = listener; },
     Set
   });
   const event = extra => ({ cancelable: true, prevented: false, preventDefault() { this.prevented = true; }, ...extra });
   return {
-    video, root, media,
+    video, root, media, timers,
+    error() {videoListeners.error();},
+    pagehide() {globalListeners.pagehide();},
+    tick(ms) {for(const [fn,delay] of timers) if(delay <= ms) fn();},
     wheel(deltaY) { const e = event({ deltaY }); globalListeners.wheel(e); return e; },
     touchStart(y) { globalListeners.touchstart(event({ touches: [{ clientY: y }] })); },
     touchMove(y) { const e = event({ touches: [{ clientY: y }] }); globalListeners.touchmove(e); return e; },
@@ -223,7 +232,7 @@ test('touch and keyboard can trigger the one-shot hero while reduced motion neve
   assert.equal(blocked.video.playCount, 1);
 });
 
-test('native scroll fallback triggers the hero on mobile without resetting scroll position', () => {
+test('desktop native scroll fallback triggers the hero without resetting scroll position', () => {
   const app = heroVideo();
   app.scrollTo(48);
   assert.equal(app.video.playCount, 1);
@@ -235,6 +244,54 @@ test('hero trigger only applies near the top of the page', () => {
   const event = app.wheel(120);
   assert.equal(event.prevented, false);
   assert.equal(app.video.playCount, 0);
+});
+
+test('mobile intro autoplays and releases scroll at 2000ms even if video never loads', () => {
+  const app = heroVideo({mobile:true});
+  assert.equal(app.video.playCount, 1);
+  assert.equal(app.root.style.overflow, 'hidden');
+  assert.deepEqual([...app.timers.values()], [2000]);
+  app.tick(1999);
+  assert.equal(app.root.style.overflow, 'hidden');
+  app.tick(2000);
+  assert.equal(app.root.style.overflow, '');
+  assert.equal(app.video.pauseCount, 0, 'timeout releases scrolling without cutting the video');
+  app.end();
+  assert(Math.abs(app.video.currentTime - (app.video.duration - 1 / 24)) < 1e-6);
+});
+
+test('mobile lock runs once per session, and unavailable storage never locks', () => {
+  const storage = new Map();
+  const first = heroVideo({mobile:true,storage});
+  assert.equal(first.root.style.overflow, 'hidden');
+  first.pagehide();
+  assert.equal(first.root.style.overflow, '');
+  const back = heroVideo({mobile:true,storage});
+  assert.equal(back.root.style.overflow, '');
+  assert.equal(back.timers.size, 0);
+  const unavailable = heroVideo({mobile:true,storageFails:true});
+  assert.equal(unavailable.root.style.overflow, '');
+  assert.equal(unavailable.video.playCount, 1);
+});
+
+test('mobile error, rejected autoplay, early end and reduced motion immediately release the lock', async () => {
+  for (const action of ['error','end','pagehide']) {
+    const app = heroVideo({mobile:true});
+    app[action]();
+    assert.equal(app.root.style.overflow, '', action);
+    assert.equal(app.timers.size, 0);
+  }
+  const rejected = heroVideo({mobile:true,rejectPlay:true});
+  await Promise.resolve();
+  assert.equal(rejected.root.style.overflow, '');
+  const reduced = heroVideo({mobile:true,reduced:true});
+  assert.equal(reduced.root.style.overflow, '');
+  assert.equal(reduced.video.playCount, 0);
+  assert.equal(reduced.video.src, '');
+  const changed = heroVideo({mobile:true});
+  changed.setReduced(true);
+  assert.equal(changed.root.style.overflow, '');
+  assert.equal(changed.video.src, '');
 });
 
 test('demo keyboard navigation updates its panel label and playback can be stopped', () => {
