@@ -1,0 +1,72 @@
+name: Diagnose Cloudflare Email Sending
+
+on:
+  push:
+    branches:
+      - ops/email-diagnose-20260925
+    paths:
+      - .github/workflows/email-diagnostic.yml
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      RAW_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Diagnose Email Sending
+        shell: bash
+        run: |
+          set -euo pipefail
+          token="$(printf '%s' "$RAW_TOKEN" | tr -d '\r\n' | sed -E 's/^[[:space:]]+//;s/[[:space:]]+$//' | sed -E 's/^[Bb]earer[[:space:]]+//' | sed -E 's/^CLOUDFLARE_API_TOKEN=//' | tr -d '"' | tr -d "'")"
+          echo "::add-mask::$token"
+
+          api() {
+            local method="$1"; shift
+            local url="$1"; shift
+            curl -sS -X "$method" "$url"               -H "Authorization: Bearer $token"               -H "Content-Type: application/json" "$@"
+          }
+
+          zone_json="$(api GET 'https://api.cloudflare.com/client/v4/zones?name=desorden.cat')"
+          ZONE_JSON="$zone_json" node - <<'NODE'
+          const body=JSON.parse(process.env.ZONE_JSON);
+          console.log("ZONE_SUCCESS", body.success);
+          console.log("ZONE_ERRORS", JSON.stringify(body.errors||[]));
+          console.log("ZONE_COUNT", body.result?.length||0);
+          if (body.result?.[0]) console.log("ZONE_ID", body.result[0].id);
+          NODE
+          zone_id="$(ZONE_JSON="$zone_json" node -e 'const b=JSON.parse(process.env.ZONE_JSON);process.stdout.write(b.result?.[0]?.id||"")')"
+          test -n "$zone_id" || exit 2
+
+          sending="$(api GET "https://api.cloudflare.com/client/v4/zones/$zone_id/email/sending/subdomains")"
+          SENDING="$sending" node - <<'NODE'
+          const body=JSON.parse(process.env.SENDING);
+          console.log("SENDING_SUCCESS", body.success);
+          console.log("SENDING_ERRORS", JSON.stringify(body.errors||[]));
+          console.log("SENDING_RESULT", JSON.stringify(body.result||[]));
+          NODE
+
+          dns="$(api GET "https://api.cloudflare.com/client/v4/zones/$zone_id/dns_records?per_page=500")"
+          DNS="$dns" node - <<'NODE'
+          const body=JSON.parse(process.env.DNS);
+          console.log("DNS_SUCCESS", body.success);
+          console.log("DNS_ERRORS", JSON.stringify(body.errors||[]));
+          const rows=(body.result||[]).filter(r =>
+            r.name==="desorden.cat" ||
+            r.name==="_dmarc.desorden.cat" ||
+            r.name.endsWith("._domainkey.desorden.cat") ||
+            r.name==="cf-bounce.desorden.cat"
+          ).map(r=>({type:r.type,name:r.name,content:r.content,priority:r.priority??null,proxied:r.proxied??null}));
+          console.log("DNS_RELEVANT", JSON.stringify(rows));
+          NODE
+
+          test_send="$(api POST "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/email/sending/send"             --data '{"from":{"email":"leads@desorden.cat","name":"DESORDEN Leads"},"to":["lab@desorden.cat"],"subject":"DESORDEN Email Service diagnostic","text":"Diagnostic automatico de Cloudflare Email Sending. Si recibes este mensaje, el servicio de envio funciona."}')"
+          TEST_SEND="$test_send" node - <<'NODE'
+          const body=JSON.parse(process.env.TEST_SEND);
+          console.log("TEST_SEND_SUCCESS", body.success);
+          console.log("TEST_SEND_ERRORS", JSON.stringify(body.errors||[]));
+          console.log("TEST_SEND_MESSAGES", JSON.stringify(body.messages||[]));
+          console.log("TEST_SEND_RESULT", JSON.stringify(body.result||null));
+          NODE
