@@ -89,8 +89,10 @@ Consultar:
 
 [WEB_ESTADO_ACTUAL.md](WEB_ESTADO_ACTUAL.md)
 
-El último `main` documentado allí es:
+El baseline funcional de producción previo a la sincronización documental es:
 
 `f4f3dd0844b532c36830a3621a394cdde0586237`
 
 El deploy correspondiente terminó **SUCCESS**.
+
+El SHA vivo de `main` debe consultarse en GitHub/origin-main para evitar referencias autorreferenciales obsoletas.
