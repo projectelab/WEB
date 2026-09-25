@@ -1,74 +1,125 @@
-DESORDEN SCROLLYTELLING — CLOUDFLARE WORKER + GITHUB — V4
-=========================================================
+DESORDEN — CLOUDFLARE WORKER + STATIC ASSETS
+================================================
 
-Este paquete está preparado específicamente para el Worker:
+ESTADO
+------
+Producción:
+https://www.desorden.cat
 
-final.desorden-help-76b.workers.dev
+Repositorio canónico:
+https://github.com/projectelab/WEB
 
-ESTRUCTURA
-----------
-- wrangler.jsonc
-- package.json
-- public/
-  - index.html
-  - _headers
-  - assets/
-  - frames/v1/ (97 fotogramas WebP)
+Rama de producción:
+main
 
-PUBLICACIÓN DESDE GITHUB
-------------------------
-1. Descomprime este ZIP.
-2. Sube EL CONTENIDO descomprimido a la raíz del repositorio.
-   No subas únicamente el archivo ZIP.
-3. En Cloudflare abre:
-   Workers & Pages > final > Settings > Builds.
-4. Configura:
-   - Production branch: DESORDEN
-   - Root directory: vacío
-   - Build command: vacío
-   - Deploy command: npx wrangler deploy
-5. Guarda la configuración y ejecuta un nuevo despliegue.
+Worker:
+webl
 
-COMPROBACIÓN
+Configuración:
+wrangler.jsonc
+
+Estado operativo vigente:
+docs/WEB_ESTADO_ACTUAL.md
+
+ARQUITECTURA
 ------------
-Cuando el despliegue termine, estas rutas deben abrir correctamente:
+- src/worker.js
+- public/
+- Cloudflare Worker + Static Assets
+- ASSETS con run_worker_first=true
+- 404 real para recursos inexistentes
+- rutas activas para:
+  - www.desorden.cat/*
+  - desorden.cat/*
 
-/health.json
-/frames/v1/frame_0001.webp
-/frames/v1/frame_0097.webp
+BINDINGS
+--------
+- CONTACT_LEADS: Durable Object
+- CONTACT_RATE_LIMITER: rate limit
+- LEAD_EMAIL: Send Email
+- ASSETS: Static Assets
 
-Si /health.json muestra "worker-v4-native-scroll" pero un fotograma no abre, la
-carpeta public/frames no se ha incluido en el repositorio o el despliegue no
-ha terminado correctamente.
+PUBLICACIÓN
+-----------
+La publicación de producción se ejecuta desde GitHub Actions al hacer push/merge
+sobre main.
 
-MEJORAS DE ESTA VERSIÓN
------------------------
-- Static Assets configurados explícitamente mediante wrangler.jsonc.
-- La entrada solo espera los 8 primeros fotogramas esenciales.
-- Los 89 fotogramas restantes se descargan progresivamente en segundo plano.
-- Cualquier fotograma solicitado antes de tiempo se prioriza automáticamente.
-- Las decodificaciones pendientes obsoletas se descartan al cambiar de objetivo.
-- El scroll es nativo, sin GSAP ni ScrollTrigger.
-- Un único contenedor raíz evita bloqueos de `position: sticky` en Safari.
-- Solo se conservan 6 fotogramas decodificados en móvil y 8 en escritorio.
-- La decodificación está limitada a 2 operaciones simultáneas.
-- Tiempo máximo de espera y error visible con el nombre del archivo.
-- Rutas absolutas para evitar errores de subcarpetas.
-- Los recursos inexistentes devuelven 404 real en vez de index.html.
-- JavaScript y CSS usan nombres nuevos para evitar que la caché anual conserve
-  la versión anterior.
+Workflow:
+.github/workflows/deploy-cloudflare.yml
+
+Flujo:
+1. npm ci
+2. npm test
+3. normalización y validación de credenciales Cloudflare
+4. npx wrangler whoami
+5. npx wrangler deploy --config wrangler.jsonc
+6. verificación autenticada de la versión activa con wrangler
+7. smoke checks HTTP públicos
+8. verificación de cabeceras de seguridad y API de contacto cuando Cloudflare
+   permite la comprobación desde el runner
+
+VALIDACIÓN LOCAL
+----------------
+npm test
+
+npx wrangler deploy --dry-run --config wrangler.jsonc
+
+MANAGED CHALLENGE
+-----------------
+Los runners alojados por GitHub pueden recibir:
+
+HTTP 403
+cf-mitigated: challenge
+
+Cuando ocurre exactamente este caso, el workflow marca la comprobación HTTP
+pública como INCONCLUSA y genera un warning.
+
+Una URL desafiada:
+- NO se cuenta como contenido verificado;
+- NO se cuenta como redirect verificado;
+- NO hace fallar por sí sola un deploy cuya versión activa ya fue confirmada
+  mediante el plano de control autenticado de Wrangler.
+
+El workflow SÍ falla ante:
+- estados HTTP inesperados distintos de Managed Challenge;
+- 403 ordinario;
+- contenido obligatorio ausente;
+- contenido prohibido;
+- redirect incorrecto;
+- versión activa distinta de la desplegada.
+
+RUTAS SEO PRINCIPALES
+---------------------
+- /produccio-audiovisual/
+- /produccio-audiovisual/dron-video-aeri/
+- /automatitzacio-sistemes/
+- /disseny-web/
+
+Redirect legado:
+- /automatizacion/
+  -> 301
+  -> /automatitzacio-sistemes/
+
+El redirect conserva query string.
 
 DOMINIO
 -------
-La aplicación actual debe conservar:
+Mantener:
+- https://www.desorden.cat como URL canónica pública;
+- desorden.cat redirigido a www cuando corresponda.
 
-- www.desorden.cat como dominio personalizado del Worker final.
-- desorden.cat con redirección permanente 301 a https://www.desorden.cat/.
+No asociar los mismos hostnames simultáneamente a otro Worker o proyecto Pages.
 
-No asocies estos mismos hostnames simultáneamente a otro Worker o proyecto
-Pages. El despliegue de este paquete actualiza el Worker existente; no necesita
-crear un segundo proyecto.
+DOCUMENTACIÓN
+-------------
+Estado actual:
+docs/WEB_ESTADO_ACTUAL.md
 
-Documentación oficial:
+Requisitos de deploy:
+docs/DEPLOYMENT_REQUIREMENTS.md
+
+Cloudflare Static Assets:
 https://developers.cloudflare.com/workers/static-assets/
-https://developers.cloudflare.com/workers/ci-cd/builds/configuration/
+
+GitHub Actions:
+https://docs.github.com/actions
