@@ -156,13 +156,28 @@ jobs:
             exit 1
           }
 
-      - name: Verify public production endpoints
+      - name: Check public production endpoints
         shell: bash
         run: |
           set -euo pipefail
 
           origin="https://www.desorden.cat"
           user_agent="DESORDEN-Deploy-Smoke-Test/1.0"
+          managed_challenge_urls=()
+
+          record_managed_challenge() {
+            local status="$1"
+            local headers="$2"
+            local url="$3"
+
+            if [[ "$status" == "403" ]] && grep -qi '^cf-mitigated:[[:space:]]*challenge' "$headers"; then
+              managed_challenge_urls+=("$url")
+              echo "::warning::Public HTTP check inconclusive: Cloudflare issued a Managed Challenge to the GitHub-hosted runner for $url. Deployment state was verified separately through the authenticated Wrangler control plane."
+              return 0
+            fi
+
+            return 1
+          }
 
           check_page() {
             local url="$1"
@@ -190,8 +205,7 @@ jobs:
               return 0
             fi
 
-            if [[ "$status" == "403" ]] && grep -qi '^cf-mitigated:[[:space:]]*challenge' "$clean_headers"; then
-              echo "::warning::Cloudflare issued a Managed Challenge to the GitHub-hosted runner for $url. The active deployment was already verified through the authenticated Wrangler control plane."
+            if record_managed_challenge "$status" "$clean_headers" "$url"; then
               return 0
             fi
 
@@ -206,29 +220,53 @@ jobs:
           check_page "$origin/automatitzacio-sistemes/" "MENYS FEINA MANUAL." 'id="contact-form"'
           check_page "$origin/disseny-web/" "Webs d’impacte construïdes" 'href="/automatitzacio-sistemes/"'
 
-          legacy_headers="$(mktemp)"
-          legacy_clean="$(mktemp)"
-          legacy_status="$(curl -sS -A "$user_agent" --max-time 20 -D "$legacy_headers" -o /dev/null -w '%{http_code}' "$origin/automatizacion/" || true)"
-          tr -d '\r' < "$legacy_headers" > "$legacy_clean"
-          test "$legacy_status" = "301" || {
-            echo "Expected 301 from $origin/automatizacion/, got $legacy_status"
-            exit 1
+          check_redirect() {
+            local url="$1"
+            local expected_location="$2"
+            local headers clean_headers status location
+
+            headers="$(mktemp)"
+            clean_headers="$(mktemp)"
+            status="$(curl -sS -A "$user_agent" --max-time 20 \
+              -D "$headers" -o /dev/null -w '%{http_code}' "$url" || true)"
+            tr -d '\r' < "$headers" > "$clean_headers"
+
+            if [[ "$status" != "301" ]]; then
+              if record_managed_challenge "$status" "$clean_headers" "$url"; then
+                return 0
+              fi
+              echo "Expected 301 from $url, got $status"
+              sed -n '1,20p' "$clean_headers"
+              return 1
+            fi
+
+            location="$(sed -n 's/^[Ll]ocation:[[:space:]]*//p' "$clean_headers" | head -n 1)"
+            if [[ "$location" != "$expected_location" ]]; then
+              echo "Unexpected redirect location from $url: ${location:-missing}"
+              return 1
+            fi
+
+            echo "Redirect verified: $url -> $location"
           }
-          grep -qi '^location: https://www.desorden.cat/automatitzacio-sistemes/$' "$legacy_clean"
 
-          redirect_headers="$(mktemp)"
-          redirect_clean="$(mktemp)"
-          redirect_status="$(curl -sS -A "$user_agent" --max-time 20 \
-            -D "$redirect_headers" -o /dev/null -w '%{http_code}' 'https://desorden.cat/' || true)"
-          tr -d '\r' < "$redirect_headers" > "$redirect_clean"
+          check_redirect "$origin/automatizacion/?codex_deploy_smoke=1" \
+            "$origin/automatitzacio-sistemes/?codex_deploy_smoke=1"
+          check_redirect "https://desorden.cat/" "https://www.desorden.cat/"
 
-          test "$redirect_status" = "301" || {
-            echo "Expected 301 from https://desorden.cat/, got $redirect_status"
-            exit 1
-          }
-          grep -qi '^location: https://www.desorden.cat/$' "$redirect_clean"
-
-          echo "Canonical redirect verified."
+          if ((${#managed_challenge_urls[@]})); then
+            {
+              echo "### Public HTTP endpoint checks: INCONCLUSIVE"
+              echo
+              echo "Cloudflare Managed Challenge blocked the GitHub-hosted runner. The authenticated Wrangler control-plane check confirmed the active deployment; challenged public responses were not counted as content or redirect verification."
+              printf -- '- %s\n' "${managed_challenge_urls[@]}"
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            {
+              echo "### Public HTTP endpoint checks: VERIFIED"
+              echo
+              echo "All public page content and redirect checks passed."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Verify live security headers and contact API
         shell: bash
