@@ -86,7 +86,7 @@ test('home follows the editorial sequence with real featured projects', () => {
   assert.match(home, /href="\/projectes\/producte-digital\/"/);
   for (const anchor of ['automatitzacio','rnd','com-treballem','qui-soc']) assert(home.includes(`id="${anchor}"`));
   assert.match(home, /<fieldset class="field wide service-choice"><legend>Què necessites\?<\/legend>/);
-  assert.match(home, /\/assets\/home\.hero-once\.20260924\.js/);
+  assert.match(home, /\/assets\/home\.hero-once\.20260925\.js/);
   assert.match(home, /\/assets\/home-extras\.20260925-v1\.css/);
 });
 
@@ -168,28 +168,27 @@ function heroVideo({ reduced = false, rejectPlay = false, scrollY = 0 } = {}) {
     touchMove(y) { const e = event({ touches: [{ clientY: y }] }); globalListeners.touchmove(e); return e; },
     key(key) { const e = event({ key }); globalListeners.keydown(e); return e; },
     scrollTo(y) { window.scrollY = y; globalListeners.scroll?.(); },
+    scrollY() { return window.scrollY; },
     end() { videoListeners.ended(); },
     setReduced(value) { media.matches = value; mediaListeners.change?.({ matches: value }); }
   };
 }
 
-test('first downward scroll plays once, blocks scrolling, holds the final frame and then releases the page', async () => {
+test('first downward scroll plays once without blocking and holds the final frame', async () => {
   const app = heroVideo();
   assert.equal(app.video.src, '/media/hero/venda-once.mp4');
   assert.equal(app.video.loadCount, 1);
   assert.equal(app.video.playCount, 0);
 
   const first = app.wheel(120);
-  assert.equal(first.prevented, true);
+  assert.equal(first.prevented, false);
   assert.equal(app.video.playCount, 1);
-  assert(app.root.classList.contains('hero-playback-lock'));
 
   const during = app.wheel(120);
-  assert.equal(during.prevented, true);
+  assert.equal(during.prevented, false);
   assert.equal(app.video.playCount, 1);
 
   app.end();
-  assert.equal(app.root.classList.contains('hero-playback-lock'), false);
   assert.equal(app.video.pauseCount, 1);
   assert(Math.abs(app.video.currentTime - (app.video.duration - 1 / 24)) < 1e-6);
 
@@ -202,12 +201,12 @@ test('touch and keyboard can trigger the one-shot hero while reduced motion neve
   const touch = heroVideo();
   touch.touchStart(700);
   const swipe = touch.touchMove(620);
-  assert.equal(swipe.prevented, true);
+  assert.equal(swipe.prevented, false);
   assert.equal(touch.video.playCount, 1);
 
   const keyboard = heroVideo();
   const key = keyboard.key('ArrowDown');
-  assert.equal(key.prevented, true);
+  assert.equal(key.prevented, false);
   assert.equal(keyboard.video.playCount, 1);
 
   const reduced = heroVideo({ reduced: true });
@@ -220,17 +219,17 @@ test('touch and keyboard can trigger the one-shot hero while reduced motion neve
   const blocked = heroVideo({ rejectPlay: true });
   blocked.wheel(120);
   await new Promise(resolve => setImmediate(resolve));
-  assert.equal(blocked.root.classList.contains('hero-playback-lock'), false);
+  assert.equal(blocked.video.playCount, 1);
 });
 
-test('native scroll fallback triggers the hero on mobile even if touch interception is bypassed', () => {
+test('native scroll fallback triggers the hero on mobile without resetting scroll position', () => {
   const app = heroVideo();
   app.scrollTo(48);
   assert.equal(app.video.playCount, 1);
-  assert(app.root.classList.contains('hero-playback-lock'));
+  assert.equal(app.scrollY(), 48);
 });
 
-test('hero interception only applies near the top of the page', () => {
+test('hero trigger only applies near the top of the page', () => {
   const app = heroVideo({ scrollY: 500 });
   const event = app.wheel(120);
   assert.equal(event.prevented, false);
