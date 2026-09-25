@@ -3,7 +3,7 @@ import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 import vm from 'node:vm';
 
-const source=await readFile(new URL('../public/assets/media.20260925-v5.js',import.meta.url),'utf8');
+const source=await readFile(new URL('../public/assets/media.20260925-v6.js',import.meta.url),'utf8');
 
 function setup(reduced=false){
  const events={},pref={matches:reduced,addEventListener(k,f){this.change=f;}},buttons=[],videos=[];let observe;
@@ -92,4 +92,42 @@ test('covered stack videos pause, resume in place and never replay a completed c
  a.media.setActive(a.videos[0],true);
  assert.equal(a.videos[0].paused,true);
  assert.equal(a.videos[0].currentTime,9);
+});
+
+test('mobile previews loop only while active, and manual pause survives repeated activation', async()=>{
+ const a=setup();
+ a.media.setActive(a.videos[0],true,true);
+ a.media.setActive(a.videos[1],false,true);
+ a.enter(0,true);a.enter(1,true);await Promise.resolve();
+ assert.equal(a.videos[0].loop,true);
+ assert.equal(a.videos[0].paused,false);
+ assert.equal(a.videos[1].paused,true);
+ assert.equal(a.videos[1].loads,0);
+ let stopped=false;
+ a.buttons[0].click({stopPropagation(){stopped=true;}});
+ assert.equal(stopped,true);
+ a.media.setActive(a.videos[0],true,true);
+ a.enter(0,true);
+ assert.equal(a.videos[0].paused,true);
+ a.media.setActive(a.videos[0],false,true);
+ a.media.setActive(a.videos[1],true,true);
+ await Promise.resolve();
+ assert.equal(a.videos[0].paused,true);
+ assert.equal(a.videos[1].paused,false);
+ a.media.setActive(a.videos[1],false,true);
+ a.media.setActive(a.videos[0],true,true);
+ await Promise.resolve();
+ assert.equal(a.videos[0].paused,false);
+ assert.equal(a.videos[1].paused,true);
+});
+
+test('late preview playback cannot revive an inactive card; desktop remains one-shot',async()=>{
+ const a=setup();
+ a.media.setActive(a.videos[0],true,true);a.enter(0,true);
+ a.media.setActive(a.videos[0],false,true);
+ a.buttons[0].click();
+ await Promise.resolve();
+ assert.equal(a.videos[0].paused,true);
+ a.media.setActive(a.videos[0],true);
+ assert.equal(a.videos[0].loop,false);
 });
