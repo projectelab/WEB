@@ -3,7 +3,7 @@ import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 import vm from 'node:vm';
 
-const source=await readFile(new URL('../public/assets/media.20260925-v4.js',import.meta.url),'utf8');
+const source=await readFile(new URL('../public/assets/media.20260925-v5.js',import.meta.url),'utf8');
 
 function setup(reduced=false){
  const events={},pref={matches:reduced,addEventListener(k,f){this.change=f;}},buttons=[],videos=[];let observe;
@@ -25,9 +25,10 @@ function setup(reduced=false){
  } const doc={hidden:false,body:{},querySelectorAll(sel){return sel.startsWith('video:not')?videos:[];},
   createElement(){return buttons[0];},addEventListener(k,f){(events[k] ||= []).push(f);}};
  const MutationObserver=class{constructor(fn){this.fn=fn;}observe(){}};
- vm.runInNewContext(source,{matchMedia:()=>pref,document:doc,window:{IntersectionObserver:true},
+ const window={IntersectionObserver:true};
+ vm.runInNewContext(source,{matchMedia:()=>pref,document:doc,window,
   IntersectionObserver:class{constructor(fn){observe=fn;}observe(){}},MutationObserver,Map});
- return {videos,buttons,pref,doc,
+ return {videos,buttons,pref,doc,media:window.desordenMedia,
   enter(i,visible){observe([{target:videos[i],isIntersecting:visible}]);},
   hide(on){doc.hidden=on;events.visibilitychange.forEach(f=>f());}};
 }
@@ -72,4 +73,23 @@ test('reduced motion keeps posters until deliberate playback',async()=>{
 test('a pending play promise cannot restart media after a rapid scroll away',async()=>{
  const a=setup();a.enter(0,true);a.enter(0,false);await Promise.resolve();
  assert.equal(a.videos[0].paused,true);
+});
+
+test('covered stack videos pause, resume in place and never replay a completed clip',async()=>{
+ const a=setup();a.enter(0,true);
+ a.videos[0].currentTime=4;
+ a.media.setActive(a.videos[0],false);
+ await Promise.resolve();
+ assert.equal(a.videos[0].paused,true);
+ a.enter(0,true);
+ assert.equal(a.videos[0].paused,true);
+ a.media.setActive(a.videos[0],true);
+ await Promise.resolve();
+ assert.equal(a.videos[0].paused,false);
+ assert.equal(a.videos[0].currentTime,4);
+ a.videos[0].end();
+ a.media.setActive(a.videos[0],false);
+ a.media.setActive(a.videos[0],true);
+ assert.equal(a.videos[0].paused,true);
+ assert.equal(a.videos[0].currentTime,9);
 });
