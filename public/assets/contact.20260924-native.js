@@ -3,10 +3,7 @@
 
   const form = document.querySelector('#contact-form');
   const status = document.querySelector('#status');
-  const success = document.querySelector('#contact-success');
-  const successName = document.querySelector('#contact-success-name');
-  const successWhatsApp = document.querySelector('#contact-success-whatsapp');
-  if (!form || !status || !success || !successName || !successWhatsApp) return;
+  if (!form || !status) return;
 
   const submit = form.querySelector('button[type="submit"]');
   const fields = {
@@ -73,7 +70,7 @@
   const messageForWhatsApp = ({ service, name, contact, objective }) =>
     `Hola David,\n\nNecessitat: ${service}\nNom: ${name}\nContacte: ${contact}\n\n${objective}`;
 
-  form.addEventListener('submit', async (event) => {
+  form.addEventListener('submit', (event) => {
     event.preventDefault();
     const check = validate();
     if (!check.valid) {
@@ -87,47 +84,11 @@
       name: fields.name.value.trim(),
       contact: fields.contact.value.trim(),
       objective: fields.objective.value.trim(),
-      consent: true,
-      website: document.querySelector('#website')?.value || '',
     };
 
-    submit.disabled = true;
-    submit.setAttribute('aria-busy', 'true');
-    submit.classList.add('is-loading');
-    status.textContent = 'Enviant la consulta…';
-
-    try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 10000);
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(payload),
-        signal: controller.signal,
-      });
-      clearTimeout(timer);
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok || data.ok !== true) {
-        throw new Error(data.error || 'No s’ha pogut enviar la consulta.');
-      }
-
-      const whatsapp = `https://wa.me/34640925788?text=${encodeURIComponent(messageForWhatsApp(payload))}`;
-      successName.textContent = payload.name;
-      successWhatsApp.href = whatsapp;
-      form.hidden = true;
-      document.querySelector('#contact-help')?.setAttribute('hidden', '');
-      success.hidden = false;
-      success.focus();
-      status.textContent = '';
-    } catch (error) {
-      status.textContent = error.name === 'AbortError'
-        ? 'La connexió ha trigat massa. Torna-ho a provar.'
-        : (error.message || 'No s’ha pogut enviar la consulta.');
-    } finally {
-      submit.disabled = false;
-      submit.removeAttribute('aria-busy');
-      submit.classList.remove('is-loading');
-    }
+    const whatsapp = `https://wa.me/34640925788?text=${encodeURIComponent(messageForWhatsApp(payload))}`;
+    status.textContent = 'Obrint WhatsApp…';
+    window.location.href = whatsapp;
   });
 
   form.querySelectorAll('input[name="need"]').forEach((field) => {
