@@ -1,0 +1,40 @@
+/* Reuses the existing menu control; desktop keeps its original placement. */
+.thumb-dock{display:contents}
+.thumb-dock-link,.thumb-dock-label{display:none}
+@media(max-width:699px){
+  html{scroll-padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  body>.shell{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .thumb-dock{
+    position:fixed;
+    z-index:1001;
+    inset:auto calc(12px + env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) calc(12px + env(safe-area-inset-left,0px));
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    padding:5px;
+    border:1px solid var(--l);
+    border-radius:16px;
+    background:var(--b);
+  }
+  .thumb-dock-link,.thumb-dock .menu-btn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-width:44px;
+    min-height:48px;
+    padding:4px 2px;
+    border-radius:10px;
+    color:var(--o);
+    font:11px/1.3 var(--meta);
+    touch-action:manipulation;
+  }
+  .thumb-dock .menu-btn{position:static;width:auto;height:auto;gap:6px}
+  .thumb-dock .menu-btn::before{width:6px;height:6px;margin:0;flex-shrink:0}
+  .thumb-dock-label{display:inline}
+  .thumb-dock :focus-visible{outline-offset:-3px}
+  body.menu-open .thumb-dock-link{visibility:hidden}
+  .nav-menu{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+  .hero .hint{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .hero-intro{bottom:max(12svh,calc(128px + env(safe-area-inset-bottom,0px)))}
+  /* Keep the keyboard and focused form controls free of the fixed dock. */
+  body:has(.form input:focus,.form textarea:focus,.form select:focus) .thumb-dock{visibility:hidden}
+}
