@@ -81,13 +81,15 @@ test('home links to LAB and its index retains all six lines with HQ opt-in',asyn
   }
  }
 });
-test('current portfolio clips preserve designated pages, posters and user-initiated playback',async()=>{
+test('current portfolio clips preserve designated pages and use autoplay-ready custom controls',async()=>{
  const designated={'projectes/nutrikom':['ntk-runners-cursa'],'projectes/pugnator-nox-bellum':['nox-bellum-entrada'],'projectes/federacio-catalana-esgrima':['esgrima-accio','esgrima-retrat'],'projectes/viu-svc':['territori-rotonda-drone'],'projectes/ajuntament-sant-vicenc':['territori-esglesia-drone'],'projectes/percussio':['esdeveniment-percussio'],'laboratori/suro':['suro-retrat'],'laboratori/marina':['marina-retrat'],'laboratori/territori':['territori-esglesia-drone','territori-rotonda-drone'],'laboratori/ia-visual':['hq/ia-visual-01'],'laboratori/lip-sync':['hq/lip-sync-01']};
  for(const [route,clips]of Object.entries(designated)){
   const html=await read(`public/${route}/index.html`);
   for(const clip of clips)assert(html.includes(`/media/portfolio/${clip}.mp4`),clip);
+  assert.match(html,/media\.20260925-v2\.js/);
+  assert.match(html,/media-fullbleed\.20260925-v1\.css/);
   for(const [tag]of html.matchAll(/<video\b[^>]*>/g)){
-   assert.match(tag,/controls/);assert.match(tag,/poster="/);assert.match(tag,/preload="none"/);assert.doesNotMatch(tag,/autoplay/);
+   assert.doesNotMatch(tag,/\scontrols(?=\s|>)/);assert.match(tag,/poster="/);assert.match(tag,/preload="none"/);assert.match(tag,/muted/);assert.match(tag,/playsinline/);
   }
  }
  const staticBrandPages={'the-club-padel':'logo-the-club-padel.20260925.webp'};
@@ -203,21 +205,37 @@ test('client logos and new portfolio videos replace legacy previews',async()=>{
  assert.doesNotMatch(pata,/previews-v2\/pata-negra\.webp/);
 });
 
-test('portfolio videos use responsive three-quarter frames',async()=>{
- const css=await read('public/assets/portfolio.20260923-v3.css');
- assert.match(css,/\.work-media\{[^}]*width:100%[^}]*aspect-ratio:3\/4/);
- assert.match(css,/\.case-media\{[^}]*max-width:none[^}]*width:100%/);
- assert.match(css,/\.case-media video\{[^}]*width:100%[^}]*aspect-ratio:3\/4[^}]*object-fit:cover/);
+test('portfolio videos use full-viewport width with a circular pause-resume control',async()=>{
+ const css=await read('public/assets/media-fullbleed.20260925-v1.css');
+ const js=await read('public/assets/media.20260925-v2.js');
+ assert.match(css,/\.content-video\{[^}]*width:100vw!important/);
+ assert.match(css,/\.media-toggle\.media-dot\{[^}]*border-radius:50%[^}]*background:var\(--o\)/);
+ assert.match(css,/data-state="paused"/);
+ assert.match(js,/button\.textContent = ''/);
+ assert.match(js,/video\.removeAttribute\('controls'\)/);
+ assert.match(js,/IntersectionObserver/);
 });
 
-test('home featured videos stay compact at 3:4 and use the amber DESORDEN wordmark',async()=>{
+test('home project videos are full-width and keep the amber DESORDEN wordmark',async()=>{
  const home=await read('public/index.html');
  const css=await read('public/assets/home-portfolio.20260924-v1.css');
- assert.match(home,/home-extras\.20260925-v1\.css/);
+ assert.match(home,/media-fullbleed\.20260925-v1\.css/);
+ assert.match(home,/projects-inline\.20260925\.js/);
  assert.match(home,/<span class="brand-wordmark">DESORDEN<\/span>/);
  assert.doesNotMatch(home,/desorden-logo-original-v2\.png/);
- assert.match(css,/\.projects>\.inner>\.work-grid \.work-media\{[^}]*width:100%[^}]*aspect-ratio:3\/4/);
  assert.match(css,/\.brand-wordmark\{[^}]*color:var\(--o\)/);
+});
+
+test('project cards expand their existing project content inline instead of navigating',async()=>{
+ const home=await read('public/index.html');
+ const projects=await read('public/projectes/index.html');
+ const js=await read('public/assets/projects-inline.20260925.js');
+ assert.match(home,/projects-inline\.20260925\.js/);
+ assert.match(projects,/projects-inline\.20260925\.js/);
+ assert.match(js,/event\.preventDefault\(\)/);
+ assert.match(js,/fetch\(href/);
+ assert.match(js,/querySelectorAll\('\.case-detail'\)/);
+ assert.match(js,/aria-expanded/);
 });
 
 test('all public pages prevent horizontal overflow and project logos stay inside the viewport',async()=>{
