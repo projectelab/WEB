@@ -300,8 +300,9 @@ test('automation uses native contact flow and commercial project CTAs avoid mail
  assert.match(automation,/contact\.20260924-native\.js/);
  assert.match(automation,/name="need" value="Automatització" checked hidden/);
  assert.match(automation,/id="privacy-consent"/);
- assert.match(automation,/id="contact-success"/);
- assert.match(automation,/ENVIAR CONSULTA/);
+ assert.doesNotMatch(automation,/id="contact-success"/);
+ assert.match(automation,/ENVIAR PER WHATSAPP/);
+ assert.match(automation,/mailto:lab@desorden\.cat/);
  assert.doesNotMatch(automation,/data-channel="email"|data-channel="whatsapp"/);
 
  for(const slug of ['nutrikom','pugnator-nox-bellum','the-club-padel','pata-negra','federacio-catalana-esgrima','viu-svc','ajuntament-sant-vicenc','producte-digital']){
@@ -376,7 +377,7 @@ test('public markup is compatible with strict CSP without unsafe-inline or unsaf
  assert.match(automationJs,/demo-meter-step-/);
 });
 
-test('native contact flow persists leads before optional WhatsApp',async()=>{
+test('contact flow opens WhatsApp directly while the existing lead backend remains available',async()=>{
  const home=await read('public/index.html');
  const contact=await read('public/assets/contact.20260924-native.js');
  const worker=await read('src/worker.js');
@@ -388,13 +389,12 @@ test('native contact flow persists leads before optional WhatsApp',async()=>{
  assert.match(home,/name="need" value="Visual \/ vídeo"/);
  assert.match(home,/name="need" value="Web & digital"/);
  assert.match(home,/ENVIAR CONSULTA/);
- assert.match(home,/id="contact-success"/);
- assert.match(home,/OBRIR WHATSAPP AMB DAVID/);
  assert.doesNotMatch(home,/data-channel="email"/);
 
- assert.match(contact,/fetch\('\/api\/contact'/);
- assert.match(contact,/successWhatsApp\.href = whatsapp/);
- assert.match(contact,/form\.hidden = true/);
+ assert.match(contact,/messageForWhatsApp/);
+ assert.match(contact,/https:\/\/wa\.me\/34640925788/);
+ assert.match(contact,/window\.location\.href = whatsapp/);
+ assert.doesNotMatch(contact,/fetch\('\/api\/contact'/);
 
  assert.match(worker,/url\.pathname === '\/api\/contact'/);
  assert.match(worker,/CONTACT_RATE_LIMITER\.limit/);
