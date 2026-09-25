@@ -5,7 +5,7 @@ import vm from 'node:vm';
 
 const read = path => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 const home = await read('public/index.html');
-const automation = await read('public/automatizacion/index.html');
+const automation = await read('public/automatitzacio-sistemes/index.html');
 const activeScript = (html, name) => html.match(new RegExp(`src="(/assets/${name}[^\"]+\\.js)"`))[1];
 const contactSource = await read(`public${activeScript(home, 'contact')}`);
 const homeSource = await read(`public${activeScript(home, 'home')}`);
@@ -24,7 +24,7 @@ function element() {
 }
 
 test('both public pages use the shared contact, valid local resources and canonical SEO', async () => {
-  for (const [html, path] of [[home, '/'], [automation, '/automatizacion/']]) {
+  for (const [html, path] of [[home, '/'], [automation, '/automatitzacio-sistemes/']]) {
     assert.match(html, /<html lang="ca">/);
     assert.equal((html.match(/<h1\b/g) || []).length, 1);
     assert.match(html, new RegExp(`rel="canonical" href="https://www.desorden.cat${path}"`));
@@ -80,7 +80,7 @@ test('home follows the editorial sequence with real featured projects', () => {
   assert(home.indexOf('David Milla · un únic interlocutor') < home.indexOf('id="projectes"'));
   assert.equal((home.match(/id="que-faig"/g) || []).length, 1);
   for (const label of ['01 / VISUAL','02 / DIGITAL','03 / SISTEMES']) assert(home.includes(label));
-  assert.match(home, /href="\/automatizacion\/"/);
+  assert.match(home, /href="\/automatitzacio-sistemes\/"/);
   assert.match(home, /href="\/laboratori\/"/);
   assert.match(home, /href="\/projectes\/producte-digital\/"/);
   for (const anchor of ['automatitzacio','rnd','com-treballem','qui-soc']) assert(home.includes(`id="${anchor}"`));

@@ -135,7 +135,7 @@ test('specific POST route precedes SAT proxy; existing static and proxy contract
   const proxied = [], assets = [];
   const worker = workerWith(async request => { proxied.push(request); return new Response('proxy'); });
   const env = { ASSETS: { fetch: async request => { assets.push(new URL(request.url).pathname); return new Response('asset'); } } };
-  const paths = ['/', '/automatizacion/', '/automatizacion/submit', '/lab/'];
+  const paths = ['/', '/automatitzacio-sistemes/', '/automatizacion/submit', '/lab/'];
   for (const path of paths) assert.equal(await (await worker.fetch(new Request(`https://www.desorden.cat${path}`), env)).text(), 'asset');
   const labScript = await worker.fetch(new Request('https://www.desorden.cat/lab/lab.js'), env);
   const labSource = await labScript.text();
@@ -157,6 +157,23 @@ test('specific POST route precedes SAT proxy; existing static and proxy contract
       assert.equal(forwarded.headers.get('X-Test'), 'retained');
       if (method === 'POST') assert.equal(await forwarded.text(), 'original body');
     }
+  }
+});
+
+test('legacy automation pages permanently redirect while canonical service pages pass through to assets', async () => {
+  const worker = workerWith(async () => new Response('<!doctype html><title>ok</title>', {
+    headers: { 'Content-Type': 'text/html' }
+  }));
+  const env = { ASSETS: { fetch: async () => new Response('<!doctype html><title>ok</title>', { status: 200 }) } };
+  for (const path of ['/automatizacion', '/automatizacion/', '/automatizacion/index.html']) {
+    const response = await worker.fetch(new Request(`https://www.desorden.cat${path}?source=legacy`), env);
+    assert.equal(response.status, 301, path);
+    assert.equal(response.headers.get('Location'), 'https://www.desorden.cat/automatitzacio-sistemes/?source=legacy');
+  }
+  for (const path of ['/produccio-audiovisual/', '/produccio-audiovisual/dron-video-aeri/', '/automatitzacio-sistemes/', '/disseny-web/']) {
+    const response = await worker.fetch(new Request(`https://www.desorden.cat${path}`), env);
+    assert.equal(response.status, 200, path);
+    assert.match(await response.text(), /<title>ok<\/title>/);
   }
 });
 

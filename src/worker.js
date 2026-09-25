@@ -142,6 +142,15 @@ async function handleRequest(request, env, ctx) {
       return Response.redirect(url.toString(), 301);
     }
 
+    if (
+      ['GET', 'HEAD'].includes(request.method) &&
+      ['/automatizacion', '/automatizacion/', '/automatizacion/index.html'].includes(url.pathname)
+    ) {
+      const canonicalUrl = new URL('/automatitzacio-sistemes/', url.origin);
+      canonicalUrl.search = url.search;
+      return Response.redirect(canonicalUrl, 301);
+    }
+
     if (request.method === 'POST' && url.pathname === '/api/contact') {
       const reply = (body, status = 200) => Response.json(body, {
         status,

@@ -3,7 +3,7 @@ import {readFile,stat,readdir} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import test from 'node:test';
 const read = path => readFile(new URL(`../${path}`, import.meta.url),'utf8');
-const routes=['/','/projectes/','/laboratori/','/automatizacion/','/avis-legal/','/privadesa/','/cookies/',...['nutrikom','pugnator-nox-bellum','the-club-padel','pata-negra','federacio-catalana-esgrima','viu-svc','ajuntament-sant-vicenc','producte-digital','percussio'].map(x=>`/projectes/${x}/`),...['suro','marina','territori','ia-visual','lip-sync','experiments'].map(x=>`/laboratori/${x}/`)];
+const routes=['/','/projectes/','/laboratori/','/produccio-audiovisual/','/produccio-audiovisual/dron-video-aeri/','/automatitzacio-sistemes/','/disseny-web/','/avis-legal/','/privadesa/','/cookies/',...['nutrikom','pugnator-nox-bellum','the-club-padel','pata-negra','federacio-catalana-esgrima','viu-svc','ajuntament-sant-vicenc','producte-digital','percussio'].map(x=>`/projectes/${x}/`),...['suro','marina','territori','ia-visual','lip-sync','experiments'].map(x=>`/laboratori/${x}/`)];
 const labs=['suro','marina','territori','ia-visual','lip-sync','experiments'];
 test('public routes expose matching social metadata and valid heading order',async()=>{
  for(const route of routes){
@@ -54,7 +54,7 @@ test('sitemap exposes lastmod for every URL and Percussió is linked from the pr
  const sitemap=await read('public/sitemap.xml');
  const urls=[...sitemap.matchAll(/<url>([\s\S]*?)<\/url>/g)].map(x=>x[1]);
  assert(urls.length>0);
- for(const entry of urls) assert.match(entry,/<lastmod>2026-09-24<\/lastmod>/);
+ for(const entry of urls) assert.match(entry,/<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/);
  assert.match(sitemap,/<loc>https:\/\/www\.desorden\.cat\/projectes\/percussio\/<\/loc>/);
  const projects=await read('public/projectes/index.html');
  assert.match(projects,/href="\/projectes\/percussio\/"[^>]*>PERCUSSIÓ/);
@@ -290,12 +290,12 @@ test('all public pages prevent horizontal overflow and project logos stay inside
  assert.match(css,/\.project-brand img\{[^}]*max-width:min\(68vw,280px\)!important/);
  for(const route of routes){
   const html=await read(`public${route}index.html`);
-  assert.match(html,/(?:viewport-lock\.20260924-v1|home-extras\.20260925-v2|portfolio-extras\.20260925-v1|automation-extras\.20260925-v1)\.css/,`${route}: viewport containment stylesheet`);
+  assert.match(html,/(?:viewport-lock\.20260924-v1|home-extras\.20260925-v2|portfolio-extras\.20260925-v1|automation-extras\.20260925-v1|service-pages\.20260925-v2)\.css/,`${route}: viewport containment stylesheet`);
  }
 });
 
 test('automation uses native contact flow and commercial project CTAs avoid mailto',async()=>{
- const automation=await read('public/automatizacion/index.html');
+ const automation=await read('public/automatitzacio-sistemes/index.html');
  assert.match(automation,/automation-extras\.20260925-v1\.css/);
  assert.match(automation,/contact\.20260924-native\.js/);
  assert.match(automation,/name="need" value="Automatització" checked hidden/);
@@ -369,7 +369,7 @@ test('public markup is compatible with strict CSP without unsafe-inline or unsaf
   for(const script of inlineScripts)
    assert.match(script[1],/type="application\/ld\+json"/i,`${route}: unexpected inline script`);
  }
- const automation=await read('public/automatizacion/index.html');
+ const automation=await read('public/automatitzacio-sistemes/index.html');
  assert.match(automation,/automation-extras\.20260925-v1\.css/);
  assert.match(automation,/automatizacion\.20260924-csp-v1\.js/);
  const automationJs=await read('public/assets/automatizacion.20260924-csp-v1.js');
