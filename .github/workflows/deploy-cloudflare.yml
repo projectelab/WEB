@@ -201,7 +201,20 @@ jobs:
           }
 
           check_page "$origin/" "SI NO ET VEUEN" 'data-n="05"'
-          check_page "$origin/automatizacion/" "MENYS FEINA" 'id="contact-form"' '149–199 €|299–499 €|Preus orientatius'
+          check_page "$origin/produccio-audiovisual/" "Producció audiovisual que fa que et triïn." 'href="/produccio-audiovisual/dron-video-aeri/"'
+          check_page "$origin/produccio-audiovisual/dron-video-aeri/" "Preses aèries amb dron" 'href="/produccio-audiovisual/"'
+          check_page "$origin/automatitzacio-sistemes/" "MENYS FEINA MANUAL." 'id="contact-form"'
+          check_page "$origin/disseny-web/" "Webs d’impacte construïdes" 'href="/automatitzacio-sistemes/"'
+
+          legacy_headers="$(mktemp)"
+          legacy_clean="$(mktemp)"
+          legacy_status="$(curl -sS -A "$user_agent" --max-time 20 -D "$legacy_headers" -o /dev/null -w '%{http_code}' "$origin/automatizacion/" || true)"
+          tr -d '\r' < "$legacy_headers" > "$legacy_clean"
+          test "$legacy_status" = "301" || {
+            echo "Expected 301 from $origin/automatizacion/, got $legacy_status"
+            exit 1
+          }
+          grep -qi '^location: https://www.desorden.cat/automatitzacio-sistemes/$' "$legacy_clean"
 
           redirect_headers="$(mktemp)"
           redirect_clean="$(mktemp)"
