@@ -86,10 +86,10 @@ test('current portfolio clips preserve designated pages and use autoplay-ready c
  for(const [route,clips]of Object.entries(designated)){
   const html=await read(`public/${route}/index.html`);
   for(const clip of clips)assert(html.includes(`/media/portfolio/${clip}.mp4`),clip);
-  assert.match(html,/media\.20260925-v3\.js/);
-  assert.match(html,/media-fullbleed\.20260925-v3\.css/);
+  assert.match(html,/media\.20260925-v4\.js/);
+  assert.match(html,/media-fullbleed\.20260925-v4\.css/);
   for(const [tag]of html.matchAll(/<video\b[^>]*>/g)){
-   assert.doesNotMatch(tag,/\scontrols(?=\s|>)/);assert.match(tag,/poster="/);assert.match(tag,/preload="none"/);assert.match(tag,/muted/);assert.match(tag,/playsinline/);
+   assert.doesNotMatch(tag,/\scontrols(?=\s|>)|\sloop(?=\s|>)/);assert.match(tag,/poster="/);assert.match(tag,/preload="none"/);assert.match(tag,/muted/);assert.match(tag,/playsinline/);
   }
  }
  const staticBrandPages={'the-club-padel':'logo-the-club-padel.20260925.webp'};
@@ -145,20 +145,21 @@ test('audit hardening exposes privacy consent and richer semantic metadata',asyn
  assert.match(contact,/privacy-consent/);
 });
 
-test('client logo marquee links five real project pages and excludes Pata Negra',async()=>{
+test('client logo marquee links six real project pages and excludes Pata Negra',async()=>{
  const home=await read('public/index.html');
  const marquee=home.match(/<div class="logo-marquee"[\s\S]*?<div class="work-grid">/)?.[0];
  assert.ok(marquee,'Home exposes the client logo marquee');
  assert.doesNotMatch(marquee,/pata-negra/i);
- for(const [logo,route]of [
-  ['ntk','nutrikom'],
-  ['viu-svc','viu-svc'],
-  ['the-club-padel','the-club-padel'],
-  ['pugnator','pugnator-nox-bellum'],
-  ['ajuntament-svc','ajuntament-sant-vicenc'],
+ for(const [asset,route]of [
+  ['logo-ntk.20260925.webp','nutrikom'],
+  ['logo-viu-svc.20260925.webp','viu-svc'],
+  ['logo-fce.20260925-v2.webp','federacio-catalana-esgrima'],
+  ['logo-the-club-padel.20260925.webp','the-club-padel'],
+  ['logo-pugnator.20260925.webp','pugnator-nox-bellum'],
+  ['logo-ajuntament-svc.20260925.webp','ajuntament-sant-vicenc'],
  ]){
-  assert.match(marquee,new RegExp(`href="/projectes/${route}/"[^>]*><img src="/media/portfolio/logo-${logo}\\.20260925\\.webp"`));
-  await readFile(new URL(`../public/media/portfolio/logo-${logo}.20260925.webp`,import.meta.url));
+  assert.match(marquee,new RegExp(`href="/projectes/${route}/"[^>]*><img src="/media/portfolio/${asset.replaceAll('.','\\.')}"`));
+  await readFile(new URL(`../public/media/portfolio/${asset}`,import.meta.url));
   await read(`public/projectes/${route}/index.html`);
  }
  const sets=[...marquee.matchAll(/<div class="logo-marquee-set"[^>]*>([\s\S]*?)<\/div>/g)];
@@ -184,7 +185,7 @@ test('client logos and new portfolio videos replace legacy previews',async()=>{
  assert.match(projects,/\/media\/portfolio\/esdeveniment-percussio\.mp4/);
  assert.match(projects,/\/media\/portfolio\/marina-retrat\.mp4/);
  assert.doesNotMatch(home.match(/<div class="logo-marquee"[\s\S]*?<div class="work-grid">/)?.[0]||'',/pata-negra/i);
- assert.match(home,/home-extras\.20260925-v1\.css/);
+ assert.match(home,/home-extras\.20260925-v2\.css/);
  const viu=await read('public/projectes/viu-svc/index.html');
  assert.match(viu,/\/media\/portfolio\/territori-rotonda-drone\.mp4/);
  assert.doesNotMatch(viu,/\/media\/portfolio\/territori-esglesia-drone\.mp4/);
@@ -199,28 +200,32 @@ test('client logos and new portfolio videos replace legacy previews',async()=>{
  const pugnator=await read('public/projectes/pugnator-nox-bellum/index.html');
  assert.match(pugnator,/\/media\/portfolio\/logo-pugnator\.20260925\.webp/);
  const fencing=await read('public/projectes/federacio-catalana-esgrima/index.html');
- assert.match(fencing,/\/media\/portfolio\/logo-fce\.20260925\.webp/);
+ assert.match(fencing,/\/media\/portfolio\/logo-fce\.20260925-v2\.webp/);
  assert.doesNotMatch(fencing,/https:\/\/esgrima\.cat\/wp-content\/uploads\/2024\/08\/FCELogo\.png/);
- await readFile(new URL('../public/media/portfolio/logo-fce.20260925.webp',import.meta.url));
+ await readFile(new URL('../public/media/portfolio/logo-fce.20260925-v2.webp',import.meta.url));
  const pata=await read('public/projectes/pata-negra/index.html');
  assert.doesNotMatch(pata,/previews-v2\/pata-negra\.webp/);
 });
 
 test('portfolio videos use full-viewport width with a circular pause-resume control',async()=>{
- const css=await read('public/assets/media-fullbleed.20260925-v3.css');
- const js=await read('public/assets/media.20260925-v3.js');
+ const css=await read('public/assets/media-fullbleed.20260925-v4.css');
+ const js=await read('public/assets/media.20260925-v4.js');
  assert.match(css,/\.content-video\{[^}]*width:100vw!important/);
  assert.match(css,/\.media-toggle\.media-dot::before\{[^}]*width:14px[^}]*height:14px[^}]*background:var\(--o\)/);
  assert.match(css,/data-state="paused"/);
+ assert.match(css,/data-state="ended"/);
  assert.match(js,/button\.textContent = ''/);
  assert.match(js,/video\.removeAttribute\('controls'\)/);
+ assert.match(js,/video\.removeAttribute\('loop'\)/);
+ assert.match(js,/video\.addEventListener\('ended'/);
+ assert.match(js,/state\.completed = true/);
  assert.match(js,/IntersectionObserver/);
 });
 
 test('home project videos are full-width and keep the amber DESORDEN wordmark',async()=>{
  const home=await read('public/index.html');
  const css=await read('public/assets/home-portfolio.20260924-v1.css');
- assert.match(home,/media-fullbleed\.20260925-v3\.css/);
+ assert.match(home,/media-fullbleed\.20260925-v4\.css/);
  assert.match(home,/projects-inline\.20260925-v3\.js/);
  assert.match(home,/<span class="brand-wordmark">DESORDEN<\/span>/);
  assert.doesNotMatch(home,/desorden-logo-original-v2\.png/);
@@ -243,7 +248,7 @@ test('project cards expand their existing project content inline instead of navi
 });
 
 test('featured mobile cards keep only the requested media open by default',async()=>{
- const css=await read('public/assets/media-fullbleed.20260925-v3.css');
+ const css=await read('public/assets/media-fullbleed.20260925-v4.css');
  const home=await read('public/index.html');
  const projects=await read('public/projectes/index.html');
  const lab=await read('public/laboratori/index.html');
@@ -285,7 +290,7 @@ test('all public pages prevent horizontal overflow and project logos stay inside
  assert.match(css,/\.project-brand img\{[^}]*max-width:min\(68vw,280px\)!important/);
  for(const route of routes){
   const html=await read(`public${route}index.html`);
-  assert.match(html,/(?:viewport-lock\.20260924-v1|home-extras\.20260925-v1|portfolio-extras\.20260925-v1|automation-extras\.20260925-v1)\.css/,`${route}: viewport containment stylesheet`);
+  assert.match(html,/(?:viewport-lock\.20260924-v1|home-extras\.20260925-v2|portfolio-extras\.20260925-v1|automation-extras\.20260925-v1)\.css/,`${route}: viewport containment stylesheet`);
  }
 });
 
@@ -295,8 +300,9 @@ test('automation uses native contact flow and commercial project CTAs avoid mail
  assert.match(automation,/contact\.20260924-native\.js/);
  assert.match(automation,/name="need" value="Automatització" checked hidden/);
  assert.match(automation,/id="privacy-consent"/);
- assert.match(automation,/id="contact-success"/);
- assert.match(automation,/ENVIAR CONSULTA/);
+ assert.doesNotMatch(automation,/id="contact-success"/);
+ assert.match(automation,/ENVIAR PER WHATSAPP/);
+ assert.match(automation,/mailto:lab@desorden\.cat/);
  assert.doesNotMatch(automation,/data-channel="email"|data-channel="whatsapp"/);
 
  for(const slug of ['nutrikom','pugnator-nox-bellum','the-club-padel','pata-negra','federacio-catalana-esgrima','viu-svc','ajuntament-sant-vicenc','producte-digital']){
@@ -334,7 +340,7 @@ test('PageSpeed CSS delivery keeps page-specific styles non-blocking',async()=>{
   const html=await read(`public${route}index.html`);
   assert.match(html,/site\.20260925-v5\.css/,`${route}: critical CSS`);
   assert.match(html,/anton-latin\.20260925\.woff2/,`${route}: font preload`);
-  const extras=[...html.matchAll(/<link rel="stylesheet" href="\/assets\/(?:home|portfolio|automation)-extras\.20260925-v1\.css"[^>]*data-noncritical-css[^>]*>/g)];
+  const extras=[...html.matchAll(/<link rel="stylesheet" href="\/assets\/(?:home-extras\.20260925-v2|(?:portfolio|automation)-extras\.20260925-v1)\.css"[^>]*data-noncritical-css[^>]*>/g)];
   for(const link of extras){
    assert.match(link[0],/media="print"/,`${route}: deferred media`);
    assert.match(html,/noncritical-css\.20260925-v1\.js/,`${route}: loader script`);
@@ -371,25 +377,24 @@ test('public markup is compatible with strict CSP without unsafe-inline or unsaf
  assert.match(automationJs,/demo-meter-step-/);
 });
 
-test('native contact flow persists leads before optional WhatsApp',async()=>{
+test('contact flow opens WhatsApp directly while the existing lead backend remains available',async()=>{
  const home=await read('public/index.html');
  const contact=await read('public/assets/contact.20260924-native.js');
  const worker=await read('src/worker.js');
  const wrangler=JSON.parse(await read('wrangler.jsonc'));
  const privacy=await read('public/privadesa/index.html');
 
- assert.match(home,/home-extras\.20260925-v1\.css/);
+ assert.match(home,/home-extras\.20260925-v2\.css/);
  assert.match(home,/contact\.20260924-native\.js/);
  assert.match(home,/name="need" value="Visual \/ vídeo"/);
  assert.match(home,/name="need" value="Web & digital"/);
  assert.match(home,/ENVIAR CONSULTA/);
- assert.match(home,/id="contact-success"/);
- assert.match(home,/OBRIR WHATSAPP AMB DAVID/);
  assert.doesNotMatch(home,/data-channel="email"/);
 
- assert.match(contact,/fetch\('\/api\/contact'/);
- assert.match(contact,/successWhatsApp\.href = whatsapp/);
- assert.match(contact,/form\.hidden = true/);
+ assert.match(contact,/messageForWhatsApp/);
+ assert.match(contact,/https:\/\/wa\.me\/34640925788/);
+ assert.match(contact,/window\.location\.href = whatsapp/);
+ assert.doesNotMatch(contact,/fetch\('\/api\/contact'/);
 
  assert.match(worker,/url\.pathname === '\/api\/contact'/);
  assert.match(worker,/CONTACT_RATE_LIMITER\.limit/);

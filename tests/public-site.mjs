@@ -46,17 +46,15 @@ test('both public pages use the shared contact, valid local resources and canoni
   }
 });
 
-test('home contact submits natively and exposes WhatsApp only after success', () => {
+test('home contact validates locally and opens WhatsApp directly', () => {
   assert.equal(activeScript(home, 'contact'), '/assets/contact.20260924-native.js');
   assert.match(home, /<fieldset class="field wide service-choice"><legend>Què necessites\?<\/legend>/);
   assert.match(home, /<button class="submit contact-submit" type="submit">/);
-  assert.match(home, /id="contact-success" hidden/);
-  assert.match(home, /id="contact-success-whatsapp"/);
   assert.doesNotMatch(home, /data-channel="email"/);
-  assert.match(contactSource, /fetch\('\/api\/contact'/);
-  assert.match(contactSource, /form\.hidden = true/);
-  assert.match(contactSource, /successWhatsApp\.href = whatsapp/);
-  assert.doesNotMatch(contactSource, /mailto:/);
+  assert.match(contactSource, /messageForWhatsApp/);
+  assert.match(contactSource, /https:\/\/wa\.me\/34640925788/);
+  assert.match(contactSource, /window\.location\.href = whatsapp/);
+  assert.doesNotMatch(contactSource, /fetch\('\/api\/contact'/);
 });
 
 test('home follows the editorial sequence with real featured projects', () => {
@@ -88,7 +86,9 @@ test('home follows the editorial sequence with real featured projects', () => {
   for (const anchor of ['automatitzacio','rnd','com-treballem','qui-soc']) assert(home.includes(`id="${anchor}"`));
   assert.match(home, /<fieldset class="field wide service-choice"><legend>Què necessites\?<\/legend>/);
   assert.match(home, /\/assets\/home\.hero-once\.20260925\.js/);
-  assert.match(home, /\/assets\/home-extras\.20260925-v1\.css/);
+  assert.match(home, /\/assets\/home-extras\.20260925-v2\.css/);
+  assert.doesNotMatch(home, /vertical-story|card-fullscreen\.20260925|card-expand/);
+  assert.match(home, /<div class="product-grid">/);
 });
 
 test('home hero uses one lightweight one-shot video with the original still as fallback', async () => {
