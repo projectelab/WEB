@@ -1,0 +1,17 @@
+/* Native scroll pins each existing step until the next one covers it.
+   Normal flow remains the fallback for reduced motion and short viewports. */
+@supports (position:sticky) and (height:1svh){
+  @media (max-width:699px) and (min-height:600px) and (prefers-reduced-motion:no-preference){
+    #que-faig .vertical-story{
+      display:block;
+      isolation:isolate;
+    }
+    #que-faig .vertical-story>article{
+      position:sticky;
+      top:calc(56px + env(safe-area-inset-top,0px));
+      min-height:50svh;
+      padding-block:24px;
+      background:var(--b);
+    }
+  }
+}
