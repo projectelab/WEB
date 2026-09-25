@@ -10,10 +10,13 @@ https://github.com/projectelab/WEB
 Estado operativo:
 docs/WEB_ESTADO_ACTUAL.md
 
-MAIN VERIFICADO
----------------
-SHA:
+BASELINE FUNCIONAL VERIFICADO
+----------------------------
+SHA de producción antes de esta sincronización documental:
 f4f3dd0844b532c36830a3621a394cdde0586237
+
+El SHA vivo de main debe consultarse en GitHub/origin-main; no se fija como puntero
+autorreferencial dentro de la documentación.
 
 Últimos cambios estructurales relevantes:
 - PR #70: arquitectura SEO por servicios — MERGED
