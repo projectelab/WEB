@@ -1,0 +1,66 @@
+name: Fix duplicate root SPF
+
+on:
+  push:
+    branches:
+      - ops/email-diagnose-20260925
+    paths:
+      - .github/workflows/email-spf-fix.yml
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      RAW_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - name: Remove only insecure duplicate SPF
+        shell: bash
+        run: |
+          set -euo pipefail
+          token="$(printf '%s' "$RAW_TOKEN" | tr -d '\r\n' | sed -E 's/^[[:space:]]+//;s/[[:space:]]+$//' | sed -E 's/^[Bb]earer[[:space:]]+//' | sed -E 's/^CLOUDFLARE_API_TOKEN=//' | tr -d '"' | tr -d "'")"
+          echo "::add-mask::$token"
+          api() {
+            local method="$1"; shift
+            local url="$1"; shift
+            curl -sS -X "$method" "$url" -H "Authorization: Bearer $token" -H "Content-Type: application/json" "$@"
+          }
+
+          zone_json="$(api GET 'https://api.cloudflare.com/client/v4/zones?name=desorden.cat')"
+          zone_id="$(ZONE_JSON="$zone_json" node -e 'const b=JSON.parse(process.env.ZONE_JSON);process.stdout.write(b.result?.[0]?.id||"")')"
+          test -n "$zone_id"
+
+          dns="$(api GET "https://api.cloudflare.com/client/v4/zones/$zone_id/dns_records?type=TXT&name=desorden.cat&per_page=100")"
+          SPF_JSON="$dns" node - <<'NODE'
+          const b=JSON.parse(process.env.SPF_JSON);
+          const rows=(b.result||[]).filter(r=>String(r.content).includes("v=spf1"));
+          console.log("SPF_BEFORE", JSON.stringify(rows.map(r=>({id:r.id,content:r.content}))));
+          NODE
+
+          bad_id="$(SPF_JSON="$dns" node -e '
+            const b=JSON.parse(process.env.SPF_JSON);
+            const rows=(b.result||[]).filter(r=>String(r.content).includes("v=spf1") && String(r.content).includes("include:spf.webapps.net") && String(r.content).includes("+all"));
+            if(rows.length!==1){console.error("Expected exactly one +all SPF, found",rows.length);process.exit(2)}
+            process.stdout.write(rows[0].id);
+          ')"
+
+          good_count="$(SPF_JSON="$dns" node -e '
+            const b=JSON.parse(process.env.SPF_JSON);
+            const rows=(b.result||[]).filter(r=>String(r.content).includes("v=spf1") && String(r.content).includes("include:spf.webapps.net") && String(r.content).includes("~all"));
+            process.stdout.write(String(rows.length));
+          ')"
+          test "$good_count" = "1"
+
+          deleted="$(api DELETE "https://api.cloudflare.com/client/v4/zones/$zone_id/dns_records/$bad_id")"
+          DELETED="$deleted" node -e 'const b=JSON.parse(process.env.DELETED); console.log("DELETE_SUCCESS",b.success); console.log("DELETE_ERRORS",JSON.stringify(b.errors||[])); if(!b.success) process.exit(1)'
+
+          after="$(api GET "https://api.cloudflare.com/client/v4/zones/$zone_id/dns_records?type=TXT&name=desorden.cat&per_page=100")"
+          AFTER="$after" node - <<'NODE'
+          const b=JSON.parse(process.env.AFTER);
+          const rows=(b.result||[]).filter(r=>String(r.content).includes("v=spf1"));
+          console.log("SPF_AFTER", JSON.stringify(rows.map(r=>r.content)));
+          const bad=rows.filter(r=>String(r.content).includes("+all"));
+          const good=rows.filter(r=>String(r.content).includes("include:spf.webapps.net") && String(r.content).includes("~all"));
+          if(bad.length!==0 || good.length!==1 || rows.length!==1) process.exit(3);
+          NODE
