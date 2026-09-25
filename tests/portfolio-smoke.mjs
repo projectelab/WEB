@@ -82,12 +82,12 @@ test('home links to LAB and its index retains all six lines with HQ opt-in',asyn
  }
 });
 test('current portfolio clips preserve designated pages and use autoplay-ready custom controls',async()=>{
- const designated={'projectes/nutrikom':['ntk-runners-cursa'],'projectes/pugnator-nox-bellum':['nox-bellum-entrada'],'projectes/federacio-catalana-esgrima':['esgrima-accio','esgrima-retrat'],'projectes/viu-svc':['territori-rotonda-drone'],'projectes/ajuntament-sant-vicenc':['territori-esglesia-drone'],'projectes/percussio':['esdeveniment-percussio'],'laboratori/suro':['suro-retrat'],'laboratori/marina':['marina-retrat'],'laboratori/territori':['territori-esglesia-drone','territori-rotonda-drone'],'laboratori/ia-visual':['hq/ia-visual-01'],'laboratori/lip-sync':['hq/lip-sync-01']};
+ const designated={'projectes/nutrikom':['ntk-runners-cursa'],'projectes/pugnator-nox-bellum':['nox-bellum-entrada'],'projectes/federacio-catalana-esgrima':['esgrima-accio','esgrima-retrat'],'projectes/viu-svc':['territori-rotonda-drone'],'projectes/ajuntament-sant-vicenc':['esdeveniment-percussio'],'projectes/percussio':['esdeveniment-percussio'],'laboratori/suro':['suro-retrat'],'laboratori/marina':['marina-retrat'],'laboratori/territori':['territori-esglesia-drone','territori-rotonda-drone'],'laboratori/ia-visual':['hq/ia-visual-01'],'laboratori/lip-sync':['hq/lip-sync-01']};
  for(const [route,clips]of Object.entries(designated)){
   const html=await read(`public/${route}/index.html`);
   for(const clip of clips)assert(html.includes(`/media/portfolio/${clip}.mp4`),clip);
   assert.match(html,/media\.20260925-v3\.js/);
-  assert.match(html,/media-fullbleed\.20260925-v2\.css/);
+  assert.match(html,/media-fullbleed\.20260925-v3\.css/);
   for(const [tag]of html.matchAll(/<video\b[^>]*>/g)){
    assert.doesNotMatch(tag,/\scontrols(?=\s|>)/);assert.match(tag,/poster="/);assert.match(tag,/preload="none"/);assert.match(tag,/muted/);assert.match(tag,/playsinline/);
   }
@@ -176,13 +176,13 @@ test('client logos and new portfolio videos replace legacy previews',async()=>{
  assert.match(home,/\/media\/portfolio\/logo-viu-svc\.20260925\.webp/);
  assert.match(home,/\/media\/portfolio\/logo-the-club-padel\.20260925\.webp/);
  assert.doesNotMatch(home,/previews-v2\/(?:viu-svc|the-club-padel|nutrikom-ntk-runners)\.(?:mp4|webp)/);
- for(const html of [home,projects]){
-  assert.match(html,/\/media\/portfolio\/ntk-runners-cursa\.mp4/);
-  assert.match(html,/\/media\/portfolio\/ntk-runners-cursa\.webp/);
- }
+ const ntkPage=await read('public/projectes/nutrikom/index.html');
+ assert.match(ntkPage,/\/media\/portfolio\/ntk-runners-cursa\.mp4/);
+ assert.match(ntkPage,/\/media\/portfolio\/ntk-runners-cursa\.webp/);
  assert.match(projects,/\/media\/portfolio\/esgrima-accio\.mp4/);
- assert.match(projects,/\/media\/portfolio\/territori-esglesia-drone\.mp4/);
- assert.match(projects,/\/media\/portfolio\/territori-rotonda-drone\.mp4/);
+ assert.match(projects,/\/media\/portfolio\/suro-retrat\.mp4/);
+ assert.match(projects,/\/media\/portfolio\/esdeveniment-percussio\.mp4/);
+ assert.match(projects,/\/media\/portfolio\/marina-retrat\.mp4/);
  assert.doesNotMatch(home.match(/<div class="logo-marquee"[\s\S]*?<div class="work-grid">/)?.[0]||'',/pata-negra/i);
  assert.match(home,/home-extras\.20260925-v1\.css/);
  const viu=await read('public/projectes/viu-svc/index.html');
@@ -190,7 +190,8 @@ test('client logos and new portfolio videos replace legacy previews',async()=>{
  assert.doesNotMatch(viu,/\/media\/portfolio\/territori-esglesia-drone\.mp4/);
  assert.match(viu,/\/media\/portfolio\/logo-viu-svc\.20260925\.webp/);
  const town=await read('public/projectes/ajuntament-sant-vicenc/index.html');
- assert.match(town,/\/media\/portfolio\/territori-esglesia-drone\.mp4/);
+ assert.match(town,/\/media\/portfolio\/esdeveniment-percussio\.mp4/);
+ assert.doesNotMatch(town,/\/media\/portfolio\/territori-esglesia-drone\.mp4/);
  assert.doesNotMatch(town,/\/media\/portfolio\/territori-rotonda-drone\.mp4/);
  assert.match(town,/\/media\/portfolio\/logo-ajuntament-svc\.20260925\.webp/);
  const ntk=await read('public/projectes/nutrikom/index.html');
@@ -206,7 +207,7 @@ test('client logos and new portfolio videos replace legacy previews',async()=>{
 });
 
 test('portfolio videos use full-viewport width with a circular pause-resume control',async()=>{
- const css=await read('public/assets/media-fullbleed.20260925-v2.css');
+ const css=await read('public/assets/media-fullbleed.20260925-v3.css');
  const js=await read('public/assets/media.20260925-v3.js');
  assert.match(css,/\.content-video\{[^}]*width:100vw!important/);
  assert.match(css,/\.media-toggle\.media-dot::before\{[^}]*width:14px[^}]*height:14px[^}]*background:var\(--o\)/);
@@ -219,8 +220,8 @@ test('portfolio videos use full-viewport width with a circular pause-resume cont
 test('home project videos are full-width and keep the amber DESORDEN wordmark',async()=>{
  const home=await read('public/index.html');
  const css=await read('public/assets/home-portfolio.20260924-v1.css');
- assert.match(home,/media-fullbleed\.20260925-v2\.css/);
- assert.match(home,/projects-inline\.20260925-v2\.js/);
+ assert.match(home,/media-fullbleed\.20260925-v3\.css/);
+ assert.match(home,/projects-inline\.20260925-v3\.js/);
  assert.match(home,/<span class="brand-wordmark">DESORDEN<\/span>/);
  assert.doesNotMatch(home,/desorden-logo-original-v2\.png/);
  assert.match(css,/\.brand-wordmark\{[^}]*color:var\(--o\)/);
@@ -229,33 +230,52 @@ test('home project videos are full-width and keep the amber DESORDEN wordmark',a
 test('project cards expand their existing project content inline instead of navigating',async()=>{
  const home=await read('public/index.html');
  const projects=await read('public/projectes/index.html');
- const js=await read('public/assets/projects-inline.20260925-v2.js');
+ const js=await read('public/assets/projects-inline.20260925-v3.js');
  const lab=await read('public/laboratori/index.html');
- assert.match(home,/projects-inline\.20260925-v2\.js/);
- assert.match(projects,/projects-inline\.20260925-v2\.js/);
- assert.match(lab,/projects-inline\.20260925-v2\.js/);
+ assert.match(home,/projects-inline\.20260925-v3\.js/);
+ assert.match(projects,/projects-inline\.20260925-v3\.js/);
+ assert.match(lab,/projects-inline\.20260925-v3\.js/);
  assert.match(js,/event\.preventDefault\(\)/);
  assert.match(js,/fetch\(href/);
  assert.match(js,/querySelectorAll\('\.case-detail'\)/);
  assert.match(js,/aria-expanded/);
- assert.match(js,/defaultExpanded = new Set\(\['viu-svc'\]\)/);
+ assert.match(js,/defaultExpanded = new Set\(\)/);
 });
 
 test('featured mobile cards keep only the requested media open by default',async()=>{
- const css=await read('public/assets/media-fullbleed.20260925-v2.css');
+ const css=await read('public/assets/media-fullbleed.20260925-v3.css');
  const home=await read('public/index.html');
  const projects=await read('public/projectes/index.html');
  const lab=await read('public/laboratori/index.html');
  const viu=await read('public/projectes/viu-svc/index.html');
- assert.match(projects,/class="work-card inline-card inline-default-media"[\s\S]*?href="\/projectes\/pugnator-nox-bellum\/"/);
+ assert.match(projects,/class="work-card inline-card inline-default-media inline-viu-brand"[\s\S]*?href="\/projectes\/viu-svc\/"/);
  assert.match(projects,/class="work-card inline-card inline-default-media"[\s\S]*?href="\/projectes\/federacio-catalana-esgrima\/"/);
+ assert.match(projects,/class="work-card inline-card inline-default-media"[\s\S]*?href="\/laboratori\/suro\/"/);
+ assert.match(projects,/class="work-card inline-card inline-default-media"[\s\S]*?href="\/projectes\/ajuntament-sant-vicenc\/"/);
+ assert.match(projects,/class="work-card inline-card inline-default-media"[\s\S]*?href="\/laboratori\/marina\/"/);
+ assert.match(home,/class="work-card inline-card inline-default-media inline-viu-brand"[\s\S]*?href="\/projectes\/viu-svc\/"/);
  assert.match(lab,/class="work-card inline-card inline-default-media"[\s\S]*?href="\/laboratori\/suro\/"/);
  assert.match(lab,/class="work-card inline-card inline-default-media"[\s\S]*?href="\/laboratori\/marina\/"/);
- assert.match(home,/class="work-card inline-card inline-viu"[\s\S]*?href="\/projectes\/viu-svc\/"/);
  assert.match(css,/\.work-card\.inline-card>\.work-media/);
  assert.match(css,/\.work-card\.inline-default-media>\.work-media/);
- assert.match(css,/project-inline-brand/);
+ assert.match(css,/work-media--viu-brand/);
  assert.match(viu,/logo-viu-svc\.20260925\.webp/);
+});
+
+test('project order is 01-11 and only the first five expose media by default',async()=>{
+ const expected=['/projectes/viu-svc/','/projectes/federacio-catalana-esgrima/','/laboratori/suro/','/projectes/ajuntament-sant-vicenc/','/laboratori/marina/','/projectes/nutrikom/','/projectes/pugnator-nox-bellum/','/projectes/the-club-padel/','/projectes/pata-negra/','/projectes/percussio/','/projectes/producte-digital/'];
+ for(const file of ['public/index.html','public/projectes/index.html']){
+  const html=await read(file);
+  const section=file==='public/index.html'?html.split('id="projectes"')[1].split('id="lab"')[0]:html;
+  const cards=[...section.matchAll(/<article class="work-card[^"]*"[^>]*>[\s\S]*?<\/article>/g)].map(m=>m[0]);
+  assert.equal(cards.length,11,file);
+  assert.deepEqual(cards.map(card=>card.match(/href="([^"]+)"/)?.[1]),expected,file);
+  cards.forEach((card,index)=>{
+   assert.match(card,new RegExp(`<span class="work-number">${String(index+1).padStart(2,'0')}<\\/span>`));
+   if(index<5) assert.match(card,/inline-default-media/);
+   else assert.doesNotMatch(card,/<video\b|<img\b|class="work-media/);
+  });
+ }
 });
 
 test('all public pages prevent horizontal overflow and project logos stay inside the viewport',async()=>{

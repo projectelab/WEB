@@ -68,16 +68,17 @@ test('home follows the editorial sequence with real featured projects', () => {
     previous = position;
   }
   const featured = home.split('<div class="work-grid">')[1].split('<div class="more-work">')[0];
-  for (const slug of ['nutrikom','pugnator-nox-bellum']) {
-    assert(featured.includes(`/projectes/${slug}/`), slug);
+  for (const href of ['/projectes/viu-svc/','/projectes/federacio-catalana-esgrima/','/laboratori/suro/','/projectes/ajuntament-sant-vicenc/','/laboratori/marina/']) {
+    assert(featured.includes(href), href);
   }
-  assert.equal((featured.match(/<article\b/g) || []).length, 2);
-  assert.equal((featured.match(/<strong>Objectiu\.<\/strong>/g) || []).length, 2);
-  const compact = home.split('<div class="more-work">')[1].split('<a class="submit projects-all"')[0];
-  for (const slug of ['pata-negra','viu-svc','federacio-catalana-esgrima','the-club-padel']) {
-    assert(compact.includes(`/projectes/${slug}/`), slug);
+  assert.equal((featured.match(/<article\b/g) || []).length, 5);
+  const compactArea = home.split('<div class="more-work">')[1].split('<a class="submit projects-all"')[0];
+  const compact = compactArea.split('<div class="work-grid">')[1];
+  for (const href of ['/projectes/nutrikom/','/projectes/pugnator-nox-bellum/','/projectes/the-club-padel/','/projectes/pata-negra/','/projectes/percussio/','/projectes/producte-digital/']) {
+    assert(compact.includes(href), href);
   }
-  assert.doesNotMatch(compact, /<video\b/);
+  assert.equal((compact.match(/<article\b/g) || []).length, 6);
+  assert.doesNotMatch(compact, /<video\b|<img\b/);
   assert(home.indexOf('David Milla · un únic interlocutor') < home.indexOf('id="projectes"'));
   assert.equal((home.match(/id="que-faig"/g) || []).length, 1);
   for (const label of ['01 / VISUAL','02 / DIGITAL','03 / SISTEMES']) assert(home.includes(label));
