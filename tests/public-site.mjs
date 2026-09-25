@@ -88,7 +88,9 @@ test('home follows the editorial sequence with real featured projects', () => {
   for (const anchor of ['automatitzacio','rnd','com-treballem','qui-soc']) assert(home.includes(`id="${anchor}"`));
   assert.match(home, /<fieldset class="field wide service-choice"><legend>Què necessites\?<\/legend>/);
   assert.match(home, /\/assets\/home\.hero-once\.20260925\.js/);
-  assert.match(home, /\/assets\/home-extras\.20260925-v1\.css/);
+  assert.match(home, /\/assets\/home-extras\.20260925-v2\.css/);
+  assert.doesNotMatch(home, /vertical-story|card-fullscreen\.20260925|card-expand/);
+  assert.match(home, /<div class="product-grid">/);
 });
 
 test('home hero uses one lightweight one-shot video with the original still as fallback', async () => {
