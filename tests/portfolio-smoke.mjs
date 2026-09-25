@@ -86,8 +86,8 @@ test('current portfolio clips preserve designated pages and use autoplay-ready c
  for(const [route,clips]of Object.entries(designated)){
   const html=await read(`public/${route}/index.html`);
   for(const clip of clips)assert(html.includes(`/media/portfolio/${clip}.mp4`),clip);
-  assert.match(html,/media\.20260925-v2\.js/);
-  assert.match(html,/media-fullbleed\.20260925-v1\.css/);
+  assert.match(html,/media\.20260925-v3\.js/);
+  assert.match(html,/media-fullbleed\.20260925-v2\.css/);
   for(const [tag]of html.matchAll(/<video\b[^>]*>/g)){
    assert.doesNotMatch(tag,/\scontrols(?=\s|>)/);assert.match(tag,/poster="/);assert.match(tag,/preload="none"/);assert.match(tag,/muted/);assert.match(tag,/playsinline/);
   }
@@ -206,10 +206,10 @@ test('client logos and new portfolio videos replace legacy previews',async()=>{
 });
 
 test('portfolio videos use full-viewport width with a circular pause-resume control',async()=>{
- const css=await read('public/assets/media-fullbleed.20260925-v1.css');
- const js=await read('public/assets/media.20260925-v2.js');
+ const css=await read('public/assets/media-fullbleed.20260925-v2.css');
+ const js=await read('public/assets/media.20260925-v3.js');
  assert.match(css,/\.content-video\{[^}]*width:100vw!important/);
- assert.match(css,/\.media-toggle\.media-dot\{[^}]*border-radius:50%[^}]*background:var\(--o\)/);
+ assert.match(css,/\.media-toggle\.media-dot::before\{[^}]*width:14px[^}]*height:14px[^}]*background:var\(--o\)/);
  assert.match(css,/data-state="paused"/);
  assert.match(js,/button\.textContent = ''/);
  assert.match(js,/video\.removeAttribute\('controls'\)/);
@@ -219,8 +219,8 @@ test('portfolio videos use full-viewport width with a circular pause-resume cont
 test('home project videos are full-width and keep the amber DESORDEN wordmark',async()=>{
  const home=await read('public/index.html');
  const css=await read('public/assets/home-portfolio.20260924-v1.css');
- assert.match(home,/media-fullbleed\.20260925-v1\.css/);
- assert.match(home,/projects-inline\.20260925\.js/);
+ assert.match(home,/media-fullbleed\.20260925-v2\.css/);
+ assert.match(home,/projects-inline\.20260925-v2\.js/);
  assert.match(home,/<span class="brand-wordmark">DESORDEN<\/span>/);
  assert.doesNotMatch(home,/desorden-logo-original-v2\.png/);
  assert.match(css,/\.brand-wordmark\{[^}]*color:var\(--o\)/);
@@ -229,13 +229,33 @@ test('home project videos are full-width and keep the amber DESORDEN wordmark',a
 test('project cards expand their existing project content inline instead of navigating',async()=>{
  const home=await read('public/index.html');
  const projects=await read('public/projectes/index.html');
- const js=await read('public/assets/projects-inline.20260925.js');
- assert.match(home,/projects-inline\.20260925\.js/);
- assert.match(projects,/projects-inline\.20260925\.js/);
+ const js=await read('public/assets/projects-inline.20260925-v2.js');
+ const lab=await read('public/laboratori/index.html');
+ assert.match(home,/projects-inline\.20260925-v2\.js/);
+ assert.match(projects,/projects-inline\.20260925-v2\.js/);
+ assert.match(lab,/projects-inline\.20260925-v2\.js/);
  assert.match(js,/event\.preventDefault\(\)/);
  assert.match(js,/fetch\(href/);
  assert.match(js,/querySelectorAll\('\.case-detail'\)/);
  assert.match(js,/aria-expanded/);
+ assert.match(js,/defaultExpanded = new Set\(\['viu-svc'\]\)/);
+});
+
+test('featured mobile cards keep only the requested media open by default',async()=>{
+ const css=await read('public/assets/media-fullbleed.20260925-v2.css');
+ const home=await read('public/index.html');
+ const projects=await read('public/projectes/index.html');
+ const lab=await read('public/laboratori/index.html');
+ const viu=await read('public/projectes/viu-svc/index.html');
+ assert.match(projects,/class="work-card inline-card inline-default-media"[\s\S]*?href="\/projectes\/pugnator-nox-bellum\/"/);
+ assert.match(projects,/class="work-card inline-card inline-default-media"[\s\S]*?href="\/projectes\/federacio-catalana-esgrima\/"/);
+ assert.match(lab,/class="work-card inline-card inline-default-media"[\s\S]*?href="\/laboratori\/suro\/"/);
+ assert.match(lab,/class="work-card inline-card inline-default-media"[\s\S]*?href="\/laboratori\/marina\/"/);
+ assert.match(home,/class="work-card inline-card inline-viu"[\s\S]*?href="\/projectes\/viu-svc\/"/);
+ assert.match(css,/\.work-card\.inline-card>\.work-media/);
+ assert.match(css,/\.work-card\.inline-default-media>\.work-media/);
+ assert.match(css,/project-inline-brand/);
+ assert.match(viu,/logo-viu-svc\.20260925\.webp/);
 });
 
 test('all public pages prevent horizontal overflow and project logos stay inside the viewport',async()=>{
