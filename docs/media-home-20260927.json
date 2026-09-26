@@ -1,0 +1,202 @@
+[
+  {
+    "source": "public/media/hero/HERO_DAVID_VENDA_GROGA.mp4",
+    "sha256": "6c8830769dee89cfa8ef17dcfc3fac92427625055eafdb9ba81e6c50b0f44c81",
+    "source_bytes": 1128185,
+    "browser": "public/media/hero/HERO_DAVID_VENDA_GROGA.h264.mp4",
+    "browser_bytes": 502667,
+    "source_video": {
+      "codec_name": "hevc",
+      "width": 720,
+      "height": 960,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "30/1",
+      "duration": "4.099000",
+      "nb_frames": "123"
+    },
+    "browser_video": {
+      "codec_name": "h264",
+      "width": 720,
+      "height": 960,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "30/1",
+      "duration": "4.100000",
+      "nb_frames": "123"
+    }
+  },
+  {
+    "source": "public/media/portfolio/FEDERACIO_CATALANA_ESGRIMA_COPA_MON_SATELLIT_2025.mp4",
+    "sha256": "28cb8537fb5d8a1f4e3186bfc8a84252e22b8400bdd80a922bb7d43c9ec9704f",
+    "source_bytes": 3257421,
+    "browser": "public/media/portfolio/FEDERACIO_CATALANA_ESGRIMA_COPA_MON_SATELLIT_2025.h264.mp4",
+    "browser_bytes": 3778580,
+    "source_video": {
+      "codec_name": "hevc",
+      "width": 1080,
+      "height": 1080,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "24/1",
+      "duration": "5.333333",
+      "nb_frames": "128"
+    },
+    "browser_video": {
+      "codec_name": "h264",
+      "width": 1080,
+      "height": 1080,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "24/1",
+      "duration": "5.333333",
+      "nb_frames": "128"
+    }
+  },
+  {
+    "source": "public/media/portfolio/MARINA_PERSONATGE_IA.mp4",
+    "sha256": "fb4c18354e6397dfc008b9f12786408871933ab73f4139eebb3e961267d8d3ab",
+    "source_bytes": 2273164,
+    "browser": "public/media/portfolio/MARINA_PERSONATGE_IA.h264.mp4",
+    "browser_bytes": 2695182,
+    "source_video": {
+      "codec_name": "hevc",
+      "width": 1080,
+      "height": 1080,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "24/1",
+      "duration": "3.291667",
+      "nb_frames": "79"
+    },
+    "browser_video": {
+      "codec_name": "h264",
+      "width": 1080,
+      "height": 1080,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "24/1",
+      "duration": "3.291667",
+      "nb_frames": "79"
+    }
+  },
+  {
+    "source": "public/media/portfolio/NUTRIKOM_SURO.mp4",
+    "sha256": "e670045b5b694964c91815cb417dc265f8ab9e55e3fa58cf718cb6c817644ee9",
+    "source_bytes": 2644118,
+    "browser": "public/media/portfolio/NUTRIKOM_SURO.h264.mp4",
+    "browser_bytes": 2340679,
+    "source_video": {
+      "codec_name": "hevc",
+      "width": 1080,
+      "height": 1080,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "30/1",
+      "duration": "3.833333",
+      "nb_frames": "115"
+    },
+    "browser_video": {
+      "codec_name": "h264",
+      "width": 1080,
+      "height": 1080,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "30/1",
+      "duration": "3.833333",
+      "nb_frames": "115"
+    }
+  },
+  {
+    "source": "public/media/portfolio/PUCNATOR_NOX_BELLUM.mp4",
+    "sha256": "c3172bea611a025d249466e7c165dbfa556f8f965de4e823c2008f8ae5af022b",
+    "source_bytes": 3179890,
+    "browser": "public/media/portfolio/PUCNATOR_NOX_BELLUM.h264.mp4",
+    "browser_bytes": 4492351,
+    "source_video": {
+      "codec_name": "hevc",
+      "width": 1080,
+      "height": 1080,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "24/1",
+      "duration": "4.708333",
+      "nb_frames": "113"
+    },
+    "browser_video": {
+      "codec_name": "h264",
+      "width": 1080,
+      "height": 1080,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "24/1",
+      "duration": "4.708333",
+      "nb_frames": "113"
+    }
+  },
+  {
+    "source": "public/media/portfolio/SURO_SANT_VICENC_DE_CASTELLET.mp4",
+    "sha256": "7746b8ef1fde92b396cb414ca705a653df198507f4648c7496561c7cceda8532",
+    "source_bytes": 2078300,
+    "browser": "public/media/portfolio/SURO_SANT_VICENC_DE_CASTELLET.h264.mp4",
+    "browser_bytes": 1834893,
+    "source_video": {
+      "codec_name": "hevc",
+      "width": 1080,
+      "height": 1080,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "24/1",
+      "duration": "3.708333",
+      "nb_frames": "89"
+    },
+    "browser_video": {
+      "codec_name": "h264",
+      "width": 1080,
+      "height": 1080,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "24/1",
+      "duration": "3.708333",
+      "nb_frames": "89"
+    }
+  },
+  {
+    "source": "public/media/portfolio/SURO_TANCAMENT_WEB.mp4",
+    "sha256": "50fdae25e5dbc7fa5dc63b6a8ebd990474349e832f26185c76867555a0fa7e8b",
+    "source_bytes": 3058135,
+    "browser": "public/media/portfolio/SURO_TANCAMENT_WEB.h264.mp4",
+    "browser_bytes": 1685610,
+    "source_video": {
+      "codec_name": "hevc",
+      "width": 720,
+      "height": 960,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "24/1",
+      "duration": "4.832000",
+      "nb_frames": "116"
+    },
+    "browser_video": {
+      "codec_name": "h264",
+      "width": 720,
+      "height": 960,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "24/1",
+      "duration": "4.833333",
+      "nb_frames": "116"
+    }
+  },
+  {
+    "source": "public/media/portfolio/THE_CLUB_PADEL_A1PADEL_CATALUNYA_OPEN.mp4",
+    "sha256": "412644d14939e9e7fea7a3aadf4877bfcdf969fd84a2f619ac58ae5cc3f49c64",
+    "source_bytes": 3575281,
+    "browser": "public/media/portfolio/THE_CLUB_PADEL_A1PADEL_CATALUNYA_OPEN.h264.mp4",
+    "browser_bytes": 5720064,
+    "source_video": {
+      "codec_name": "hevc",
+      "width": 1080,
+      "height": 1080,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "24/1",
+      "duration": "5.375000",
+      "nb_frames": "129"
+    },
+    "browser_video": {
+      "codec_name": "h264",
+      "width": 1080,
+      "height": 1080,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "24/1",
+      "duration": "5.375000",
+      "nb_frames": "129"
+    }
+  }
+]

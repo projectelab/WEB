@@ -67,8 +67,8 @@ test('home links to LAB and its index retains all six lines with HQ opt-in',asyn
   assert(home.includes('href="/laboratori/"'));
   assert(home.includes('href="/laboratori/suro/"'));
   assert(home.includes('href="/laboratori/marina/"'));
-  assert.match(home,/data-src="\/media\/portfolio\/suro-retrat\.mp4"/);
-  assert.match(home,/data-src="\/media\/portfolio\/marina-retrat\.mp4"/);
+  assert.match(home,/data-src="\/media\/portfolio\/SURO_SANT_VICENC_DE_CASTELLET\.h264\.mp4"/);
+  assert.match(home,/data-src="\/media\/portfolio\/MARINA_PERSONATGE_IA\.h264\.mp4"/);
   const labIndex=await read('public/laboratori/index.html');
   for(const slug of labs) assert(labIndex.includes(`href="/laboratori/${slug}/"`),slug);
  for(const route of ['/','/projectes/','/laboratori/']){
@@ -145,29 +145,11 @@ test('audit hardening exposes privacy consent and richer semantic metadata',asyn
  assert.match(contact,/privacy-consent/);
 });
 
-test('client logo marquee links six real project pages and excludes Pata Negra',async()=>{
+test('clean HOME loads its own stylesheet and has no inherited menu or effects',async()=>{
  const home=await read('public/index.html');
- const marquee=home.match(/<div class="logo-marquee"[\s\S]*?<div class="work-grid">/)?.[0];
- assert.ok(marquee,'Home exposes the client logo marquee');
- assert.doesNotMatch(marquee,/pata-negra/i);
- for(const [asset,route]of [
-  ['logo-ntk.20260925.webp','nutrikom'],
-  ['logo-viu-svc.20260925.webp','viu-svc'],
-  ['logo-fce.20260925-v2.webp','federacio-catalana-esgrima'],
-  ['logo-the-club-padel.20260925.webp','the-club-padel'],
-  ['logo-pugnator.20260925.webp','pugnator-nox-bellum'],
-  ['logo-ajuntament-svc.20260925.webp','ajuntament-sant-vicenc'],
- ]){
-  assert.match(marquee,new RegExp(`href="/projectes/${route}/"[^>]*><img src="/media/portfolio/${asset.replaceAll('.','\\.')}"`));
-  await readFile(new URL(`../public/media/portfolio/${asset}`,import.meta.url));
-  await read(`public/projectes/${route}/index.html`);
- }
- const sets=[...marquee.matchAll(/<div class="logo-marquee-set"[^>]*>([\s\S]*?)<\/div>/g)];
- assert.equal(sets.length,2);
- assert.deepEqual([...sets[0][1].matchAll(/href="([^"]+)"/g)].map(x=>x[1]),[...sets[1][1].matchAll(/href="([^"]+)"/g)].map(x=>x[1]));
- const css=await read('public/assets/portfolio.20260923-v3.css');
- assert.match(css,/\.logo-marquee-set img\{[^}]*object-fit:contain/);
- assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
+ assert.deepEqual([...home.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(m=>m[1]),['/assets/home-clean.20260927.css']);
+ assert.doesNotMatch(home,/nav-menu|menu-btn|thumb-dock|project-stack|text-reveal|site\.20260925|home-extras/);
+ assert.match(home,/home-project-media\.20260927\.js/);
 });
 
 test('client logos and new portfolio videos replace legacy previews',async()=>{
@@ -185,7 +167,7 @@ test('client logos and new portfolio videos replace legacy previews',async()=>{
  assert.match(projects,/\/media\/portfolio\/esdeveniment-percussio\.mp4/);
  assert.match(projects,/\/media\/portfolio\/marina-retrat\.mp4/);
  assert.doesNotMatch(home.match(/<div class="logo-marquee"[\s\S]*?<div class="work-grid">/)?.[0]||'',/pata-negra/i);
- assert.match(home,/home-extras\.20260925-v2\.css/);
+ assert.match(home,/home-clean\.20260927\.css/);
  const viu=await read('public/projectes/viu-svc/index.html');
  assert.match(viu,/\/media\/portfolio\/territori-rotonda-drone\.mp4/);
  assert.doesNotMatch(viu,/\/media\/portfolio\/territori-esglesia-drone\.mp4/);
@@ -222,14 +204,11 @@ test('portfolio videos use full-viewport width with a circular pause-resume cont
  assert.match(js,/IntersectionObserver/);
 });
 
-test('home project videos are full-width and keep the amber DESORDEN wordmark',async()=>{
+test('home uses the supplied image logo and native disclosures',async()=>{
  const home=await read('public/index.html');
- const css=await read('public/assets/home-portfolio.20260924-v1.css');
- assert.match(home,/media-fullbleed\.20260925-v4\.css/);
- assert.match(home,/projects-inline\.20260925-v4\.js/);
- assert.match(home,/<span class="brand-wordmark">DESORDEN<\/span>/);
- assert.doesNotMatch(home,/desorden-logo-original-v2\.png/);
- assert.match(css,/\.brand-wordmark\{[^}]*color:var\(--o\)/);
+ assert.match(home,/src="\/assets\/DESORDEN_LOGO_OFICIAL\.jpg"/);
+ assert.doesNotMatch(home,/brand-wordmark|projects-inline|project-stack/);
+ assert.equal((home.match(/<details class="video-project"/g)||[]).length,6);
 });
 
 test('project cards expand their existing project content inline instead of navigating',async()=>{
@@ -237,7 +216,7 @@ test('project cards expand their existing project content inline instead of navi
  const projects=await read('public/projectes/index.html');
  const js=await read('public/assets/projects-inline.20260925-v3.js');
  const lab=await read('public/laboratori/index.html');
- assert.match(home,/projects-inline\.20260925-v4\.js/);
+ assert.match(home,/<details class="video-project"/);
  assert.match(projects,/projects-inline\.20260925-v3\.js/);
  assert.match(lab,/projects-inline\.20260925-v3\.js/);
  assert.match(js,/event\.preventDefault\(\)/);
@@ -258,7 +237,7 @@ test('featured mobile cards keep only the requested media open by default',async
  assert.match(projects,/class="work-card inline-card inline-default-media"[\s\S]*?href="\/laboratori\/suro\/"/);
  assert.match(projects,/class="work-card inline-card inline-default-media"[\s\S]*?href="\/projectes\/ajuntament-sant-vicenc\/"/);
  assert.match(projects,/class="work-card inline-card inline-default-media"[\s\S]*?href="\/laboratori\/marina\/"/);
- assert.match(home,/class="work-card inline-card inline-default-media inline-viu-brand"[\s\S]*?href="\/projectes\/viu-svc\/"/);
+ assert.match(home,/class="viu-feature"[\s\S]*?href="\/projectes\/viu-svc\/"/);
  assert.match(lab,/class="work-card inline-card inline-default-media"[\s\S]*?href="\/laboratori\/suro\/"/);
  assert.match(lab,/class="work-card inline-card inline-default-media"[\s\S]*?href="\/laboratori\/marina\/"/);
  assert.match(css,/\.work-card\.inline-card>\.work-media/);
@@ -269,7 +248,7 @@ test('featured mobile cards keep only the requested media open by default',async
 
 test('project order is 01-11 and only the first five expose media by default',async()=>{
  const expected=['/projectes/viu-svc/','/projectes/federacio-catalana-esgrima/','/laboratori/suro/','/projectes/ajuntament-sant-vicenc/','/laboratori/marina/','/projectes/nutrikom/','/projectes/pugnator-nox-bellum/','/projectes/the-club-padel/','/projectes/pata-negra/','/projectes/percussio/','/projectes/producte-digital/'];
- for(const file of ['public/index.html','public/projectes/index.html']){
+ for(const file of ['public/projectes/index.html']){
   const html=await read(file);
   const section=file==='public/index.html'?html.split('id="projectes"')[1].split('id="lab"')[0]:html;
   const cards=[...section.matchAll(/<article class="work-card[^"]*"[^>]*>[\s\S]*?<\/article>/g)].map(m=>m[0]);
@@ -290,7 +269,7 @@ test('all public pages prevent horizontal overflow and project logos stay inside
  assert.match(css,/\.project-brand img\{[^}]*max-width:min\(68vw,280px\)!important/);
  for(const route of routes){
   const html=await read(`public${route}index.html`);
-  assert.match(html,/(?:viewport-lock\.20260924-v1|home-extras\.20260925-v2|portfolio-extras\.20260925-v1|automation-extras\.20260925-v1|service-pages\.20260925-v2)\.css/,`${route}: viewport containment stylesheet`);
+  assert.match(html,/(?:home-clean\.20260927|viewport-lock\.20260924-v1|home-extras\.20260925-v2|portfolio-extras\.20260925-v1|automation-extras\.20260925-v1|service-pages\.20260925-v2)\.css/,`${route}: viewport containment stylesheet`);
  }
 });
 
@@ -338,7 +317,7 @@ test('PageSpeed assets use local Anton and optimized versioned logos',async()=>{
 test('PageSpeed CSS delivery keeps page-specific styles non-blocking',async()=>{
  for(const route of routes){
   const html=await read(`public${route}index.html`);
-  assert.match(html,/site\.20260925-v5\.css/,`${route}: critical CSS`);
+  assert.match(html,route==='/'?/home-clean\.20260927\.css/:/site\.20260925-v5\.css/,`${route}: critical CSS`);
   assert.match(html,/anton-latin\.20260925\.woff2/,`${route}: font preload`);
   const extras=[...html.matchAll(/<link rel="stylesheet" href="\/assets\/(?:home-extras\.20260925-v2|(?:portfolio|automation)-extras\.20260925-v1)\.css"[^>]*data-noncritical-css[^>]*>/g)];
   for(const link of extras){
@@ -384,7 +363,7 @@ test('contact flow opens WhatsApp directly while the existing lead backend remai
  const wrangler=JSON.parse(await read('wrangler.jsonc'));
  const privacy=await read('public/privadesa/index.html');
 
- assert.match(home,/home-extras\.20260925-v2\.css/);
+ assert.match(home,/home-clean\.20260927\.css/);
  assert.match(home,/contact\.20260924-native\.js/);
  assert.match(home,/name="need" value="Visual \/ vídeo"/);
  assert.match(home,/name="need" value="Web & digital"/);
