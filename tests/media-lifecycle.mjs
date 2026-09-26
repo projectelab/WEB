@@ -3,18 +3,19 @@ import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 import vm from 'node:vm';
 
-const source=await readFile(new URL('../public/assets/media.20260925-v6.js',import.meta.url),'utf8');
+const source=await readFile(new URL('../public/assets/media.20260927.js',import.meta.url),'utf8');
 
-function setup(reduced=false){
+function setup(reduced=false, closed=false){
  const events={},pref={matches:reduced,addEventListener(k,f){this.change=f;}},buttons=[],videos=[];let observe;
  for(let i=0;i<2;i++){
   const listeners={},attrs={},classes=new Set();
+  const disclosure={open:!closed,addEventListener(k,f){this[k]=f;}};
   const button={hidden:true,textContent:'',dataset:{},classList:{add(v){classes.add(v);}},
    setAttribute(k,v){attrs[k]=v;},addEventListener(k,f){this[k]=f;}};
   buttons.push(button);
   const host={querySelector(){return button;},classList:{add(){}},append(){}};
   const v={paused:true,loop:true,currentTime:0,dataset:{src:`clip-${i}.mp4`},loads:0,plays:0,
-   parentElement:host,classList:{add(){}},matches(){return false;},
+   disclosure,closest(){return disclosure;},parentElement:host,classList:{add(){}},matches(){return false;},
    removeAttribute(k){if(k==='loop')this.loop=false;},addEventListener(k,f){listeners[k]=f;},
    getAttribute(k){return k==='src'?this.src:null;},load(){this.loads++;},
    play(){this.plays++;this.paused=false;listeners.play?.();return Promise.resolve();},
@@ -130,4 +131,22 @@ test('late preview playback cannot revive an inactive card; desktop remains one-
  assert.equal(a.videos[0].paused,true);
  a.media.setActive(a.videos[0],true);
  assert.equal(a.videos[0].loop,false);
+});
+
+
+test('folded projects never load, opening resumes and closing pauses without resetting',async()=>{
+ const a=setup(false,true), v=a.videos[0];
+ a.enter(0,true);await Promise.resolve();
+ assert.equal(v.loads,0);
+ v.disclosure.open=true;v.disclosure.toggle();await Promise.resolve();
+ assert.equal(v.loads,1);assert.equal(v.paused,false);assert.equal(v.loop,false);
+ v.currentTime=3;
+ v.disclosure.open=false;v.disclosure.toggle();await Promise.resolve();
+ assert.equal(v.paused,true);assert.equal(v.currentTime,3);
+ v.disclosure.open=true;v.disclosure.toggle();await Promise.resolve();
+ assert.equal(v.currentTime,3);
+ v.end();
+ v.disclosure.open=false;v.disclosure.toggle();
+ v.disclosure.open=true;v.disclosure.toggle();await Promise.resolve();
+ assert.equal(v.currentTime,9);assert.equal(v.paused,true);
 });

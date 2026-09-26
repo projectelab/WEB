@@ -67,8 +67,8 @@ test('home links to LAB and its index retains all six lines with HQ opt-in',asyn
   assert(home.includes('href="/laboratori/"'));
   assert(home.includes('href="/laboratori/suro/"'));
   assert(home.includes('href="/laboratori/marina/"'));
-  assert.match(home,/data-src="\/media\/portfolio\/suro-retrat\.mp4"/);
-  assert.match(home,/data-src="\/media\/portfolio\/marina-retrat\.mp4"/);
+  assert.match(home,/data-src="\/media\/portfolio\/SURO_SANT_VICENC_DE_CASTELLET\.h264\.mp4"/);
+  assert.match(home,/data-src="\/media\/portfolio\/MARINA_PERSONATGE_IA\.h264\.mp4"/);
   const labIndex=await read('public/laboratori/index.html');
   for(const slug of labs) assert(labIndex.includes(`href="/laboratori/${slug}/"`),slug);
  for(const route of ['/','/projectes/','/laboratori/']){
@@ -145,29 +145,15 @@ test('audit hardening exposes privacy consent and richer semantic metadata',asyn
  assert.match(contact,/privacy-consent/);
 });
 
-test('client logo marquee links six real project pages and excludes Pata Negra',async()=>{
- const home=await read('public/index.html');
- const marquee=home.match(/<div class="logo-marquee"[\s\S]*?<div class="work-grid">/)?.[0];
- assert.ok(marquee,'Home exposes the client logo marquee');
- assert.doesNotMatch(marquee,/pata-negra/i);
- for(const [asset,route]of [
-  ['logo-ntk.20260925.webp','nutrikom'],
-  ['logo-viu-svc.20260925.webp','viu-svc'],
-  ['logo-fce.20260925-v2.webp','federacio-catalana-esgrima'],
-  ['logo-the-club-padel.20260925.webp','the-club-padel'],
-  ['logo-pugnator.20260925.webp','pugnator-nox-bellum'],
-  ['logo-ajuntament-svc.20260925.webp','ajuntament-sant-vicenc'],
- ]){
-  assert.match(marquee,new RegExp(`href="/projectes/${route}/"[^>]*><img src="/media/portfolio/${asset.replaceAll('.','\\.')}"`));
-  await readFile(new URL(`../public/media/portfolio/${asset}`,import.meta.url));
-  await read(`public/projectes/${route}/index.html`);
+test('primary navigation exposes exactly the three HOME areas on every public route',async()=>{
+ for(const route of routes){
+  const html=await read(`public${route}index.html`);
+  const nav=html.match(/<nav aria-label="Navegació principal">([\s\S]*?)<\/nav>/)?.[1];
+  assert(nav,route);
+  const links=[...nav.matchAll(/href="([^"]+)" class="nav-link">([^<]+)</g)];
+  assert.deepEqual(links.map(m=>m[2]),['VÍDEOS',"MODERNITZA'T",'LABS'],route);
+  assert.deepEqual(links.map(m=>m[1]),['videos','modernitzat','labs'].map(id=>`${route==='/'?'':'/'}#${id}`),route);
  }
- const sets=[...marquee.matchAll(/<div class="logo-marquee-set"[^>]*>([\s\S]*?)<\/div>/g)];
- assert.equal(sets.length,2);
- assert.deepEqual([...sets[0][1].matchAll(/href="([^"]+)"/g)].map(x=>x[1]),[...sets[1][1].matchAll(/href="([^"]+)"/g)].map(x=>x[1]));
- const css=await read('public/assets/portfolio.20260923-v3.css');
- assert.match(css,/\.logo-marquee-set img\{[^}]*object-fit:contain/);
- assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
 });
 
 test('client logos and new portfolio videos replace legacy previews',async()=>{
@@ -222,14 +208,11 @@ test('portfolio videos use full-viewport width with a circular pause-resume cont
  assert.match(js,/IntersectionObserver/);
 });
 
-test('home project videos are full-width and keep the amber DESORDEN wordmark',async()=>{
+test('home uses the supplied image logo and native disclosures',async()=>{
  const home=await read('public/index.html');
- const css=await read('public/assets/home-portfolio.20260924-v1.css');
- assert.match(home,/media-fullbleed\.20260925-v4\.css/);
- assert.match(home,/projects-inline\.20260925-v4\.js/);
- assert.match(home,/<span class="brand-wordmark">DESORDEN<\/span>/);
- assert.doesNotMatch(home,/desorden-logo-original-v2\.png/);
- assert.match(css,/\.brand-wordmark\{[^}]*color:var\(--o\)/);
+ assert.match(home,/src="\/assets\/DESORDEN_LOGO_OFICIAL\.jpg"/);
+ assert.doesNotMatch(home,/brand-wordmark|projects-inline|project-stack/);
+ assert.equal((home.match(/<details class="video-project"/g)||[]).length,6);
 });
 
 test('project cards expand their existing project content inline instead of navigating',async()=>{
@@ -237,7 +220,7 @@ test('project cards expand their existing project content inline instead of navi
  const projects=await read('public/projectes/index.html');
  const js=await read('public/assets/projects-inline.20260925-v3.js');
  const lab=await read('public/laboratori/index.html');
- assert.match(home,/projects-inline\.20260925-v4\.js/);
+ assert.match(home,/<details class="video-project"/);
  assert.match(projects,/projects-inline\.20260925-v3\.js/);
  assert.match(lab,/projects-inline\.20260925-v3\.js/);
  assert.match(js,/event\.preventDefault\(\)/);
@@ -258,7 +241,7 @@ test('featured mobile cards keep only the requested media open by default',async
  assert.match(projects,/class="work-card inline-card inline-default-media"[\s\S]*?href="\/laboratori\/suro\/"/);
  assert.match(projects,/class="work-card inline-card inline-default-media"[\s\S]*?href="\/projectes\/ajuntament-sant-vicenc\/"/);
  assert.match(projects,/class="work-card inline-card inline-default-media"[\s\S]*?href="\/laboratori\/marina\/"/);
- assert.match(home,/class="work-card inline-card inline-default-media inline-viu-brand"[\s\S]*?href="\/projectes\/viu-svc\/"/);
+ assert.match(home,/class="viu-feature"[\s\S]*?href="\/projectes\/viu-svc\/"/);
  assert.match(lab,/class="work-card inline-card inline-default-media"[\s\S]*?href="\/laboratori\/suro\/"/);
  assert.match(lab,/class="work-card inline-card inline-default-media"[\s\S]*?href="\/laboratori\/marina\/"/);
  assert.match(css,/\.work-card\.inline-card>\.work-media/);
@@ -269,7 +252,7 @@ test('featured mobile cards keep only the requested media open by default',async
 
 test('project order is 01-11 and only the first five expose media by default',async()=>{
  const expected=['/projectes/viu-svc/','/projectes/federacio-catalana-esgrima/','/laboratori/suro/','/projectes/ajuntament-sant-vicenc/','/laboratori/marina/','/projectes/nutrikom/','/projectes/pugnator-nox-bellum/','/projectes/the-club-padel/','/projectes/pata-negra/','/projectes/percussio/','/projectes/producte-digital/'];
- for(const file of ['public/index.html','public/projectes/index.html']){
+ for(const file of ['public/projectes/index.html']){
   const html=await read(file);
   const section=file==='public/index.html'?html.split('id="projectes"')[1].split('id="lab"')[0]:html;
   const cards=[...section.matchAll(/<article class="work-card[^"]*"[^>]*>[\s\S]*?<\/article>/g)].map(m=>m[0]);
