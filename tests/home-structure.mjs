@@ -6,16 +6,18 @@ import vm from 'node:vm';
 const home=await readFile(new URL('../public/index.html',import.meta.url),'utf8');
 const source=await readFile(new URL('../public/assets/home.once.20260927.js',import.meta.url),'utf8');
 
-test('six native disclosures have the requested initial state and local lazy media',()=>{
- const projects=[...home.matchAll(/<details class="video-project" id="video-([^"]+)"([^>]*)>([\s\S]*?)<\/details>/g)];
+test('six visible looping videos precede closed disclosures with only project names',()=>{
+ const projects=[...home.matchAll(/<article class="video-project" id="video-([^"]+)">([\s\S]*?)<\/article>/g)];
  assert.deepEqual(projects.map(p=>p[1]),['nutrikom','pucnator','the-club-padel','esgrima','marina','suro']);
- assert.deepEqual(projects.filter(p=>/\bopen\b/.test(p[2])).map(p=>p[1]),['nutrikom','pucnator','esgrima','marina']);
  for(const p of projects){
-  assert.match(p[3],/^<summary><h3>/);
-  const tag=p[3].match(/<video[^>]+>/)[0];
+  const content=p[2], tag=content.match(/<video[^>]+>/)[0];
+  assert(content.indexOf('<video')<content.indexOf('<details'));
+  assert.match(content,/<details class="project-details"><summary><h3>[^<]+<\/h3><\/summary>/);
+  assert.doesNotMatch(content,/<details[^>]+\bopen\b|<button|disclosure-mark/);
   assert.match(tag,/data-src="\/media\/portfolio\/[A-Z_0-9]+\.h264\.mp4"/);
   assert.match(tag,/preload="none"/);
-  assert.doesNotMatch(tag,/(?<!data-)src="|\bloop\b|\bautoplay\b/);
+  assert.match(tag,/\bloop\b/);
+  assert.doesNotMatch(tag,/(?<!data-)src="|\bcontrols\b/);
  }
  assert.doesNotMatch(home,/project-stack|drive\.google\.com|<iframe/);
  assert.equal((home.match(/Veure el vídeo complet a Instagram/g)||[]).length,4);

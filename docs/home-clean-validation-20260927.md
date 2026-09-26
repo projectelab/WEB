@@ -9,7 +9,9 @@ HOME construida con una hoja de estilos propia y únicamente los bloques pedidos
 
 Secuencia: David → logotipo oficial / significado / claim → VÍDEOS → VIU SVC destacado → MODERNITZA'T → LABS → contacto y legales → SURO como último elemento.
 
-Los seis proyectos usan desplegables HTML nativos. Nutrikom, Pucnator, Esgrima y Marina empiezan abiertos; The Club Padel y Suro cerrados. Todos siguen el flujo vertical. Cada vídeo de proyecto carga al estar abierto y visible; conserva la pausa manual y el último frame. El control permite repetirlo manualmente.
+Los seis proyectos muestran siempre el vídeo y el nombre. El texto queda en un desplegable HTML nativo cerrado inicialmente. Los vídeos cargan al entrar por primera vez en viewport y continúan en bucle aunque se haga scroll o se abra/cierre el texto. No tienen controles ni elementos superpuestos. Con preferencia inicial de movimiento reducido se mantienen los posters.
+
+Logotipo DESORDEN reducido un 40%: 210 px en móvil y 312 px en escritorio. VIU SVC reducido un 30% en HOME y página propia: 245 px en móvil y 448 px en escritorio. Las medidas se verifican a 390 y 1440 px, respectivamente.
 
 David reproduce al cargar y SURO al entrar en viewport. Ambos sin loop ni controles y sin reiniciar por scroll. Movimiento reducido utiliza posters finales sin descargar esos vídeos.
 
@@ -39,10 +41,10 @@ Hashes, tamaños y metadatos: `media-home-20260927.json`.
 | Reproducción completa de los ocho clips | PASS |
 | David y SURO mantienen el último frame al volver con scroll | PASS |
 | Inicialmente solo carga el MP4 de David | PASS |
-| Proyectos plegados sin src ni descarga de vídeo | PASS |
+| Seis proyectos: texto cerrado, vídeo visible y bucle real incluso fuera de viewport | PASS |
 | Logotipos completos y proporcionales | PASS |
-| VIU SVC en página propia centrado: 350 px móvil / 640 px escritorio | PASS |
-| Movimiento reducido y reproducción manual de proyectos | PASS |
+| VIU SVC en página propia centrado: 245 px móvil / 448 px escritorio | PASS |
+| Preferencia inicial de movimiento reducido sin descarga automática de proyectos | PASS |
 | Desplegables nativos sin JavaScript, sin overflow | PASS |
 | Contacto: validación local y foco en primer campo inválido | PASS — sin envío |
 | Contacto y SEO de HOME idénticos a la base | PASS |

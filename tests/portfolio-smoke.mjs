@@ -208,7 +208,7 @@ test('home uses the supplied image logo and native disclosures',async()=>{
  const home=await read('public/index.html');
  assert.match(home,/src="\/assets\/DESORDEN_LOGO_OFICIAL\.jpg"/);
  assert.doesNotMatch(home,/brand-wordmark|projects-inline|project-stack/);
- assert.equal((home.match(/<details class="video-project"/g)||[]).length,6);
+ assert.equal((home.match(/<details class="project-details"/g)||[]).length,6);
 });
 
 test('project cards expand their existing project content inline instead of navigating',async()=>{
@@ -216,7 +216,7 @@ test('project cards expand their existing project content inline instead of navi
  const projects=await read('public/projectes/index.html');
  const js=await read('public/assets/projects-inline.20260925-v3.js');
  const lab=await read('public/laboratori/index.html');
- assert.match(home,/<details class="video-project"/);
+ assert.match(home,/<details class="project-details"/);
  assert.match(projects,/projects-inline\.20260925-v3\.js/);
  assert.match(lab,/projects-inline\.20260925-v3\.js/);
  assert.match(js,/event\.preventDefault\(\)/);

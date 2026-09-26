@@ -18,29 +18,22 @@ button,a,input,textarea,summary{touch-action:manipulation}
 .opening,.home-epilogue{margin:0;background:#000}
 .opening video,.home-epilogue video{display:block;width:100%;height:100svh;object-fit:contain;background:#000}
 .identity{text-align:center}
-.brand-logo{display:block;width:min(100%,520px);height:auto;object-fit:contain;margin:0 auto 24px}
+.brand-logo{display:block;width:min(60%,312px);height:auto;object-fit:contain;margin:0 auto 24px}
 .brand-meaning{margin:0 0 32px;font:clamp(16px,2vw,22px)/1.5 monospace}
 h1,.display{margin:0;color:var(--amber);font:clamp(36px,9.2vw,76px)/1.05 Anton,Impact,sans-serif;letter-spacing:-.01em;overflow-wrap:anywhere}
 h1{font-size:clamp(32px,7vw,58px)}
 .display span{display:block}
 .lead{max-width:660px;color:var(--copy);margin:24px 0 0}
 .video-project-list{margin-top:40px}
-.video-project{border-top:1px solid var(--line);padding-block:24px}
-.video-project:last-child{border-bottom:1px solid var(--line)}
+.video-project{padding-block:24px}
+.project-details{max-width:760px;margin-inline:auto}
 .video-project summary{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:44px;cursor:pointer;list-style:none}
 .video-project summary::-webkit-details-marker{display:none}
 .video-project h3{margin:0;color:var(--amber);font:clamp(28px,5vw,44px)/1.12 Anton,Impact,sans-serif;overflow-wrap:anywhere}
-.disclosure-mark{flex:none;width:24px;height:24px;position:relative;color:var(--amber)}
-.disclosure-mark::before,.disclosure-mark::after{content:'';position:absolute;top:11px;left:3px;width:18px;height:2px;background:currentColor}
-.disclosure-mark::after{transform:rotate(90deg)}
-.video-project[open] .disclosure-mark::after{display:none}
 .video-project-body{padding-top:24px}
 .project-subtitle{font:clamp(18px,2vw,24px)/1.4 Anton,Impact,sans-serif;margin:0 0 24px}
-.project-video{position:relative;width:100%;max-width:760px;margin:0 auto 28px}
+.project-video{position:relative;width:100%;max-width:760px;margin:0 auto 12px}
 .project-video video{display:block;width:100%;height:auto;object-fit:contain;aspect-ratio:1;background:#000}
-.media-toggle{position:absolute;right:8px;bottom:8px;display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;background:transparent;cursor:pointer}
-.media-toggle::before{content:'';display:block;width:14px;height:14px;border-radius:50%;background:var(--amber)}
-.media-toggle[data-state=paused]::before,.media-toggle[data-state=ended]::before{background:#fff}
 .project-copy{max-width:660px;margin-inline:auto;color:var(--copy)}
 .project-copy p{margin:0 0 16px}
 .work-meta{font:13px/1.6 monospace;color:var(--amber);margin-block:24px!important}
@@ -49,7 +42,7 @@ h1{font-size:clamp(32px,7vw,58px)}
 .submit,.channel{display:inline-flex;align-items:center;gap:18px;min-height:44px;max-width:100%;padding:6px 0;border:0;background:transparent;color:var(--amber);font:15px/1.4 Anton,Impact,sans-serif;letter-spacing:.05em;text-transform:uppercase;cursor:pointer}
 .submit i{font-style:normal}
 .viu-feature{padding-top:clamp(56px,8vw,112px)}
-.viu-logo{display:block;width:min(100%,640px);margin:0 auto 40px}
+.viu-logo{display:block;width:min(70%,448px);margin:0 auto 40px}
 .viu-logo img{display:block;width:100%;height:auto;object-fit:contain}
 .labs-lines{max-width:660px;color:var(--copy);margin-top:24px}
 .labs-lines p{margin:0 0 24px}
