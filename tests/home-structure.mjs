@@ -6,13 +6,15 @@ import vm from 'node:vm';
 const home=await readFile(new URL('../public/index.html',import.meta.url),'utf8');
 const source=await readFile(new URL('../public/assets/home.once.20260927.js',import.meta.url),'utf8');
 
-test('six visible looping videos precede closed disclosures with only project names',()=>{
+test('each looping video and project name share one native disclosure target',()=>{
  const projects=[...home.matchAll(/<article class="video-project" id="video-([^"]+)">([\s\S]*?)<\/article>/g)];
  assert.deepEqual(projects.map(p=>p[1]),['nutrikom','pucnator','the-club-padel','esgrima','marina','suro']);
  for(const p of projects){
   const content=p[2], tag=content.match(/<video[^>]+>/)[0];
-  assert(content.indexOf('<video')<content.indexOf('<details'));
-  assert.match(content,/<details class="project-details"><summary><h3>[^<]+<\/h3><\/summary>/);
+  assert(content.indexOf('<summary')<content.indexOf('<video'));
+  assert(content.indexOf('</video>')<content.indexOf('</summary>'));
+  assert.match(content,/<details class="project-details"><summary aria-labelledby="project-title-[^"]+"><h3[^>]*><span class="project-video">/);
+  assert.match(content,/<span class="project-title" id="project-title-[^"]+">[^<]+<\/span><\/h3><\/summary>/);
   assert.doesNotMatch(content,/<details[^>]+\bopen\b|<button|disclosure-mark/);
   assert.match(tag,/data-src="\/media\/portfolio\/[A-Z_0-9]+\.h264\.mp4"/);
   assert.match(tag,/preload="none"/);

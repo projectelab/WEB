@@ -9,7 +9,7 @@ HOME construida con una hoja de estilos propia y únicamente los bloques pedidos
 
 Secuencia: David → logotipo oficial / significado / claim → VÍDEOS → VIU SVC destacado → MODERNITZA'T → LABS → contacto y legales → SURO como último elemento.
 
-Los seis proyectos muestran siempre el vídeo y el nombre. El texto queda en un desplegable HTML nativo cerrado inicialmente. Los vídeos cargan al entrar por primera vez en viewport y continúan en bucle aunque se haga scroll o se abra/cierre el texto. No tienen controles ni elementos superpuestos. Con preferencia inicial de movimiento reducido se mantienen los posters.
+Los seis vídeos quedan unidos, sin separación, con el nombre dentro de cada vídeo en la esquina inferior izquierda. Todo el recuadro es el activador de un desplegable HTML nativo cerrado inicialmente. Al abrirlo, el nombre pasa debajo del vídeo y aparece la descripción; al cerrarlo vuelve al interior. Los vídeos cargan al entrar por primera vez en viewport y continúan en bucle aunque se haga scroll o se abra/cierre el texto. No tienen controles. Con preferencia inicial de movimiento reducido se mantienen los posters.
 
 Logotipo DESORDEN reducido un 40%: 210 px en móvil y 312 px en escritorio. VIU SVC reducido un 30% en HOME y página propia: 245 px en móvil y 448 px en escritorio. Las medidas se verifican a 390 y 1440 px, respectivamente.
 
@@ -37,7 +37,9 @@ Hashes, tamaños y metadatos: `media-home-20260927.json`.
 | Chrome 390 × 844 y 1440 × 900 | PASS |
 | HOME sin menú ni botón heredados | PASS |
 | Desplegables con Enter/Espacio y estado inicial | PASS |
-| Sin stack, superposiciones ni overflow horizontal | PASS |
+| Seis vídeos sin separación; nombres dentro al cerrar y fuera al abrir | PASS — 390 × 844 y 1440 × 900 |
+| Apertura/cierre desde esquinas y centro del vídeo; reproducción sin pausas | PASS — seis proyectos en ambos tamaños |
+| Sin stack ni overflow horizontal | PASS |
 | Reproducción completa de los ocho clips | PASS |
 | David y SURO mantienen el último frame al volver con scroll | PASS |
 | Inicialmente solo carga el MP4 de David | PASS |
