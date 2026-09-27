@@ -1,5 +1,5 @@
 @font-face{font-family:Anton;font-style:normal;font-weight:400;font-display:swap;src:url('/assets/fonts/anton-latin.20260925.woff2') format('woff2')}
-:root{--amber:#ebb221;--copy:rgba(255,255,255,.68);--line:rgba(255,255,255,.2);--gutter:clamp(20px,4vw,56px);color-scheme:dark}
+:root{--amber:#ebb221;--copy:rgba(255,255,255,.68);--line:rgba(255,255,255,.2);--gutter:clamp(20px,4vw,56px);--film-grade:grayscale(1) sepia(.65) saturate(1.4) contrast(1.06);color-scheme:dark}
 *{box-sizing:border-box}
 html{background:#000;scroll-padding-top:24px}
 body{margin:0;background:#000;color:#fff;font:clamp(17.5px,1.5vw,20px)/1.65 Arial,sans-serif}
@@ -18,6 +18,7 @@ button,a,input,textarea,summary{touch-action:manipulation}
 .opening-claim{padding-block:clamp(32px,4vw,56px);text-align:center}
 .opening,.home-epilogue{margin:0;background:#000}
 .opening video,.home-epilogue video{display:block;width:100%;height:100svh;object-fit:contain;background:#000}
+.opening video,.project-video video,.home-epilogue video{filter:var(--film-grade)}
 .identity{text-align:center}
 .brand-logo{display:block;width:min(48%,249.6px);height:auto;object-fit:contain;margin:0 auto 24px}
 .brand-meaning{margin:0 0 32px;font:clamp(16px,2vw,22px)/1.5 monospace}
@@ -35,7 +36,7 @@ h1{font-size:clamp(32px,7vw,58px)}
 .project-details[open] .project-title{display:block;position:static;padding-top:20px;text-shadow:none}
 .video-project-body{padding-block:24px}
 .project-subtitle{font:clamp(18px,2vw,24px)/1.4 Anton,Impact,sans-serif;margin:0 0 24px}
-.project-video{display:block;width:100%;margin:0}
+.project-video{display:block;position:relative;width:100%;margin:0;perspective:1000px;overflow:hidden;background:#000}
 .project-video video{display:block;width:100%;height:auto;object-fit:contain;aspect-ratio:1;background:#000;pointer-events:none}
 .project-copy{max-width:660px;margin-inline:auto;color:var(--copy)}
 .project-copy p{margin:0 0 16px}
@@ -79,6 +80,7 @@ footer{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-betw
 .noscript{padding:0 var(--gutter);font-size:14px;color:var(--copy)}
 @media(min-width:700px){.form{grid-template-columns:repeat(2,minmax(0,1fr))}.form .wide{grid-column:1/-1}}
 @media(max-width:699px){footer{flex-direction:column;align-items:flex-start}}
+@media(max-width:699px){.opening-sequence{height:100svh;display:grid;grid-template-rows:auto minmax(0,1fr)}.opening-claim{padding-block:24px 12px}.opening-claim h1{font-size:clamp(38px,10vw,56px)}.opening{min-height:0}.opening video{height:100%}.video-projects>.inner>.display{font-size:clamp(48px,14vw,76px)}}
 @media(scripting:none){#contact-form,#contact-help{display:none}}
 /* Entry and consent belong only to the clean home. */
 html.entry-pending,html.entry-locked{overflow:hidden;scrollbar-gutter:stable}
