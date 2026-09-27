@@ -1,0 +1,43 @@
+{
+  "source_folder": "https://drive.google.com/drive/folders/1IHTsc3gHcoBURGkwGLQkeQ0wZOOfwUnT",
+  "assets": [
+    {
+      "path": "public/media/intro/PRELOADER_DESORDEN_WEB_H264.mp4",
+      "drive_id": "1ztZC18YLE78EuuVPGFbAU7bQ45DiNngx",
+      "bytes": 1135337,
+      "sha256": "e50876c450c50257fa766646affb8a18230b3d26dfbf8a2a4ccf4c3de32dba2e"
+    },
+    {
+      "path": "public/media/intro/PRELOADER_DESORDEN_POSTER.webp",
+      "drive_id": "1-rSxZAKj7ugWBxzQUWuM22qikzUXQk9u",
+      "bytes": 9976,
+      "sha256": "7616380d6a7f203deae8882db9d8d74014bf4677b8a848c25b3e6dd0639bb51f"
+    },
+    {
+      "path": "public/media/intro/PRELOADER_DESORDEN_LAST_FRAME.webp",
+      "drive_id": "1z4QUbkXXP_x09KD8BoazJ_jNXT9X8yP4",
+      "bytes": 11430,
+      "sha256": "52cc1f78a6079e71cc3749fedfddea5bf1976a9a38ed65c69676ccee22ab2ba1"
+    },
+    {
+      "path": "public/media/acreditacions/ACREDITACION_AESA.jpg",
+      "drive_id": "1GNilir6K3MHfOVYk7Nzp0XiY0uAPq3Vg",
+      "bytes": 86186,
+      "sha256": "09658b2cc0cde99459a4946efeacc823d7abf5166927939f8dbc8de8d3b8d7af"
+    },
+    {
+      "path": "public/media/acreditacions/ACREDITACION_GOOGLE_MARKETING.jpg",
+      "drive_id": "1sSuvULjfrksul5t1BCQs5mzCCEBeuwYJ",
+      "bytes": 97924,
+      "sha256": "c75d74f6fe40307c8ed5e780f8fc4e14725ed83f2aa50d8dbc6fe7a84dcad8d3"
+    }
+  ],
+  "video": {
+    "codec": "h264",
+    "width": 1080,
+    "height": 1080,
+    "fps": 60,
+    "duration_seconds": 6.633333
+  },
+  "original_downloaded": false
+}

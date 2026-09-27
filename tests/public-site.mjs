@@ -8,7 +8,6 @@ const home = await read('public/index.html');
 const automation = await read('public/automatitzacio-sistemes/index.html');
 const activeScript = (html, name) => html.match(new RegExp(`src="(/assets/${name}[^\"]+\\.js)"`))[1];
 const contactSource = await read(`public${activeScript(home, 'contact')}`);
-const homeSource = await read(`public${activeScript(home, 'home')}`);
 const demoSource = await read(`public${activeScript(automation, 'automatizacion')}`);
 
 function element() {
@@ -57,241 +56,20 @@ test('home contact validates locally and opens WhatsApp directly', () => {
   assert.doesNotMatch(contactSource, /fetch\('\/api\/contact'/);
 });
 
-test('home follows the editorial sequence with real featured projects', () => {
-  const ids = ['hero','que-faig','projectes','lab','desorden','contacte'];
+test('home keeps three areas, legacy anchors and the complete contact flow', () => {
+  const ids = ['hero','desorden','videos','modernitzat','labs','contacte'];
   let previous = -1;
   for (const id of ids) {
     const position = home.indexOf(`id="${id}"`);
     assert(position > previous, id);
     previous = position;
   }
-  const featured = home.split('<div class="work-grid" data-project-stack>')[1].split('<div class="more-work">')[0];
-  for (const href of ['/projectes/viu-svc/','/projectes/federacio-catalana-esgrima/','/laboratori/suro/','/projectes/ajuntament-sant-vicenc/','/laboratori/marina/']) {
-    assert(featured.includes(href), href);
-  }
-  assert.equal((featured.match(/<article\b/g) || []).length, 5);
-  const compactArea = home.split('<div class="more-work">')[1].split('<a class="submit projects-all"')[0];
-  const compact = compactArea.split('<div class="work-grid">')[1];
-  for (const href of ['/projectes/nutrikom/','/projectes/pugnator-nox-bellum/','/projectes/the-club-padel/','/projectes/pata-negra/','/projectes/percussio/','/projectes/producte-digital/']) {
-    assert(compact.includes(href), href);
-  }
-  assert.equal((compact.match(/<article\b/g) || []).length, 6);
-  assert.doesNotMatch(compact, /<video\b|<img\b/);
-  assert(home.indexOf('David Milla · un únic interlocutor') < home.indexOf('id="projectes"'));
-  assert.equal((home.match(/id="que-faig"/g) || []).length, 1);
-  for (const label of ['01 / VISUAL','02 / DIGITAL','03 / SISTEMES']) assert(home.includes(label));
-  assert.match(home, /href="\/automatitzacio-sistemes\/"/);
-  assert.match(home, /href="\/laboratori\/"/);
-  assert.match(home, /href="\/projectes\/producte-digital\/"/);
-  for (const anchor of ['automatitzacio','rnd','com-treballem','qui-soc']) assert(home.includes(`id="${anchor}"`));
-  assert.match(home, /<fieldset class="field wide service-choice"><legend>Què necessites\?<\/legend>/);
-  assert.match(home, /\/assets\/home\.hero-once\.20260925-v2\.js/);
-  assert.match(home, /\/assets\/home-extras\.20260925-v2\.css/);
-  assert.doesNotMatch(home, /vertical-story|card-fullscreen\.20260925|card-expand/);
-  assert.match(home, /<div class="product-grid">/);
-});
-
-test('home hero uses one lightweight one-shot video with the original still as fallback', async () => {
-  const tag = home.match(/<video class="hero-video"[^>]*>/)?.[0];
-  assert.ok(tag, 'hero video exists');
-  assert.match(tag, /data-src="\/media\/hero\/venda-once\.mp4"/);
-  assert.match(tag, /poster="\/frames\/v1\/frame_0001\.webp"/);
-  assert.match(tag, /\bmuted\b/);
-  assert.match(tag, /\bplaysinline\b/);
-  assert.match(tag, /preload="auto"/);
-  assert.doesNotMatch(tag, /\bautoplay\b|\bloop\b/);
-  assert.doesNotMatch(home, /<canvas\b|id="frame"/);
-  const bytes = await readFile(new URL('../public/media/hero/venda-once.mp4', import.meta.url));
-  assert(bytes.length < 25 * 1024 * 1024);
-  const atoms = []; let offset = 0;
-  while (offset + 8 <= bytes.length) {
-    let size = bytes.readUInt32BE(offset);
-    const atom = bytes.toString('ascii', offset + 4, offset + 8);
-    if (size === 1) size = Number(bytes.readBigUInt64BE(offset + 8));
-    atoms.push(atom);
-    if (!size) break;
-    offset += size;
-  }
-  assert(atoms.indexOf('moov') < atoms.indexOf('mdat'));
-});
-
-function heroVideo({ reduced = false, rejectPlay = false, scrollY = 0, mobile = false, storage = new Map(), storageFails = false } = {}) {
-  const timers = new Map();
-  const attrs = {};
-  const globalListeners = {};
-  const videoListeners = {};
-  const mediaListeners = {};
-  const root = element();
-  root.style.overflow = '';
-  const hero = element();
-  hero.getBoundingClientRect = () => ({ top: scrollY ? -scrollY : 0 });
-  const media = {
-    matches: reduced,
-    addEventListener(type, listener) { mediaListeners[type] = listener; }
-  };
-  const video = {
-    dataset: { src: '/media/hero/venda-once.mp4' },
-    duration: 4.041667,
-    currentTime: 0,
-    loadCount: 0,
-    pauseCount: 0,
-    playCount: 0,
-    getAttribute(name) { return attrs[name]; },
-    removeAttribute(name) { delete attrs[name]; },
-    get src() { return attrs.src || ''; },
-    set src(value) { attrs.src = value; },
-    load() { this.loadCount++; },
-    pause() { this.pauseCount++; },
-    play() {
-      this.playCount++;
-      return rejectPlay ? Promise.reject(new Error('blocked')) : Promise.resolve();
-    },
-    addEventListener(type, listener) { videoListeners[type] = listener; }
-  };
-  const window = {
-    scrollY,
-    innerHeight: 844,
-    location: {hash: ""},
-    scrollTo(x, y) { this.scrollY = y; }
-  };
-  vm.runInNewContext(homeSource, {
-    document: {
-      documentElement: root,
-      querySelector: selector => selector === '[data-hero-video]' ? video : selector === '#hero' ? hero : null
-    },
-    window,
-    matchMedia: query => query.includes("max-width") ? {matches: mobile} : media,
-    sessionStorage: { getItem: key => {if(storageFails) throw Error("unavailable"); return storage.get(key);}, setItem: (key,value) => storage.set(key,value) },
-    setTimeout: (fn,ms) => {timers.set(fn,ms); return fn;},
-    clearTimeout: id => timers.delete(id),
-    addEventListener: (type, listener) => { globalListeners[type] = listener; },
-    Set
-  });
-  const event = extra => ({ cancelable: true, prevented: false, preventDefault() { this.prevented = true; }, ...extra });
-  return {
-    video, root, media, timers,
-    error() {videoListeners.error();},
-    pagehide() {globalListeners.pagehide();},
-    tick(ms) {for(const [fn,delay] of timers) if(delay <= ms) fn();},
-    wheel(deltaY) { const e = event({ deltaY }); globalListeners.wheel(e); return e; },
-    touchStart(y) { globalListeners.touchstart(event({ touches: [{ clientY: y }] })); },
-    touchMove(y) { const e = event({ touches: [{ clientY: y }] }); globalListeners.touchmove(e); return e; },
-    key(key) { const e = event({ key }); globalListeners.keydown(e); return e; },
-    scrollTo(y) { window.scrollY = y; globalListeners.scroll?.(); },
-    scrollY() { return window.scrollY; },
-    end() { videoListeners.ended(); },
-    setReduced(value) { media.matches = value; mediaListeners.change?.({ matches: value }); }
-  };
-}
-
-test('first downward scroll plays once without blocking and holds the final frame', async () => {
-  const app = heroVideo();
-  assert.equal(app.video.src, '/media/hero/venda-once.mp4');
-  assert.equal(app.video.loadCount, 1);
-  assert.equal(app.video.playCount, 0);
-
-  const first = app.wheel(120);
-  assert.equal(first.prevented, false);
-  assert.equal(app.video.playCount, 1);
-
-  const during = app.wheel(120);
-  assert.equal(during.prevented, false);
-  assert.equal(app.video.playCount, 1);
-
-  app.end();
-  assert.equal(app.video.pauseCount, 1);
-  assert(Math.abs(app.video.currentTime - (app.video.duration - 1 / 24)) < 1e-6);
-
-  const after = app.wheel(120);
-  assert.equal(after.prevented, false);
-  assert.equal(app.video.playCount, 1);
-});
-
-test('touch and keyboard can trigger the one-shot hero while reduced motion never traps scrolling', async () => {
-  const touch = heroVideo();
-  touch.touchStart(700);
-  const swipe = touch.touchMove(620);
-  assert.equal(swipe.prevented, false);
-  assert.equal(touch.video.playCount, 1);
-
-  const keyboard = heroVideo();
-  const key = keyboard.key('ArrowDown');
-  assert.equal(key.prevented, false);
-  assert.equal(keyboard.video.playCount, 1);
-
-  const reduced = heroVideo({ reduced: true });
-  assert.equal(reduced.video.src, '');
-  assert.equal(reduced.video.playCount, 0);
-  const reducedScroll = reduced.wheel(120);
-  assert.equal(reducedScroll.prevented, false);
-  assert.equal(reduced.video.playCount, 0);
-
-  const blocked = heroVideo({ rejectPlay: true });
-  blocked.wheel(120);
-  await new Promise(resolve => setImmediate(resolve));
-  assert.equal(blocked.video.playCount, 1);
-});
-
-test('desktop native scroll fallback triggers the hero without resetting scroll position', () => {
-  const app = heroVideo();
-  app.scrollTo(48);
-  assert.equal(app.video.playCount, 1);
-  assert.equal(app.scrollY(), 48);
-});
-
-test('hero trigger only applies near the top of the page', () => {
-  const app = heroVideo({ scrollY: 500 });
-  const event = app.wheel(120);
-  assert.equal(event.prevented, false);
-  assert.equal(app.video.playCount, 0);
-});
-
-test('mobile intro autoplays and releases scroll at 2000ms even if video never loads', () => {
-  const app = heroVideo({mobile:true});
-  assert.equal(app.video.playCount, 1);
-  assert.equal(app.root.style.overflow, 'hidden');
-  assert.deepEqual([...app.timers.values()], [2000]);
-  app.tick(1999);
-  assert.equal(app.root.style.overflow, 'hidden');
-  app.tick(2000);
-  assert.equal(app.root.style.overflow, '');
-  assert.equal(app.video.pauseCount, 0, 'timeout releases scrolling without cutting the video');
-  app.end();
-  assert(Math.abs(app.video.currentTime - (app.video.duration - 1 / 24)) < 1e-6);
-});
-
-test('mobile lock runs once per session, and unavailable storage never locks', () => {
-  const storage = new Map();
-  const first = heroVideo({mobile:true,storage});
-  assert.equal(first.root.style.overflow, 'hidden');
-  first.pagehide();
-  assert.equal(first.root.style.overflow, '');
-  const back = heroVideo({mobile:true,storage});
-  assert.equal(back.root.style.overflow, '');
-  assert.equal(back.timers.size, 0);
-  const unavailable = heroVideo({mobile:true,storageFails:true});
-  assert.equal(unavailable.root.style.overflow, '');
-  assert.equal(unavailable.video.playCount, 1);
-});
-
-test('mobile error, rejected autoplay, early end and reduced motion immediately release the lock', async () => {
-  for (const action of ['error','end','pagehide']) {
-    const app = heroVideo({mobile:true});
-    app[action]();
-    assert.equal(app.root.style.overflow, '', action);
-    assert.equal(app.timers.size, 0);
-  }
-  const rejected = heroVideo({mobile:true,rejectPlay:true});
-  await Promise.resolve();
-  assert.equal(rejected.root.style.overflow, '');
-  const reduced = heroVideo({mobile:true,reduced:true});
-  assert.equal(reduced.root.style.overflow, '');
-  assert.equal(reduced.video.playCount, 0);
-  assert.equal(reduced.video.src, '');
-  const changed = heroVideo({mobile:true});
-  changed.setReduced(true);
-  assert.equal(changed.root.style.overflow, '');
-  assert.equal(changed.video.src, '');
+  for (const anchor of ['projectes','que-faig','automatitzacio','rnd','com-treballem','qui-soc','lab'])
+    assert(home.includes(`id="${anchor}"`));
+  for (const url of ['/automatitzacio-sistemes/','/laboratori/','/projectes/producte-digital/','/disseny-web/'])
+    assert(home.includes(`href="${url}"`));
+  assert.doesNotMatch(home, /project-stack|projects-inline|brand-wordmark/);
+  assert.match(home, /Descobrir · Ordenar · Denotar/);
 });
 
 test('demo keyboard navigation updates its panel label and playback can be stopped', () => {
