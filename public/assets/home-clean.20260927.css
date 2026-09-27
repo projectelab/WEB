@@ -114,3 +114,16 @@ html.entry-pending,html.entry-locked{overflow:hidden;scrollbar-gutter:stable}
 .accreditations figcaption{max-width:330px;margin:auto;color:var(--copy);font-size:14px;line-height:1.5}
 @media(min-width:700px){.accreditations{grid-template-columns:1fr 1fr}}
 @media(prefers-reduced-motion:reduce){.entry{transition-duration:.08s}}
+/* Canonical two-set marquee; durations retain the original distance per second. */
+.logo-marquee{overflow:hidden;margin:18px calc(var(--gutter)*-1) 48px;padding-block:12px;background:#000}
+.logo-marquee-track{display:flex;width:max-content;will-change:transform;animation:logo-marquee-left 39.6667s linear infinite}
+.logo-marquee-set{display:flex;flex:none;align-items:center;gap:11px;padding-right:11px}
+.logo-marquee-set a{display:grid;place-items:center;flex:none;width:111px;height:87px;background:#000;text-decoration:none;touch-action:pan-y}
+.logo-marquee-set img{display:block;width:auto;height:64px;object-fit:contain;transition:opacity .18s ease}
+.logo-marquee-set a:hover img,.logo-marquee-set a:focus-visible img{opacity:.8}
+.logo-marquee-set a:focus-visible{outline:2px solid var(--amber);outline-offset:-3px}
+.logo-marquee:focus-within .logo-marquee-track{animation-play-state:paused}
+@media(hover:hover){.logo-marquee:hover .logo-marquee-track{animation-play-state:paused}}
+@keyframes logo-marquee-left{to{transform:translate3d(-50%,0,0)}}
+@media(min-width:700px){.logo-marquee-set a{width:155px;height:105px}.logo-marquee-set img{height:76px}.logo-marquee-set{gap:17px;padding-right:17px}.logo-marquee-track{animation-duration:45.49s}}
+@media(prefers-reduced-motion:reduce){.logo-marquee{overflow-x:auto;scrollbar-width:thin}.logo-marquee-track{animation:none;will-change:auto}.logo-marquee-set[aria-hidden=true]{display:none}}
