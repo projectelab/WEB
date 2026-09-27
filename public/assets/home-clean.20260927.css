@@ -80,3 +80,37 @@ footer{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-betw
 @media(min-width:700px){.form{grid-template-columns:repeat(2,minmax(0,1fr))}.form .wide{grid-column:1/-1}}
 @media(max-width:699px){footer{flex-direction:column;align-items:flex-start}}
 @media(scripting:none){#contact-form,#contact-help{display:none}}
+/* Entry and consent belong only to the clean home. */
+html.entry-pending,html.entry-locked{overflow:hidden;scrollbar-gutter:stable}
+.entry-pending .shell,.entry-pending .home-epilogue,.entry-pending .skip{visibility:hidden}
+.entry{position:fixed;inset:0;width:100%;max-width:none;height:100%;height:100dvh;max-height:none;margin:0;padding:clamp(20px,4vh,40px) var(--gutter);border:0;background:#000;color:var(--amber);overflow:auto;opacity:1;transition:opacity .55s ease}
+.entry[open]{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.entry::backdrop{background:transparent}
+.entry-stage{width:min(100%,440px,52svh);flex:none}
+.entry-stage video,.entry-still{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:contain;background:#000}
+.entry-progress{margin:8px 0 20px;font:13px/1.5 monospace;font-variant-numeric:tabular-nums}
+.entry-consent{width:min(100%,440px);text-align:center;color:var(--copy);font-size:13px;line-height:1.55}
+.entry-consent p{margin:0 0 8px}
+.cookie-note{font-size:12px}
+.cookie-actions{display:flex;justify-content:center;gap:24px;margin-top:12px}
+.cookie-actions button,.cookie-close,.cookie-review{border:0;background:transparent;color:var(--amber);min-height:44px;padding:8px 12px;cursor:pointer}
+.cookie-actions button{font:16px/1.4 Anton,Impact,sans-serif;min-width:96px}
+.entry.entry-leaving{opacity:0;pointer-events:none}
+.cookie-preferences{width:min(calc(100% - 40px),480px);padding:28px;border:1px solid var(--amber);background:#000;color:#fff;text-align:center}
+.cookie-preferences::backdrop{background:rgba(0,0,0,.85)}
+.cookie-preferences h2{font:26px/1.2 Anton,Impact,sans-serif;color:var(--amber)}
+.cookie-preferences p{font-size:15px;color:var(--copy)}
+.cookie-close{display:block;margin:12px auto 0;font-size:13px}
+.cookie-review{padding-inline:0;font:inherit}
+.about{padding-top:0}
+.about h2{font:clamp(24px,3vw,32px)/1.2 Anton,Impact,sans-serif;color:var(--amber);margin:0 0 24px}
+.about-copy{max-width:660px;color:var(--copy);margin:0 0 40px}
+.about h3{font:14px/1.5 monospace;color:var(--amber);margin:0 0 28px}
+.accreditations{display:grid;gap:36px;max-width:760px}
+.accreditations figure{margin:0;text-align:center}
+.accreditations img{display:block;height:144px;max-width:100%;object-fit:contain;margin:0 auto 16px}
+.accreditation-aesa{width:144px}
+.accreditation-google{width:256px}
+.accreditations figcaption{max-width:330px;margin:auto;color:var(--copy);font-size:14px;line-height:1.5}
+@media(min-width:700px){.accreditations{grid-template-columns:1fr 1fr}}
+@media(prefers-reduced-motion:reduce){.entry{transition-duration:.08s}}

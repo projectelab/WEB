@@ -10,7 +10,13 @@
 
     function update() {
       if (finished) return;
-      if (preference.matches || document.hidden || !visible) {
+      if (video.dataset.entryFallback === 'true') {
+        finished = true;
+        video.pause();
+        video.poster = video.dataset.still;
+        return;
+      }
+      if (window.desordenEntry?.active || preference.matches || document.hidden || !visible) {
         video.pause();
         if (!video.getAttribute('src') && preference.matches) video.poster = video.dataset.still;
         return;
@@ -27,7 +33,7 @@
       // Resume the same playback after visibility changes; never seek back to zero.
       video.play().then(() => {
         pending = false;
-        if (preference.matches || document.hidden || !visible) video.pause();
+        if (window.desordenEntry?.active || video.dataset.entryFallback === 'true' || preference.matches || document.hidden || !visible) video.pause();
       }).catch(() => { pending = false; });
     }
 
@@ -60,6 +66,7 @@
       }
     }
     preference.addEventListener('change', update);
+    document.addEventListener('desorden:entry-reveal', update);
     document.addEventListener('visibilitychange', update);
     // A browser that blocks autoplay can retry on the next user interaction.
     document.addEventListener('pointerdown', update, { passive: true });

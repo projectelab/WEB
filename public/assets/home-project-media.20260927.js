@@ -6,7 +6,7 @@
     let pending = false;
 
     function play() {
-      if (!activated || preference.matches || pending || !video.paused) return;
+      if (window.desordenEntry?.active || !activated || preference.matches || pending || !video.paused) return;
       if (!video.getAttribute('src')) {
         video.muted = true;
         video.playsInline = true;
@@ -41,6 +41,7 @@
       checkViewport();
     }
     // Retry a browser-blocked autoplay only after an actual user interaction.
+    document.addEventListener('desorden:entry-reveal', play);
     document.addEventListener('pointerdown', play, { passive: true });
     document.addEventListener('keydown', play);
     preference.addEventListener('change', play);

@@ -63,9 +63,31 @@
 </script>
 
 <link rel="stylesheet" href="/assets/home-clean.20260927.css">
+<script src="/assets/home-entry.20260927.js"></script>
 </head>
 <body class="home-clean">
+<dialog class="entry" id="entry" aria-labelledby="entry-title" tabindex="-1" hidden>
+<h2 class="visually-hidden" id="entry-title">Benvingut a DESORDEN</h2>
+<div class="entry-stage">
+<video autoplay muted playsinline preload="none" data-src="/media/intro/PRELOADER_DESORDEN_WEB_H264.mp4" poster="/media/intro/PRELOADER_DESORDEN_POSTER.webp" width="1080" height="1080" aria-hidden="true"></video>
+<img class="entry-still" src="/media/intro/PRELOADER_DESORDEN_LAST_FRAME.webp" width="1080" height="1080" alt="DESORDEN" hidden>
+</div>
+<p class="entry-progress" aria-hidden="true">0%</p>
+<div class="entry-consent">
+<p>Utilitzem cookies necessàries per al funcionament del web. L’analítica opcional requereix el teu consentiment.</p>
+<p class="cookie-note">Actualment no hi ha serveis d’analítica actius.</p>
+<div class="cookie-actions"><button type="button" data-cookie-choice="accepted">Acceptar</button><button type="button" data-cookie-choice="rejected">Rebutjar</button></div>
+</div>
+</dialog>
+<dialog class="cookie-preferences" id="cookie-preferences" aria-labelledby="cookie-title">
+<h2 id="cookie-title">Preferències de cookies</h2>
+<p>Pots acceptar o rebutjar l’analítica opcional. Actualment no hi ha serveis d’analítica actius.</p>
+<div class="cookie-actions"><button type="button" data-cookie-choice="accepted">Acceptar</button><button type="button" data-cookie-choice="rejected">Rebutjar</button></div>
+<button class="cookie-close" type="button" data-cookie-close>Tancar</button>
+</dialog>
 
+
+<noscript><p class="noscript">Pots accedir al web sense JavaScript. La introducció s’omet i no s’activa cap servei d’analítica.</p></noscript>
 <a class="skip" href="#main">Anar al contingut</a>
 <div class="shell">
 <main id="main" tabindex="-1">
@@ -79,7 +101,7 @@
 </div></section>
 
 <section class="section video-projects" id="videos" aria-labelledby="videos-title"><div class="inner">
-<span id="qui-soc" class="anchor-alias" aria-hidden="true"></span><span id="projectes" class="anchor-alias" aria-hidden="true"></span><span id="que-faig" class="anchor-alias" aria-hidden="true"></span><span id="que-resolem" class="anchor-alias" aria-hidden="true"></span>
+<span id="projectes" class="anchor-alias" aria-hidden="true"></span><span id="que-faig" class="anchor-alias" aria-hidden="true"></span><span id="que-resolem" class="anchor-alias" aria-hidden="true"></span>
 <h2 class="display" id="videos-title">VÍDEOS</h2>
 <p class="lead">Vídeo vertical per a xarxes socials. Gravació, dron, intel·ligència artificial i edició segons el que necessiti cada projecte. M'encarrego de tot el procés, de la idea a la peça final.</p>
 <div class="video-project-list">
@@ -125,6 +147,16 @@
 </div>
 </div></section>
 
+<section class="section about" id="qui-soc" aria-labelledby="about-title"><div class="inner">
+<h2 id="about-title">Qui soc</h2>
+<p class="about-copy">Soc en David Milla, la persona darrere de DESORDEN. Creo contingut audiovisual per a comerços, empreses i projectes, des de la idea fins a la peça final.</p>
+<h3>FORMACIÓ I ACREDITACIONS</h3>
+<div class="accreditations">
+<figure><img class="accreditation-aesa" src="/media/acreditacions/ACREDITACION_AESA.jpg" width="1536" height="1536" loading="lazy" alt="AESA"><figcaption>Pilot de dron · AESA</figcaption></figure>
+<figure><img class="accreditation-google" src="/media/acreditacions/ACREDITACION_GOOGLE_MARKETING.jpg" width="1536" height="864" loading="lazy" alt="Google · Fundamentals of Digital Marketing Certification"><figcaption>Certificació en Fonaments del Màrqueting Digital · Google</figcaption></figure>
+</div>
+</div></section>
+
 <section class="section contact" id="contacte" data-n="05" aria-labelledby="contact-title"><div class="inner">
 <h2 class="display" id="contact-title"><span>PARLEM DEL</span><span>TEU PROJECTE</span></h2>
 <p class="lead">Una idea, una web, una peça visual o un procés que vols simplificar.</p>
@@ -162,7 +194,7 @@
 
 <p class="note" id="contact-help">La consulta s’envia directament des d’aquesta web. WhatsApp queda com a opció addicional després de l’enviament.</p>
 <div class="channels"><a class="channel" href="https://wa.me/34640925788?text=Hola%20David%2C%20m%27agradaria%20parlar%20d%27un%20projecte." target="_blank" rel="noopener noreferrer">WHATSAPP ›</a><a class="channel" href="mailto:lab@desorden.cat">CORREU ›</a><a class="channel" href="https://www.instagram.com/desorden.cat/" target="_blank" rel="noopener noreferrer">INSTAGRAM ›</a></div>
-<footer><span>DESORDEN · <span id="year">2026</span></span><nav class="legal-links service-footer-links" aria-label="Serveis"><a href="/produccio-audiovisual/">Producció audiovisual</a><a href="/produccio-audiovisual/dron-video-aeri/">Dron i vídeo aeri</a><a href="/automatitzacio-sistemes/">Automatització i sistemes</a><a href="/disseny-web/">Disseny web</a></nav><nav class="legal-links" aria-label="Informació legal"><a href="/avis-legal/">Avís legal</a><a href="/privadesa/">Privadesa</a><a href="/cookies/">Cookies</a></nav></footer>
+<footer><span>DESORDEN · <span id="year">2026</span></span><nav class="legal-links service-footer-links" aria-label="Serveis"><a href="/produccio-audiovisual/">Producció audiovisual</a><a href="/produccio-audiovisual/dron-video-aeri/">Dron i vídeo aeri</a><a href="/automatitzacio-sistemes/">Automatització i sistemes</a><a href="/disseny-web/">Disseny web</a></nav><nav class="legal-links" aria-label="Informació legal"><a href="/avis-legal/">Avís legal</a><a href="/privadesa/">Privadesa</a><a href="/cookies/">Cookies</a><button class="cookie-review" id="cookie-review" type="button" hidden>Revisar cookies</button></nav></footer>
 </div></section>
 </main></div>
 

@@ -51,7 +51,7 @@ test('each new browser MP4 is local, faststart, H264 and below the asset limit',
  }
 });
 
-function setup({reduced=false,reject=false,observer=true}={}){
+function setup({reduced=false,reject=false,observer=true,entryActive=false,preparedHero=false,entryFallback=false}={}){
  const listeners={},observers=[],events={};
  const preference={matches:reduced,addEventListener(k,fn){listeners[k]=fn;}};
  const videos=['load','viewport'].map(trigger=>{
@@ -65,12 +65,15 @@ function setup({reduced=false,reject=false,observer=true}={}){
    end(){this.currentTime=5;this.paused=true;handlers.ended();}
   };
  });
+ const entry={active:entryActive};
+ if(preparedHero)videos[0].src='load.mp4';
+ if(entryFallback)videos[0].dataset.entryFallback='true';
  const document={hidden:false,querySelectorAll(){return videos;},addEventListener(k,fn){(events[k]??=[]).push(fn);}};
- vm.runInNewContext(source,{document,matchMedia:()=>preference,window:observer?{IntersectionObserver:true}:{},innerHeight:844,
+ vm.runInNewContext(source,{document,matchMedia:()=>preference,window:{desordenEntry:entry,...(observer?{IntersectionObserver:true}:{})},innerHeight:844,
   addEventListener(k,fn){events[k]=[fn];},
   IntersectionObserver:class{constructor(fn){observers.push(fn);}observe(){}}
  });
- return {videos,document,preference,enter(on){observers[0]([{isIntersecting:on,intersectionRatio:on?1:0}]);},
+ return {videos,document,preference,entry,enter(on){observers[0]([{isIntersecting:on,intersectionRatio:on?1:0}]);},
   event(type){events[type]?.forEach(fn=>fn());},reduce(on){preference.matches=on;listeners.change?.();}};
 }
 
@@ -104,4 +107,19 @@ test('blocked autoplay is recoverable and browsers without observers do not prel
  a.event('pointerdown');assert.equal(a.videos[0].plays,2);
  const b=setup({observer:false});assert.equal(b.videos[1].loads,0);
  b.event('scroll');assert.equal(b.videos[1].loads,0);
+});
+
+test('entry keeps prepared hero and visible epilogue paused until the reveal event',async()=>{
+ const a=setup({entryActive:true,preparedHero:true}),[hero,end]=a.videos;
+ a.enter(true);a.event('pointerdown');a.event('keydown');a.event('visibilitychange');
+ for(const v of a.videos){assert.equal(v.plays,0);assert.equal(v.loads,0);assert.equal(v.currentTime,0);assert.equal(v.paused,true);}
+ a.entry.active=false;a.event('desorden:entry-reveal');await Promise.resolve();
+ assert.equal(hero.plays,1);assert.equal(hero.loads,0);assert.equal(hero.currentTime,0);
+ assert.equal(end.plays,1);assert.equal(end.loads,1);
+});
+
+test('entry fallback keeps the hero still after reveal and later user interactions',()=>{
+ const a=setup({entryActive:true,entryFallback:true}),hero=a.videos[0];
+ a.entry.active=false;a.event('desorden:entry-reveal');a.event('pointerdown');a.event('keydown');
+ assert.equal(hero.poster,'last.webp');assert.equal(hero.loads,0);assert.equal(hero.plays,0);assert.equal(hero.paused,true);
 });
