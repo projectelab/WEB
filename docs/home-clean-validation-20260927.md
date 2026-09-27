@@ -7,11 +7,11 @@ Rama: `feat/home-clean-start-20260927`.
 
 HOME construida con una hoja de estilos propia y únicamente los bloques pedidos. Sin menú por indicación expresa del usuario. No carga el botón flotante, menú, stack, efectos de texto ni hojas de estilos de la HOME anterior.
 
-Secuencia: David → logotipo oficial / significado / claim → VÍDEOS → VIU SVC destacado → MODERNITZA'T → LABS → contacto y legales → SURO como último elemento.
+Secuencia: claim → David → logotipo oficial / significado → VÍDEOS → VIU SVC destacado → MODERNITZA'T → LABS → contacto y legales → SURO como último elemento.
 
 Los seis vídeos quedan unidos, sin separación, con el nombre dentro de cada vídeo en la esquina inferior izquierda. Todo el recuadro es el activador de un desplegable HTML nativo cerrado inicialmente. Al abrirlo, el nombre pasa debajo del vídeo y aparece la descripción; al cerrarlo vuelve al interior. Los vídeos cargan al entrar por primera vez en viewport y continúan en bucle aunque se haga scroll o se abra/cierre el texto. No tienen controles. Con preferencia inicial de movimiento reducido se mantienen los posters.
 
-Logotipo DESORDEN reducido un 40%: 210 px en móvil y 312 px en escritorio. VIU SVC reducido un 30% en HOME y página propia: 245 px en móvil y 448 px en escritorio. Las medidas se verifican a 390 y 1440 px, respectivamente.
+El claim «Si no et veuen, no et trien.» abre la página por encima del vídeo de David. Logotipo DESORDEN reducido un 20% adicional sobre el tamaño anterior: 168 px en móvil y 249,6 px en escritorio (reducción acumulada del 52%). VIU SVC reducido un 30% en HOME y página propia: 245 px en móvil y 448 px en escritorio. Las medidas se verifican a 390 y 1440 px, respectivamente.
 
 David reproduce al cargar y SURO al entrar en viewport. Ambos sin loop ni controles y sin reiniciar por scroll. Movimiento reducido utiliza posters finales sin descargar esos vídeos.
 

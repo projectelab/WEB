@@ -15,10 +15,11 @@ button,a,input,textarea,summary{touch-action:manipulation}
 .inner{width:min(100%,1200px);margin-inline:auto;padding-inline:var(--gutter)}
 .section{position:relative;padding-block:clamp(56px,8vw,112px)}
 .anchor-alias{position:absolute;top:0}
+.opening-claim{padding-block:clamp(32px,4vw,56px);text-align:center}
 .opening,.home-epilogue{margin:0;background:#000}
 .opening video,.home-epilogue video{display:block;width:100%;height:100svh;object-fit:contain;background:#000}
 .identity{text-align:center}
-.brand-logo{display:block;width:min(60%,312px);height:auto;object-fit:contain;margin:0 auto 24px}
+.brand-logo{display:block;width:min(48%,249.6px);height:auto;object-fit:contain;margin:0 auto 24px}
 .brand-meaning{margin:0 0 32px;font:clamp(16px,2vw,22px)/1.5 monospace}
 h1,.display{margin:0;color:var(--amber);font:clamp(36px,9.2vw,76px)/1.05 Anton,Impact,sans-serif;letter-spacing:-.01em;overflow-wrap:anywhere}
 h1{font-size:clamp(32px,7vw,58px)}
